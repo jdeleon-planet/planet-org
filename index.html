@@ -6,21 +6,24 @@
 <title>Organigrama — Planet Solar</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #242836;
-    --border: #2e3348;
-    --text: #e4e6f0;
-    --text2: #8b8fa8;
+    --bg: #f0f2f5;
+    --card: #4a6fa5;
+    --card-hover: #3d5d8a;
+    --card-text: #ffffff;
+    --card-sub: #c8d8ec;
+    --line: #9cb0cc;
+    --header-bg: #2c3e6b;
+    --header-text: #ffffff;
+    --search-bg: #ffffff;
+    --border: #d0d5dd;
+    --text: #1d2939;
+    --text2: #667085;
     --accent: #f59e0b;
-    --accent2: #d97706;
     --green: #22c55e;
     --red: #ef4444;
-    --blue: #3b82f6;
   }
 
   body {
@@ -32,275 +35,313 @@
 
   /* ── Header ── */
   .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 28px;
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 18px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  .header-left { display: flex; align-items: center; gap: 14px; }
-  .header h1 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-  }
-  .header .subtitle { font-size: 0.82rem; color: var(--text2); }
+  .header h1 { font-size: 1.25rem; font-weight: 700; }
+  .header .subtitle { font-size: 0.8rem; opacity: 0.7; }
+  .stats { display: flex; gap: 16px; font-size: 0.82rem; opacity: 0.85; }
+  .stats strong { color: #fff; }
 
-  .stats {
-    display: flex; gap: 18px; font-size: 0.82rem; color: var(--text2);
-  }
-  .stats span strong { color: var(--text); font-weight: 600; }
-
-  /* ── Search ── */
+  /* ── Toolbar ── */
   .toolbar {
-    padding: 14px 28px;
-    background: var(--surface);
+    background: #fff;
+    padding: 12px 28px;
     border-bottom: 1px solid var(--border);
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 60px;
+    z-index: 99;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+  .search-wrap svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; stroke: var(--text2);
   }
   .search-box {
-    flex: 1; min-width: 220px; max-width: 400px;
-    padding: 9px 14px 9px 36px;
-    background: var(--surface2);
+    width: 100%;
+    padding: 8px 12px 8px 34px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    color: var(--text);
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-family: inherit;
     outline: none;
     transition: border-color 0.2s;
   }
-  .search-box:focus { border-color: var(--accent); }
-  .search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 400px; }
-  .search-wrap svg {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    width: 16px; height: 16px; stroke: var(--text2);
-  }
-  .search-wrap .search-box { width: 100%; }
+  .search-box:focus { border-color: var(--card); }
 
   .btn {
-    padding: 9px 16px;
-    background: var(--surface2);
+    padding: 8px 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    color: var(--text);
-    font-size: 0.82rem;
+    background: #fff;
+    font-size: 0.8rem;
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
   }
-  .btn:hover { background: var(--border); }
+  .btn:hover { background: #f3f4f6; }
   .btn-accent { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-  .btn-accent:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn-accent:hover { background: #d97706; }
 
-  /* ── Tree ── */
-  .container { padding: 20px 28px 60px; }
-
-  .tree ul {
-    list-style: none;
-    padding-left: 24px;
-    border-left: 1px solid var(--border);
-    margin-left: 12px;
-  }
-  .tree > ul { border-left: none; padding-left: 0; margin-left: 0; }
-
-  .tree li { position: relative; }
-
-  .node {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    margin: 3px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s;
-    user-select: none;
-  }
-  .node:hover { background: var(--surface2); }
-
-  .toggle {
-    width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem;
-    color: var(--text2);
-    background: var(--surface2);
-    border-radius: 5px;
-    flex-shrink: 0;
-    transition: transform 0.2s, background 0.2s;
-  }
-  .toggle.open { transform: rotate(90deg); }
-  .toggle.leaf { visibility: hidden; }
-
-  .node-info { flex: 1; min-width: 0; }
-  .node-name {
-    font-weight: 600;
-    font-size: 0.92rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .node-meta {
-    font-size: 0.78rem;
-    color: var(--text2);
-    display: flex;
-    gap: 10px;
-    margin-top: 2px;
+  /* ── Chart Container ── */
+  .chart-wrap {
+    overflow: auto;
+    padding: 40px 20px 60px;
+    min-height: calc(100vh - 130px);
   }
 
-  .badge {
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-  .badge-active { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge-inactive { background: rgba(239,68,68,0.15); color: var(--red); }
-  .badge-count {
-    background: var(--surface2);
-    color: var(--text2);
-    font-size: 0.72rem;
-    padding: 2px 8px;
-    border-radius: 20px;
-  }
-
-  .children { overflow: hidden; }
-  .children.collapsed { display: none; }
-
-  /* ── Orphans ── */
-  .section-title {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text2);
-    margin: 30px 0 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* ── Loading ── */
-  .loading {
+  /* ── Org Chart ── */
+  .org-chart {
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .org-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .org-card {
+    background: var(--card);
+    color: var(--card-text);
+    border-radius: 8px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 140px;
+    max-width: 200px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    position: relative;
+    user-select: none;
+  }
+  .org-card:hover {
+    background: var(--card-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .org-card.highlight {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .org-card .card-name {
+    font-weight: 700;
+    font-size: 0.82rem;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+  .org-card .card-pos {
+    font-size: 0.72rem;
+    color: var(--card-sub);
+  }
+  .org-card .card-count {
+    font-size: 0.68rem;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* ── Connector Lines ── */
+  .org-children-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .org-vert-line {
+    width: 2px;
+    height: 24px;
+    background: var(--line);
+  }
+
+  .org-horiz-connector {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .org-horiz-connector::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--left);
+    right: var(--right);
+    height: 2px;
+    background: var(--line);
+  }
+
+  .org-child-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 12px;
+  }
+
+  .org-child-vert {
+    width: 2px;
+    height: 24px;
+    background: var(--line);
+  }
+
+  /* ── Collapsed indicator ── */
+  .org-card .collapse-icon {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background: var(--card-hover);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 80px 20px;
-    gap: 16px;
-    color: var(--text2);
+    font-size: 10px;
+    color: #fff;
+    border: 2px solid var(--bg);
+  }
+
+  .org-children-wrap.collapsed {
+    display: none;
+  }
+
+  /* ── Loading / Error ── */
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 80px 20px; gap: 16px; color: var(--text2);
   }
   .spinner {
     width: 32px; height: 32px;
     border: 3px solid var(--border);
-    border-top-color: var(--accent);
+    border-top-color: var(--card);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .highlight { background: rgba(245,158,11,0.25); border-radius: 3px; padding: 0 2px; }
+  /* ── Orphan Section ── */
+  .orphan-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px dashed var(--border);
+    text-align: center;
+  }
+  .orphan-title {
+    font-size: 0.88rem;
+    color: var(--text2);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .orphan-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .orphan-grid .org-card {
+    opacity: 0.7;
+    cursor: default;
+  }
 
-  /* ── Responsive ── */
   @media (max-width: 600px) {
-    .header, .toolbar, .container { padding-left: 14px; padding-right: 14px; }
-    .header h1 { font-size: 1.1rem; }
-    .tree ul { padding-left: 16px; }
+    .header, .toolbar { padding-left: 14px; padding-right: 14px; }
+    .org-card { min-width: 110px; padding: 8px 12px; }
+    .org-card .card-name { font-size: 0.75rem; }
+    .org-child-branch { padding: 0 6px; }
   }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-left">
-    <div>
-      <h1>☀️ Planet Solar — Organigrama</h1>
-      <div class="subtitle">Árbol jerárquico de consultores</div>
-    </div>
+  <div>
+    <h1>☀️ Planet Solar — Organigrama</h1>
+    <div class="subtitle">Estructura organizacional</div>
   </div>
   <div class="stats">
     <span>Total: <strong id="statTotal">—</strong></span>
     <span>Activos: <strong id="statActive">—</strong></span>
-    <span>Inactivos: <strong id="statInactive">—</strong></span>
   </div>
 </div>
 
 <div class="toolbar">
   <div class="search-wrap">
     <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre o posición…">
+    <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre…">
   </div>
   <button class="btn" id="btnExpandAll">Expandir todo</button>
   <button class="btn" id="btnCollapseAll">Colapsar todo</button>
   <button class="btn btn-accent" id="btnSync">↻ Sincronizar</button>
 </div>
 
-<div class="container">
+<div class="chart-wrap">
   <div class="loading" id="loadingEl">
     <div class="spinner"></div>
     <span>Cargando datos del Sheet…</span>
   </div>
-  <div class="tree" id="treeEl"></div>
+  <div id="chartEl"></div>
 </div>
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS23c3nYCU-Of7Y0VM_o0SOeWIL4DNp_e2fY3QxUjBRAzZ0BU5Tb52kiY7vMWy3JUmMuXVQFF9r2F4-/pub?gid=0&single=true&output=csv';
 
 let allPeople = [];
-let tree = {};
+let treeData = { roots: [], orphans: [] };
+let collapsedSet = new Set();
+let searchQuery = '';
 
 // ── CSV Parser ──
 function parseCSV(text) {
-  // Remove BOM if present
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  
   const rows = [];
   let row = [];
   let cell = '';
   let inQuotes = false;
-
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     if (inQuotes) {
       if (ch === '"') {
         if (text[i + 1] === '"') { cell += '"'; i++; }
-        else { inQuotes = false; }
-      } else {
-        cell += ch;
-      }
+        else inQuotes = false;
+      } else cell += ch;
     } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        row.push(cell.trim());
-        cell = '';
-      } else if (ch === '\r' || ch === '\n') {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { row.push(cell.trim()); cell = ''; }
+      else if (ch === '\r' || ch === '\n') {
         if (ch === '\r' && text[i + 1] === '\n') i++;
         row.push(cell.trim());
         if (row.length > 1 || row[0] !== '') rows.push(row);
-        row = [];
-        cell = '';
-      } else {
-        cell += ch;
-      }
+        row = []; cell = '';
+      } else cell += ch;
     }
   }
-  // Last cell/row
   row.push(cell.trim());
   if (row.length > 1 || row[0] !== '') rows.push(row);
-
   return rows;
 }
 
-// ── Fetch & Process ──
+// ── Load Data ──
 async function loadData() {
   const loadingEl = document.getElementById('loadingEl');
-  const treeEl = document.getElementById('treeEl');
+  const chartEl = document.getElementById('chartEl');
   loadingEl.style.display = 'flex';
-  treeEl.innerHTML = '';
+  chartEl.innerHTML = '';
 
   try {
     const res = await fetch(CSV_URL);
@@ -309,14 +350,11 @@ async function loadData() {
     if (rows.length < 2) throw new Error('No data');
 
     const headers = rows[0].map(h => h.replace(/\r/g, '').trim());
-    console.log('Headers found:', headers);
-    console.log('Total rows:', rows.length);
-    console.log('First data row:', rows[1]);
+    console.log('Headers:', headers);
     const iName = headers.indexOf('Name');
     const iPos = headers.indexOf('Position');
     const iLeader = headers.indexOf('Leader');
     const iStatus = headers.indexOf('Status');
-    console.log('Column indices → Name:', iName, 'Position:', iPos, 'Leader:', iLeader, 'Status:', iStatus);
 
     if (iName === -1) throw new Error('Columna "Name" no encontrada');
 
@@ -333,11 +371,13 @@ async function loadData() {
       });
     }
 
+    console.log('People loaded:', allPeople.length);
     updateStats();
     buildTree();
-    renderTree();
+    renderChart();
   } catch (e) {
-    treeEl.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
+    chartEl.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
+    console.error(e);
   } finally {
     loadingEl.style.display = 'none';
   }
@@ -348,7 +388,6 @@ function updateStats() {
   const active = allPeople.filter(p => p.status.toLowerCase() === 'active').length;
   document.getElementById('statTotal').textContent = total;
   document.getElementById('statActive').textContent = active;
-  document.getElementById('statInactive').textContent = total - active;
 }
 
 // ── Build Tree ──
@@ -362,179 +401,234 @@ function buildTree() {
   allPeople.forEach(p => {
     const node = byName[p.name];
     if (!p.leader || !byName[p.leader]) {
-      if (p.leader && !byName[p.leader]) {
-        orphans.push(node);
-      } else {
-        roots.push(node);
-      }
+      if (p.leader && !byName[p.leader]) orphans.push(node);
+      else roots.push(node);
     } else {
       byName[p.leader].children.push(node);
     }
   });
 
-  tree = { roots, orphans };
+  // Sort by descendant count
+  function sortNode(node) {
+    node.children.sort((a, b) => countAll(b) - countAll(a));
+    node.children.forEach(sortNode);
+  }
+  roots.forEach(sortNode);
+  roots.sort((a, b) => countAll(b) - countAll(a));
+
+  treeData = { roots, orphans };
 }
 
-// ── Count descendants ──
 function countAll(node) {
   let c = 1;
   for (const ch of node.children) c += countAll(ch);
   return c;
 }
 
-// ── Render ──
-function renderTree(filter = '') {
-  const treeEl = document.getElementById('treeEl');
-  treeEl.innerHTML = '';
+// ── Search helpers ──
+function nodeMatchesSearch(node, query) {
+  if (!query) return true;
+  if (node.name.toLowerCase().includes(query)) return true;
+  if (node.position.toLowerCase().includes(query)) return true;
+  return false;
+}
 
-  const ul = document.createElement('ul');
-  const sortedRoots = tree.roots.sort((a, b) => countAll(b) - countAll(a));
-  sortedRoots.forEach(r => {
-    const li = renderNode(r, filter, true);
-    if (li) ul.appendChild(li);
+function subtreeMatchesSearch(node, query) {
+  if (nodeMatchesSearch(node, query)) return true;
+  return node.children.some(ch => subtreeMatchesSearch(ch, query));
+}
+
+// ── Render Chart ──
+function renderChart() {
+  const chartEl = document.getElementById('chartEl');
+  chartEl.innerHTML = '';
+
+  const container = document.createElement('div');
+  container.className = 'org-chart';
+
+  // Render roots
+  treeData.roots.forEach((root, i) => {
+    if (searchQuery && !subtreeMatchesSearch(root, searchQuery)) return;
+    if (i > 0) {
+      const spacer = document.createElement('div');
+      spacer.style.height = '40px';
+      container.appendChild(spacer);
+    }
+    const nodeEl = renderNode(root);
+    if (nodeEl) container.appendChild(nodeEl);
   });
-  treeEl.appendChild(ul);
 
-  if (tree.orphans.length > 0) {
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = `⚠️ Sin conexión al árbol (${tree.orphans.length})`;
-    treeEl.appendChild(title);
+  chartEl.appendChild(container);
 
-    const ul2 = document.createElement('ul');
-    tree.orphans.forEach(o => {
-      const li = renderNode(o, filter, false);
-      if (li) ul2.appendChild(li);
-    });
-    treeEl.appendChild(ul2);
+  // Orphans
+  if (treeData.orphans.length > 0) {
+    const filtered = searchQuery
+      ? treeData.orphans.filter(o => nodeMatchesSearch(o, searchQuery))
+      : treeData.orphans;
+    if (filtered.length > 0) {
+      const section = document.createElement('div');
+      section.className = 'orphan-section';
+      section.innerHTML = `<div class="orphan-title">⚠️ Sin conexión al árbol (${filtered.length})</div>`;
+      const grid = document.createElement('div');
+      grid.className = 'orphan-grid';
+      filtered.forEach(o => {
+        const card = createCard(o);
+        grid.appendChild(card);
+      });
+      section.appendChild(grid);
+      chartEl.appendChild(section);
+    }
   }
 }
 
-function renderNode(node, filter, expanded) {
-  const matchesFilter = !filter ||
-    node.name.toLowerCase().includes(filter) ||
-    node.position.toLowerCase().includes(filter);
+function renderNode(node) {
+  if (searchQuery && !subtreeMatchesSearch(node, searchQuery)) return null;
 
-  let childMatches = false;
-  const childElements = [];
-  node.children.sort((a, b) => countAll(b) - countAll(a));
-  for (const ch of node.children) {
-    const li = renderNode(ch, filter, filter ? true : false);
-    if (li) { childElements.push(li); childMatches = true; }
-  }
+  const wrapper = document.createElement('div');
+  wrapper.className = 'org-node';
 
-  if (filter && !matchesFilter && !childMatches) return null;
-
-  const li = document.createElement('li');
-  const div = document.createElement('div');
-  div.className = 'node';
-
+  // Card
+  const card = createCard(node);
   const hasChildren = node.children.length > 0;
-  const isOpen = filter ? true : expanded;
+  const isCollapsed = collapsedSet.has(node.name);
 
-  // Toggle arrow
-  const toggle = document.createElement('span');
-  toggle.className = 'toggle' + (hasChildren ? (isOpen ? ' open' : '') : ' leaf');
-  toggle.textContent = '▶';
-  div.appendChild(toggle);
-
-  // Info
-  const info = document.createElement('div');
-  info.className = 'node-info';
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'node-name';
-  if (filter && matchesFilter) {
-    nameEl.innerHTML = highlightText(node.name, filter);
-  } else {
-    nameEl.textContent = node.name;
-  }
-  info.appendChild(nameEl);
-
-  const meta = document.createElement('div');
-  meta.className = 'node-meta';
-  if (node.position) {
-    const posEl = document.createElement('span');
-    if (filter && node.position.toLowerCase().includes(filter)) {
-      posEl.innerHTML = highlightText(node.position, filter);
-    } else {
-      posEl.textContent = node.position;
-    }
-    meta.appendChild(posEl);
-  }
-  if (node.leader) {
-    const leaderEl = document.createElement('span');
-    leaderEl.textContent = '→ ' + node.leader;
-    meta.appendChild(leaderEl);
-  }
-  info.appendChild(meta);
-  div.appendChild(info);
-
-  // Status badge
-  if (node.status) {
-    const badge = document.createElement('span');
-    const isActive = node.status.toLowerCase() === 'active';
-    badge.className = 'badge ' + (isActive ? 'badge-active' : 'badge-inactive');
-    badge.textContent = isActive ? 'Activo' : node.status;
-    div.appendChild(badge);
-  }
-
-  // Count badge
   if (hasChildren) {
-    const countBadge = document.createElement('span');
-    countBadge.className = 'badge badge-count';
-    countBadge.textContent = countAll(node) - 1;
-    div.appendChild(countBadge);
+    // Collapse toggle icon
+    const icon = document.createElement('div');
+    icon.className = 'collapse-icon';
+    icon.textContent = isCollapsed ? '+' : '−';
+    card.appendChild(icon);
+
+    card.addEventListener('click', () => {
+      if (collapsedSet.has(node.name)) collapsedSet.delete(node.name);
+      else collapsedSet.add(node.name);
+      renderChart();
+    });
   }
 
-  li.appendChild(div);
+  wrapper.appendChild(card);
 
   // Children
-  if (hasChildren) {
-    const childUl = document.createElement('ul');
-    childUl.className = 'children' + (isOpen ? '' : ' collapsed');
-    childElements.forEach(el => childUl.appendChild(el));
-    li.appendChild(childUl);
+  if (hasChildren && !isCollapsed) {
+    const visibleChildren = searchQuery
+      ? node.children.filter(ch => subtreeMatchesSearch(ch, searchQuery))
+      : node.children;
 
-    div.addEventListener('click', () => {
-      const isNowOpen = !childUl.classList.contains('collapsed');
-      childUl.classList.toggle('collapsed');
-      toggle.classList.toggle('open', !isNowOpen);
-    });
+    if (visibleChildren.length > 0) {
+      // Vertical line from parent
+      const vLine = document.createElement('div');
+      vLine.className = 'org-vert-line';
+      wrapper.appendChild(vLine);
+
+      // Horizontal connector + children
+      const childrenWrap = document.createElement('div');
+      childrenWrap.className = 'org-children-wrap';
+
+      const hConnector = document.createElement('div');
+      hConnector.className = 'org-horiz-connector';
+
+      visibleChildren.forEach((child, idx) => {
+        const branch = document.createElement('div');
+        branch.className = 'org-child-branch';
+
+        // Vertical line down to child
+        const cv = document.createElement('div');
+        cv.className = 'org-child-vert';
+        branch.appendChild(cv);
+
+        // Recursive render
+        const childNode = renderNode(child);
+        if (childNode) branch.appendChild(childNode);
+
+        hConnector.appendChild(branch);
+      });
+
+      // Set horizontal line positions
+      childrenWrap.appendChild(hConnector);
+      wrapper.appendChild(childrenWrap);
+
+      // After render, compute horizontal line
+      requestAnimationFrame(() => {
+        if (hConnector.children.length > 1) {
+          const first = hConnector.children[0];
+          const last = hConnector.children[hConnector.children.length - 1];
+          const parentRect = hConnector.getBoundingClientRect();
+          const firstRect = first.getBoundingClientRect();
+          const lastRect = last.getBoundingClientRect();
+          const leftOffset = (firstRect.left + firstRect.width / 2) - parentRect.left;
+          const rightOffset = parentRect.right - (lastRect.left + lastRect.width / 2);
+          hConnector.style.setProperty('--left', leftOffset + 'px');
+          hConnector.style.setProperty('--right', rightOffset + 'px');
+        } else if (hConnector.children.length === 1) {
+          hConnector.style.setProperty('--left', '50%');
+          hConnector.style.setProperty('--right', '50%');
+        }
+      });
+    }
   }
 
-  return li;
+  return wrapper;
 }
 
-function highlightText(text, query) {
-  const idx = text.toLowerCase().indexOf(query);
-  if (idx === -1) return escapeHtml(text);
-  return escapeHtml(text.slice(0, idx)) +
-    '<span class="highlight">' + escapeHtml(text.slice(idx, idx + query.length)) + '</span>' +
-    escapeHtml(text.slice(idx + query.length));
-}
+function createCard(node) {
+  const card = document.createElement('div');
+  card.className = 'org-card';
 
-function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if (searchQuery && nodeMatchesSearch(node, searchQuery)) {
+    card.classList.add('highlight');
+  }
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'card-name';
+  nameEl.textContent = node.name;
+  card.appendChild(nameEl);
+
+  if (node.position) {
+    const posEl = document.createElement('div');
+    posEl.className = 'card-pos';
+    posEl.textContent = node.position;
+    card.appendChild(posEl);
+  }
+
+  const childCount = countAll(node) - 1;
+  if (childCount > 0) {
+    const countEl = document.createElement('div');
+    countEl.className = 'card-count';
+    countEl.textContent = '▾ ' + childCount;
+    card.appendChild(countEl);
+  }
+
+  return card;
 }
 
 // ── Search ──
 document.getElementById('searchInput').addEventListener('input', (e) => {
-  const q = e.target.value.toLowerCase().trim();
-  renderTree(q);
+  searchQuery = e.target.value.toLowerCase().trim();
+  renderChart();
 });
 
-// ── Expand / Collapse ──
-function setAllExpanded(expanded) {
-  document.querySelectorAll('.children').forEach(el => {
-    el.classList.toggle('collapsed', !expanded);
-  });
-  document.querySelectorAll('.toggle:not(.leaf)').forEach(el => {
-    el.classList.toggle('open', expanded);
-  });
+// ── Expand / Collapse All ──
+function getAllNames(node) {
+  let names = [node.name];
+  node.children.forEach(ch => { names = names.concat(getAllNames(ch)); });
+  return names;
 }
-document.getElementById('btnExpandAll').addEventListener('click', () => setAllExpanded(true));
-document.getElementById('btnCollapseAll').addEventListener('click', () => setAllExpanded(false));
+
+document.getElementById('btnExpandAll').addEventListener('click', () => {
+  collapsedSet.clear();
+  renderChart();
+});
+
+document.getElementById('btnCollapseAll').addEventListener('click', () => {
+  collapsedSet.clear();
+  function collapseIfHasChildren(node) {
+    if (node.children.length > 0) collapsedSet.add(node.name);
+    node.children.forEach(collapseIfHasChildren);
+  }
+  treeData.roots.forEach(collapseIfHasChildren);
+  renderChart();
+});
+
 document.getElementById('btnSync').addEventListener('click', loadData);
 
 // ── Init ──
