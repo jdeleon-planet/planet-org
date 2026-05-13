@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organigrama — Planet Solar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3348;
+    --text: #e4e6f0;
+    --text2: #8b8fa8;
+    --accent: #f59e0b;
+    --accent2: #d97706;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .header .subtitle { font-size: 0.82rem; color: var(--text2); }
+
+  .stats {
+    display: flex; gap: 18px; font-size: 0.82rem; color: var(--text2);
+  }
+  .stats span strong { color: var(--text); font-weight: 600; }
+
+  /* ── Search ── */
+  .toolbar {
+    padding: 14px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1; min-width: 220px; max-width: 400px;
+    padding: 9px 14px 9px 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 400px; }
+  .search-wrap svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; stroke: var(--text2);
+  }
+  .search-wrap .search-box { width: 100%; }
+
+  .btn {
+    padding: 9px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--border); }
+  .btn-accent { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .btn-accent:hover { background: var(--accent2); border-color: var(--accent2); }
+
+  /* ── Tree ── */
+  .container { padding: 20px 28px 60px; }
+
+  .tree ul {
+    list-style: none;
+    padding-left: 24px;
+    border-left: 1px solid var(--border);
+    margin-left: 12px;
+  }
+  .tree > ul { border-left: none; padding-left: 0; margin-left: 0; }
+
+  .tree li { position: relative; }
+
+  .node {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    margin: 3px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .node:hover { background: var(--surface2); }
+
+  .toggle {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    color: var(--text2);
+    background: var(--surface2);
+    border-radius: 5px;
+    flex-shrink: 0;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle.open { transform: rotate(90deg); }
+  .toggle.leaf { visibility: hidden; }
+
+  .node-info { flex: 1; min-width: 0; }
+  .node-name {
+    font-weight: 600;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .node-meta {
+    font-size: 0.78rem;
+    color: var(--text2);
+    display: flex;
+    gap: 10px;
+    margin-top: 2px;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .badge-active { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-inactive { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-count {
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .children { overflow: hidden; }
+  .children.collapsed { display: none; }
+
+  /* ── Orphans ── */
+  .section-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text2);
+    margin: 30px 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Loading ── */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 16px;
+    color: var(--text2);
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .highlight { background: rgba(245,158,11,0.25); border-radius: 3px; padding: 0 2px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .header, .toolbar, .container { padding-left: 14px; padding-right: 14px; }
+    .header h1 { font-size: 1.1rem; }
+    .tree ul { padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div>
+      <h1>☀️ Planet Solar — Organigrama</h1>
+      <div class="subtitle">Árbol jerárquico de consultores</div>
+    </div>
+  </div>
+  <div class="stats">
+    <span>Total: <strong id="statTotal">—</strong></span>
+    <span>Activos: <strong id="statActive">—</strong></span>
+    <span>Inactivos: <strong id="statInactive">—</strong></span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre o posición…">
+  </div>
+  <button class="btn" id="btnExpandAll">Expandir todo</button>
+  <button class="btn" id="btnCollapseAll">Colapsar todo</button>
+  <button class="btn btn-accent" id="btnSync">↻ Sincronizar</button>
+</div>
+
+<div class="container">
+  <div class="loading" id="loadingEl">
+    <div class="spinner"></div>
+    <span>Cargando datos del Sheet…</span>
+  </div>
+  <div class="tree" id="treeEl"></div>
+</div>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS23c3nYCU-Of7Y0VM_o0SOeWIL4DNp_e2fY3QxUjBRAzZ0BU5Tb52kiY7vMWy3JUmMuXVQFF9r2F4-/pub?gid=0&single=true&output=csv';
+
+let allPeople = [];
+let tree = {};
+
+// ── CSV Parser ──
+function parseCSV(text) {
+  const lines = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQuotes && text[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      lines.push(current); current = '';
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      lines.push(current); current = '##NEWLINE##';
+    } else {
+      current += ch;
+    }
+  }
+  lines.push(current);
+
+  const rows = [];
+  let row = [];
+  for (const cell of lines) {
+    if (cell === '##NEWLINE##') {
+      if (row.length > 0) rows.push(row);
+      row = [];
+    } else {
+      row.push(cell.trim());
+    }
+  }
+  if (row.length > 0) rows.push(row);
+  return rows;
+}
+
+// ── Fetch & Process ──
+async function loadData() {
+  const loadingEl = document.getElementById('loadingEl');
+  const treeEl = document.getElementById('treeEl');
+  loadingEl.style.display = 'flex';
+  treeEl.innerHTML = '';
+
+  try {
+    const res = await fetch(CSV_URL);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error('No data');
+
+    const headers = rows[0].map(h => h.replace(/\r/g, '').trim());
+    const iName = headers.indexOf('Name');
+    const iPos = headers.indexOf('Position');
+    const iLeader = headers.indexOf('Leader');
+    const iStatus = headers.indexOf('Status');
+
+    if (iName === -1) throw new Error('Columna "Name" no encontrada');
+
+    allPeople = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      const name = (r[iName] || '').trim();
+      if (!name) continue;
+      allPeople.push({
+        name,
+        position: (r[iPos] || '').trim(),
+        leader: iLeader !== -1 ? (r[iLeader] || '').trim() : '',
+        status: iStatus !== -1 ? (r[iStatus] || '').trim() : '',
+      });
+    }
+
+    updateStats();
+    buildTree();
+    renderTree();
+  } catch (e) {
+    treeEl.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
+  } finally {
+    loadingEl.style.display = 'none';
+  }
+}
+
+function updateStats() {
+  const total = allPeople.length;
+  const active = allPeople.filter(p => p.status.toLowerCase() === 'active').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statInactive').textContent = total - active;
+}
+
+// ── Build Tree ──
+function buildTree() {
+  const byName = {};
+  allPeople.forEach(p => { byName[p.name] = { ...p, children: [] }; });
+
+  const roots = [];
+  const orphans = [];
+
+  allPeople.forEach(p => {
+    const node = byName[p.name];
+    if (!p.leader || !byName[p.leader]) {
+      if (p.leader && !byName[p.leader]) {
+        orphans.push(node);
+      } else {
+        roots.push(node);
+      }
+    } else {
+      byName[p.leader].children.push(node);
+    }
+  });
+
+  tree = { roots, orphans };
+}
+
+// ── Count descendants ──
+function countAll(node) {
+  let c = 1;
+  for (const ch of node.children) c += countAll(ch);
+  return c;
+}
+
+// ── Render ──
+function renderTree(filter = '') {
+  const treeEl = document.getElementById('treeEl');
+  treeEl.innerHTML = '';
+
+  const ul = document.createElement('ul');
+  const sortedRoots = tree.roots.sort((a, b) => countAll(b) - countAll(a));
+  sortedRoots.forEach(r => {
+    const li = renderNode(r, filter, true);
+    if (li) ul.appendChild(li);
+  });
+  treeEl.appendChild(ul);
+
+  if (tree.orphans.length > 0) {
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = `⚠️ Sin conexión al árbol (${tree.orphans.length})`;
+    treeEl.appendChild(title);
+
+    const ul2 = document.createElement('ul');
+    tree.orphans.forEach(o => {
+      const li = renderNode(o, filter, false);
+      if (li) ul2.appendChild(li);
+    });
+    treeEl.appendChild(ul2);
+  }
+}
+
+function renderNode(node, filter, expanded) {
+  const matchesFilter = !filter ||
+    node.name.toLowerCase().includes(filter) ||
+    node.position.toLowerCase().includes(filter);
+
+  let childMatches = false;
+  const childElements = [];
+  node.children.sort((a, b) => countAll(b) - countAll(a));
+  for (const ch of node.children) {
+    const li = renderNode(ch, filter, filter ? true : false);
+    if (li) { childElements.push(li); childMatches = true; }
+  }
+
+  if (filter && !matchesFilter && !childMatches) return null;
+
+  const li = document.createElement('li');
+  const div = document.createElement('div');
+  div.className = 'node';
+
+  const hasChildren = node.children.length > 0;
+  const isOpen = filter ? true : expanded;
+
+  // Toggle arrow
+  const toggle = document.createElement('span');
+  toggle.className = 'toggle' + (hasChildren ? (isOpen ? ' open' : '') : ' leaf');
+  toggle.textContent = '▶';
+  div.appendChild(toggle);
+
+  // Info
+  const info = document.createElement('div');
+  info.className = 'node-info';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'node-name';
+  if (filter && matchesFilter) {
+    nameEl.innerHTML = highlightText(node.name, filter);
+  } else {
+    nameEl.textContent = node.name;
+  }
+  info.appendChild(nameEl);
+
+  const meta = document.createElement('div');
+  meta.className = 'node-meta';
+  if (node.position) {
+    const posEl = document.createElement('span');
+    if (filter && node.position.toLowerCase().includes(filter)) {
+      posEl.innerHTML = highlightText(node.position, filter);
+    } else {
+      posEl.textContent = node.position;
+    }
+    meta.appendChild(posEl);
+  }
+  if (node.leader) {
+    const leaderEl = document.createElement('span');
+    leaderEl.textContent = '→ ' + node.leader;
+    meta.appendChild(leaderEl);
+  }
+  info.appendChild(meta);
+  div.appendChild(info);
+
+  // Status badge
+  if (node.status) {
+    const badge = document.createElement('span');
+    const isActive = node.status.toLowerCase() === 'active';
+    badge.className = 'badge ' + (isActive ? 'badge-active' : 'badge-inactive');
+    badge.textContent = isActive ? 'Activo' : node.status;
+    div.appendChild(badge);
+  }
+
+  // Count badge
+  if (hasChildren) {
+    const countBadge = document.createElement('span');
+    countBadge.className = 'badge badge-count';
+    countBadge.textContent = countAll(node) - 1;
+    div.appendChild(countBadge);
+  }
+
+  li.appendChild(div);
+
+  // Children
+  if (hasChildren) {
+    const childUl = document.createElement('ul');
+    childUl.className = 'children' + (isOpen ? '' : ' collapsed');
+    childElements.forEach(el => childUl.appendChild(el));
+    li.appendChild(childUl);
+
+    div.addEventListener('click', () => {
+      const isNowOpen = !childUl.classList.contains('collapsed');
+      childUl.classList.toggle('collapsed');
+      toggle.classList.toggle('open', !isNowOpen);
+    });
+  }
+
+  return li;
+}
+
+function highlightText(text, query) {
+  const idx = text.toLowerCase().indexOf(query);
+  if (idx === -1) return escapeHtml(text);
+  return escapeHtml(text.slice(0, idx)) +
+    '<span class="highlight">' + escapeHtml(text.slice(idx, idx + query.length)) + '</span>' +
+    escapeHtml(text.slice(idx + query.length));
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Search ──
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  renderTree(q);
+});
+
+// ── Expand / Collapse ──
+function setAllExpanded(expanded) {
+  document.querySelectorAll('.children').forEach(el => {
+    el.classList.toggle('collapsed', !expanded);
+  });
+  document.querySelectorAll('.toggle:not(.leaf)').forEach(el => {
+    el.classList.toggle('open', expanded);
+  });
+}
+document.getElementById('btnExpandAll').addEventListener('click', () => setAllExpanded(true));
+document.getElementById('btnCollapseAll').addEventListener('click', () => setAllExpanded(false));
+document.getElementById('btnSync').addEventListener('click', loadData);
+
+// ── Init ──
+loadData();
+</script>
+</body>
+</html>
