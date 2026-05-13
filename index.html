@@ -254,36 +254,44 @@ let tree = {};
 
 // ── CSV Parser ──
 function parseCSV(text) {
-  const lines = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') { current += '"'; i++; }
-      else { inQuotes = !inQuotes; }
-    } else if (ch === ',' && !inQuotes) {
-      lines.push(current); current = '';
-    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
-      if (ch === '\r' && text[i + 1] === '\n') i++;
-      lines.push(current); current = '##NEWLINE##';
-    } else {
-      current += ch;
-    }
-  }
-  lines.push(current);
-
+  // Remove BOM if present
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  
   const rows = [];
   let row = [];
-  for (const cell of lines) {
-    if (cell === '##NEWLINE##') {
-      if (row.length > 0) rows.push(row);
-      row = [];
+  let cell = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        cell += ch;
+      }
     } else {
-      row.push(cell.trim());
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(cell.trim());
+        cell = '';
+      } else if (ch === '\r' || ch === '\n') {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell.trim());
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+        cell = '';
+      } else {
+        cell += ch;
+      }
     }
   }
-  if (row.length > 0) rows.push(row);
+  // Last cell/row
+  row.push(cell.trim());
+  if (row.length > 1 || row[0] !== '') rows.push(row);
+
   return rows;
 }
 
@@ -301,10 +309,14 @@ async function loadData() {
     if (rows.length < 2) throw new Error('No data');
 
     const headers = rows[0].map(h => h.replace(/\r/g, '').trim());
+    console.log('Headers found:', headers);
+    console.log('Total rows:', rows.length);
+    console.log('First data row:', rows[1]);
     const iName = headers.indexOf('Name');
     const iPos = headers.indexOf('Position');
     const iLeader = headers.indexOf('Leader');
     const iStatus = headers.indexOf('Status');
+    console.log('Column indices → Name:', iName, 'Position:', iPos, 'Leader:', iLeader, 'Status:', iStatus);
 
     if (iName === -1) throw new Error('Columna "Name" no encontrada');
 
