@@ -17,13 +17,14 @@
     --line: #9cb0cc;
     --header-bg: #2c3e6b;
     --header-text: #ffffff;
-    --search-bg: #ffffff;
     --border: #d0d5dd;
     --text: #1d2939;
     --text2: #667085;
     --accent: #f59e0b;
     --green: #22c55e;
     --red: #ef4444;
+    --surface: #ffffff;
+    --surface2: #f9fafb;
   }
 
   body {
@@ -37,233 +38,211 @@
   .header {
     background: var(--header-bg);
     color: var(--header-text);
-    padding: 18px 28px;
+    padding: 14px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    gap: 10px;
   }
-  .header h1 { font-size: 1.25rem; font-weight: 700; }
-  .header .subtitle { font-size: 0.8rem; opacity: 0.7; }
-  .stats { display: flex; gap: 16px; font-size: 0.82rem; opacity: 0.85; }
+  .header h1 { font-size: 1.2rem; font-weight: 700; }
+  .header .subtitle { font-size: 0.78rem; opacity: 0.7; }
+  .stats { display: flex; gap: 14px; font-size: 0.8rem; opacity: 0.85; }
   .stats strong { color: #fff; }
 
-  /* ── Toolbar ── */
+  /* ── Toolbar (FIXED) ── */
   .toolbar {
     background: #fff;
-    padding: 12px 28px;
+    padding: 10px 24px;
     border-bottom: 1px solid var(--border);
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     flex-wrap: wrap;
     position: sticky;
-    top: 60px;
-    z-index: 99;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
   }
-  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
   .search-wrap svg {
     position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    width: 16px; height: 16px; stroke: var(--text2);
+    width: 15px; height: 15px; stroke: var(--text2);
   }
   .search-box {
     width: 100%;
-    padding: 8px 12px 8px 34px;
+    padding: 7px 10px 7px 32px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.85rem;
+    border-radius: 7px;
+    font-size: 0.83rem;
     font-family: inherit;
     outline: none;
-    transition: border-color 0.2s;
   }
   .search-box:focus { border-color: var(--card); }
 
   .btn {
-    padding: 8px 14px;
+    padding: 7px 12px;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 7px;
     background: #fff;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     white-space: nowrap;
   }
   .btn:hover { background: #f3f4f6; }
   .btn-accent { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
   .btn-accent:hover { background: #d97706; }
 
-  /* ── Chart Container ── */
-  .chart-wrap {
-    overflow: auto;
-    padding: 40px 20px 60px;
-    min-height: calc(100vh - 130px);
+  .btn-view {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #fff;
+    font-size: 0.78rem;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-view.active {
+    background: var(--header-bg);
+    color: #fff;
+    border-color: var(--header-bg);
   }
 
-  /* ── Org Chart ── */
-  .org-chart {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .filter-select {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.78rem;
+    font-family: inherit;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
   }
 
-  .org-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .toolbar-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 2px;
   }
+
+  /* ── Content ── */
+  .content { padding: 24px; overflow: auto; }
+
+  /* ═══════════════════════════════════
+     VIEW: ORG CHART (Visual)
+     ═══════════════════════════════════ */
+  .org-chart { display: flex; flex-direction: column; align-items: center; }
+  .org-node { display: flex; flex-direction: column; align-items: center; }
 
   .org-card {
     background: var(--card);
     color: var(--card-text);
     border-radius: 8px;
-    padding: 12px 18px;
+    padding: 10px 16px;
     text-align: center;
-    min-width: 140px;
-    max-width: 200px;
+    min-width: 130px;
+    max-width: 190px;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: all 0.15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     position: relative;
     user-select: none;
   }
-  .org-card:hover {
-    background: var(--card-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  .org-card:hover { background: var(--card-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+  .org-card.highlight { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .org-card.dimmed { opacity: 0.45; }
+  .org-card .card-name { font-weight: 700; font-size: 0.78rem; line-height: 1.25; margin-bottom: 2px; }
+  .org-card .card-pos { font-size: 0.68rem; color: var(--card-sub); }
+  .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 0.7; }
+  .org-card .card-status {
+    font-size: 0.6rem; margin-top: 4px; padding: 1px 6px; border-radius: 10px; display: inline-block;
   }
-  .org-card.highlight {
-    outline: 3px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .org-card .card-name {
-    font-weight: 700;
-    font-size: 0.82rem;
-    line-height: 1.3;
-    margin-bottom: 3px;
-  }
-  .org-card .card-pos {
-    font-size: 0.72rem;
-    color: var(--card-sub);
-  }
-  .org-card .card-count {
-    font-size: 0.68rem;
-    margin-top: 4px;
-    opacity: 0.7;
-  }
+  .card-status.st-active { background: rgba(34,197,94,0.3); }
+  .card-status.st-inactive { background: rgba(239,68,68,0.3); }
 
-  /* ── Connector Lines ── */
-  .org-children-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .org-vert-line {
-    width: 2px;
-    height: 24px;
-    background: var(--line);
-  }
-
-  .org-horiz-connector {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-  }
-
-  .org-horiz-connector::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: var(--left);
-    right: var(--right);
-    height: 2px;
-    background: var(--line);
-  }
-
-  .org-child-branch {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 12px;
-  }
-
-  .org-child-vert {
-    width: 2px;
-    height: 24px;
-    background: var(--line);
-  }
-
-  /* ── Collapsed indicator ── */
   .org-card .collapse-icon {
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 16px;
-    height: 16px;
-    background: var(--card-hover);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #fff;
-    border: 2px solid var(--bg);
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    width: 16px; height: 16px;
+    background: var(--card-hover); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #fff; border: 2px solid var(--bg);
   }
 
-  .org-children-wrap.collapsed {
-    display: none;
+  .org-vert-line { width: 2px; height: 22px; background: var(--line); }
+  .org-children-wrap { display: flex; flex-direction: column; align-items: center; }
+  .org-horiz-connector { display: flex; align-items: flex-start; position: relative; }
+  .org-horiz-connector::before {
+    content: ''; position: absolute; top: 0;
+    left: var(--hl); right: var(--hr);
+    height: 2px; background: var(--line);
   }
+  .org-child-branch { display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
+  .org-child-vert { width: 2px; height: 22px; background: var(--line); }
 
-  /* ── Loading / Error ── */
+  /* ═══════════════════════════════════
+     VIEW: TREE LIST
+     ═══════════════════════════════════ */
+  .tree-view { max-width: 900px; margin: 0 auto; }
+  .tree-view ul { list-style: none; padding-left: 22px; border-left: 1px solid var(--border); margin-left: 11px; }
+  .tree-view > ul { border-left: none; padding-left: 0; margin-left: 0; }
+
+  .tree-node {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; margin: 2px 0; border-radius: 7px;
+    cursor: pointer; transition: background 0.12s; user-select: none;
+  }
+  .tree-node:hover { background: var(--surface); }
+  .tree-node.dimmed { opacity: 0.45; }
+
+  .tree-toggle {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; color: var(--text2);
+    background: var(--surface); border-radius: 4px; flex-shrink: 0;
+    transition: transform 0.15s; border: 1px solid var(--border);
+  }
+  .tree-toggle.open { transform: rotate(90deg); }
+  .tree-toggle.leaf { visibility: hidden; }
+
+  .tree-info { flex: 1; min-width: 0; }
+  .tree-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tree-meta { font-size: 0.75rem; color: var(--text2); display: flex; gap: 8px; margin-top: 1px; }
+
+  .badge { font-size: 0.67rem; padding: 2px 7px; border-radius: 16px; font-weight: 600; flex-shrink: 0; }
+  .badge-active { background: rgba(34,197,94,0.12); color: var(--green); }
+  .badge-inactive { background: rgba(239,68,68,0.12); color: var(--red); }
+  .badge-count { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+  .tree-children.collapsed { display: none; }
+  .tree-hl { background: rgba(245,158,11,0.25); border-radius: 3px; padding: 0 2px; }
+
+  /* ── Orphans ── */
+  .orphan-section { margin-top: 36px; padding-top: 18px; border-top: 2px dashed var(--border); }
+  .orphan-title { font-size: 0.85rem; color: var(--text2); margin-bottom: 14px; font-weight: 600; text-align: center; }
+  .orphan-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .orphan-grid .org-card { cursor: default; }
+
   .loading {
     display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 80px 20px; gap: 16px; color: var(--text2);
+    justify-content: center; padding: 80px 20px; gap: 14px; color: var(--text2);
   }
   .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--card);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    width: 30px; height: 30px;
+    border: 3px solid var(--border); border-top-color: var(--card);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Orphan Section ── */
-  .orphan-section {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 2px dashed var(--border);
-    text-align: center;
-  }
-  .orphan-title {
-    font-size: 0.88rem;
-    color: var(--text2);
-    margin-bottom: 16px;
-    font-weight: 600;
-  }
-  .orphan-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-  .orphan-grid .org-card {
-    opacity: 0.7;
-    cursor: default;
-  }
-
   @media (max-width: 600px) {
-    .header, .toolbar { padding-left: 14px; padding-right: 14px; }
-    .org-card { min-width: 110px; padding: 8px 12px; }
-    .org-card .card-name { font-size: 0.75rem; }
-    .org-child-branch { padding: 0 6px; }
+    .header, .toolbar, .content { padding-left: 12px; padding-right: 12px; }
+    .org-card { min-width: 100px; padding: 7px 10px; }
+    .org-card .card-name { font-size: 0.7rem; }
+    .org-child-branch { padding: 0 5px; }
+    .toolbar { gap: 5px; }
+    .toolbar-sep { display: none; }
   }
 </style>
 </head>
@@ -277,6 +256,7 @@
   <div class="stats">
     <span>Total: <strong id="statTotal">—</strong></span>
     <span>Activos: <strong id="statActive">—</strong></span>
+    <span>Inactivos: <strong id="statInactive">—</strong></span>
   </div>
 </div>
 
@@ -285,17 +265,30 @@
     <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre…">
   </div>
-  <button class="btn" id="btnExpandAll">Expandir todo</button>
-  <button class="btn" id="btnCollapseAll">Colapsar todo</button>
-  <button class="btn btn-accent" id="btnSync">↻ Sincronizar</button>
+
+  <select class="filter-select" id="filterStatus">
+    <option value="all">Todos</option>
+    <option value="active">Activos</option>
+    <option value="inactive">Inactivos</option>
+  </select>
+
+  <div class="toolbar-sep"></div>
+
+  <button class="btn-view active" id="btnViewChart">▦ Organigrama</button>
+  <button class="btn-view" id="btnViewTree">☰ Detalle</button>
+
+  <div class="toolbar-sep"></div>
+
+  <button class="btn" id="btnExpandAll">Expandir</button>
+  <button class="btn" id="btnCollapseAll">Colapsar</button>
+  <button class="btn btn-accent" id="btnSync">↻ Sync</button>
 </div>
 
-<div class="chart-wrap">
+<div class="content" id="contentEl">
   <div class="loading" id="loadingEl">
     <div class="spinner"></div>
     <span>Cargando datos del Sheet…</span>
   </div>
-  <div id="chartEl"></div>
 </div>
 
 <script>
@@ -305,333 +298,237 @@ let allPeople = [];
 let treeData = { roots: [], orphans: [] };
 let collapsedSet = new Set();
 let searchQuery = '';
+let statusFilter = 'all';
+let currentView = 'chart';
 
-// ── CSV Parser ──
+/* ── CSV Parser ── */
 function parseCSV(text) {
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
+  const rows = []; let row = [], cell = '', inQ = false;
   for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') { cell += '"'; i++; }
-        else inQuotes = false;
-      } else cell += ch;
-    } else {
-      if (ch === '"') inQuotes = true;
-      else if (ch === ',') { row.push(cell.trim()); cell = ''; }
-      else if (ch === '\r' || ch === '\n') {
-        if (ch === '\r' && text[i + 1] === '\n') i++;
-        row.push(cell.trim());
-        if (row.length > 1 || row[0] !== '') rows.push(row);
-        row = []; cell = '';
-      } else cell += ch;
-    }
+    const c = text[i];
+    if (inQ) { if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else inQ = false; } else cell += c; }
+    else { if (c === '"') inQ = true; else if (c === ',') { row.push(cell.trim()); cell = ''; }
+      else if (c === '\r' || c === '\n') { if (c === '\r' && text[i+1] === '\n') i++; row.push(cell.trim()); if (row.length > 1 || row[0] !== '') rows.push(row); row = []; cell = ''; }
+      else cell += c; }
   }
   row.push(cell.trim());
   if (row.length > 1 || row[0] !== '') rows.push(row);
   return rows;
 }
 
-// ── Load Data ──
+/* ── Load ── */
 async function loadData() {
-  const loadingEl = document.getElementById('loadingEl');
-  const chartEl = document.getElementById('chartEl');
-  loadingEl.style.display = 'flex';
-  chartEl.innerHTML = '';
-
+  document.getElementById('loadingEl').style.display = 'flex';
+  const el = document.getElementById('contentEl');
   try {
     const res = await fetch(CSV_URL);
     const text = await res.text();
     const rows = parseCSV(text);
     if (rows.length < 2) throw new Error('No data');
-
-    const headers = rows[0].map(h => h.replace(/\r/g, '').trim());
-    console.log('Headers:', headers);
-    const iName = headers.indexOf('Name');
-    const iPos = headers.indexOf('Position');
-    const iLeader = headers.indexOf('Leader');
-    const iStatus = headers.indexOf('Status');
-
-    if (iName === -1) throw new Error('Columna "Name" no encontrada');
-
+    const hd = rows[0].map(h => h.replace(/\r/g, '').trim());
+    const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status');
+    if (iN === -1) throw new Error('Columna "Name" no encontrada');
     allPeople = [];
     for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      const name = (r[iName] || '').trim();
+      const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
-      allPeople.push({
-        name,
-        position: (r[iPos] || '').trim(),
-        leader: iLeader !== -1 ? (r[iLeader] || '').trim() : '',
-        status: iStatus !== -1 ? (r[iStatus] || '').trim() : '',
-      });
+      allPeople.push({ name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'' });
     }
-
-    console.log('People loaded:', allPeople.length);
-    updateStats();
-    buildTree();
-    renderChart();
-  } catch (e) {
-    chartEl.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
-    console.error(e);
-  } finally {
-    loadingEl.style.display = 'none';
-  }
+    updateStats(); buildTree(); render();
+  } catch (e) { el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`; }
+  finally { document.getElementById('loadingEl').style.display = 'none'; }
 }
 
 function updateStats() {
-  const total = allPeople.length;
-  const active = allPeople.filter(p => p.status.toLowerCase() === 'active').length;
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statActive').textContent = active;
+  const t = allPeople.length, a = allPeople.filter(p => p.status.toLowerCase()==='active').length;
+  document.getElementById('statTotal').textContent = t;
+  document.getElementById('statActive').textContent = a;
+  document.getElementById('statInactive').textContent = t - a;
 }
 
-// ── Build Tree ──
+/* ── Build Tree ── */
 function buildTree() {
-  const byName = {};
-  allPeople.forEach(p => { byName[p.name] = { ...p, children: [] }; });
-
-  const roots = [];
-  const orphans = [];
-
-  allPeople.forEach(p => {
-    const node = byName[p.name];
-    if (!p.leader || !byName[p.leader]) {
-      if (p.leader && !byName[p.leader]) orphans.push(node);
-      else roots.push(node);
-    } else {
-      byName[p.leader].children.push(node);
-    }
-  });
-
-  // Sort by descendant count
-  function sortNode(node) {
-    node.children.sort((a, b) => countAll(b) - countAll(a));
-    node.children.forEach(sortNode);
-  }
-  roots.forEach(sortNode);
-  roots.sort((a, b) => countAll(b) - countAll(a));
-
+  const bn = {}; allPeople.forEach(p => { bn[p.name] = { ...p, children: [] }; });
+  const roots = [], orphans = [];
+  allPeople.forEach(p => { const n = bn[p.name]; if (!p.leader || !bn[p.leader]) { if (p.leader && !bn[p.leader]) orphans.push(n); else roots.push(n); } else bn[p.leader].children.push(n); });
+  const srt = n => { n.children.sort((a,b) => cnt(b)-cnt(a)); n.children.forEach(srt); };
+  roots.forEach(srt); roots.sort((a,b) => cnt(b)-cnt(a));
   treeData = { roots, orphans };
 }
+function cnt(n) { let c = 1; for (const ch of n.children) c += cnt(ch); return c; }
 
-function countAll(node) {
-  let c = 1;
-  for (const ch of node.children) c += countAll(ch);
-  return c;
-}
+/* ── Filters ── */
+function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery); }
+function mF(n) { if (statusFilter==='all') return true; const s = n.status.toLowerCase(); return statusFilter==='active' ? s==='active' : s!=='active'; }
+function vis(n) { if (mS(n) && mF(n)) return true; return n.children.some(ch => vis(ch)); }
 
-// ── Search helpers ──
-function nodeMatchesSearch(node, query) {
-  if (!query) return true;
-  if (node.name.toLowerCase().includes(query)) return true;
-  if (node.position.toLowerCase().includes(query)) return true;
-  return false;
-}
+/* ── Render ── */
+function render() { currentView === 'chart' ? renderChart() : renderTreeView(); }
 
-function subtreeMatchesSearch(node, query) {
-  if (nodeMatchesSearch(node, query)) return true;
-  return node.children.some(ch => subtreeMatchesSearch(ch, query));
-}
-
-// ── Render Chart ──
+/* ═══ VIEW 1: ORGANIGRAMA ═══ */
 function renderChart() {
-  const chartEl = document.getElementById('chartEl');
-  chartEl.innerHTML = '';
-
-  const container = document.createElement('div');
-  container.className = 'org-chart';
-
-  // Render roots
-  treeData.roots.forEach((root, i) => {
-    if (searchQuery && !subtreeMatchesSearch(root, searchQuery)) return;
-    if (i > 0) {
-      const spacer = document.createElement('div');
-      spacer.style.height = '40px';
-      container.appendChild(spacer);
-    }
-    const nodeEl = renderNode(root);
-    if (nodeEl) container.appendChild(nodeEl);
+  const el = document.getElementById('contentEl'); el.innerHTML = '';
+  const c = document.createElement('div'); c.className = 'org-chart';
+  treeData.roots.forEach((r,i) => {
+    if (!vis(r)) return;
+    if (i > 0) { const sp = document.createElement('div'); sp.style.height = '36px'; c.appendChild(sp); }
+    const nd = rChartNode(r); if (nd) c.appendChild(nd);
   });
-
-  chartEl.appendChild(container);
-
-  // Orphans
-  if (treeData.orphans.length > 0) {
-    const filtered = searchQuery
-      ? treeData.orphans.filter(o => nodeMatchesSearch(o, searchQuery))
-      : treeData.orphans;
-    if (filtered.length > 0) {
-      const section = document.createElement('div');
-      section.className = 'orphan-section';
-      section.innerHTML = `<div class="orphan-title">⚠️ Sin conexión al árbol (${filtered.length})</div>`;
-      const grid = document.createElement('div');
-      grid.className = 'orphan-grid';
-      filtered.forEach(o => {
-        const card = createCard(o);
-        grid.appendChild(card);
-      });
-      section.appendChild(grid);
-      chartEl.appendChild(section);
-    }
-  }
+  el.appendChild(c);
+  renderOrphans(el, 'chart');
 }
 
-function renderNode(node) {
-  if (searchQuery && !subtreeMatchesSearch(node, searchQuery)) return null;
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'org-node';
+function rChartNode(node) {
+  if (!vis(node)) return null;
+  const self = mS(node) && mF(node);
+  const w = document.createElement('div'); w.className = 'org-node';
 
   // Card
-  const card = createCard(node);
-  const hasChildren = node.children.length > 0;
-  const isCollapsed = collapsedSet.has(node.name);
-
-  if (hasChildren) {
-    // Collapse toggle icon
-    const icon = document.createElement('div');
-    icon.className = 'collapse-icon';
-    icon.textContent = isCollapsed ? '+' : '−';
-    card.appendChild(icon);
-
-    card.addEventListener('click', () => {
-      if (collapsedSet.has(node.name)) collapsedSet.delete(node.name);
-      else collapsedSet.add(node.name);
-      renderChart();
-    });
+  const card = document.createElement('div'); card.className = 'org-card';
+  if (searchQuery && self) card.classList.add('highlight');
+  if (!self) card.classList.add('dimmed');
+  card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
+    + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '');
+  const cc = cnt(node)-1;
+  if (cc > 0) card.innerHTML += `<div class="card-count">▾ ${cc}</div>`;
+  if (node.status) {
+    const isA = node.status.toLowerCase()==='active';
+    card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
   }
 
-  wrapper.appendChild(card);
+  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
+  if (hasC) {
+    const icon = document.createElement('div'); icon.className = 'collapse-icon'; icon.textContent = isCol?'+':'−'; card.appendChild(icon);
+    card.addEventListener('click', () => { collapsedSet.has(node.name) ? collapsedSet.delete(node.name) : collapsedSet.add(node.name); render(); });
+  }
+  w.appendChild(card);
 
-  // Children
-  if (hasChildren && !isCollapsed) {
-    const visibleChildren = searchQuery
-      ? node.children.filter(ch => subtreeMatchesSearch(ch, searchQuery))
-      : node.children;
-
-    if (visibleChildren.length > 0) {
-      // Vertical line from parent
-      const vLine = document.createElement('div');
-      vLine.className = 'org-vert-line';
-      wrapper.appendChild(vLine);
-
-      // Horizontal connector + children
-      const childrenWrap = document.createElement('div');
-      childrenWrap.className = 'org-children-wrap';
-
-      const hConnector = document.createElement('div');
-      hConnector.className = 'org-horiz-connector';
-
-      visibleChildren.forEach((child, idx) => {
-        const branch = document.createElement('div');
-        branch.className = 'org-child-branch';
-
-        // Vertical line down to child
-        const cv = document.createElement('div');
-        cv.className = 'org-child-vert';
-        branch.appendChild(cv);
-
-        // Recursive render
-        const childNode = renderNode(child);
-        if (childNode) branch.appendChild(childNode);
-
-        hConnector.appendChild(branch);
+  if (hasC && !isCol) {
+    const vc = node.children.filter(ch => vis(ch));
+    if (vc.length > 0) {
+      const vl = document.createElement('div'); vl.className = 'org-vert-line'; w.appendChild(vl);
+      const cw = document.createElement('div'); cw.className = 'org-children-wrap';
+      const hc = document.createElement('div'); hc.className = 'org-horiz-connector';
+      vc.forEach(ch => {
+        const br = document.createElement('div'); br.className = 'org-child-branch';
+        const cv = document.createElement('div'); cv.className = 'org-child-vert'; br.appendChild(cv);
+        const cn = rChartNode(ch); if (cn) br.appendChild(cn);
+        hc.appendChild(br);
       });
-
-      // Set horizontal line positions
-      childrenWrap.appendChild(hConnector);
-      wrapper.appendChild(childrenWrap);
-
-      // After render, compute horizontal line
+      cw.appendChild(hc); w.appendChild(cw);
       requestAnimationFrame(() => {
-        if (hConnector.children.length > 1) {
-          const first = hConnector.children[0];
-          const last = hConnector.children[hConnector.children.length - 1];
-          const parentRect = hConnector.getBoundingClientRect();
-          const firstRect = first.getBoundingClientRect();
-          const lastRect = last.getBoundingClientRect();
-          const leftOffset = (firstRect.left + firstRect.width / 2) - parentRect.left;
-          const rightOffset = parentRect.right - (lastRect.left + lastRect.width / 2);
-          hConnector.style.setProperty('--left', leftOffset + 'px');
-          hConnector.style.setProperty('--right', rightOffset + 'px');
-        } else if (hConnector.children.length === 1) {
-          hConnector.style.setProperty('--left', '50%');
-          hConnector.style.setProperty('--right', '50%');
-        }
+        if (hc.children.length > 1) {
+          const pR = hc.getBoundingClientRect(), fR = hc.children[0].getBoundingClientRect(), lR = hc.children[hc.children.length-1].getBoundingClientRect();
+          hc.style.setProperty('--hl', (fR.left+fR.width/2-pR.left)+'px');
+          hc.style.setProperty('--hr', (pR.right-lR.left-lR.width/2)+'px');
+        } else { hc.style.setProperty('--hl','50%'); hc.style.setProperty('--hr','50%'); }
       });
     }
   }
-
-  return wrapper;
+  return w;
 }
 
-function createCard(node) {
-  const card = document.createElement('div');
-  card.className = 'org-card';
-
-  if (searchQuery && nodeMatchesSearch(node, searchQuery)) {
-    card.classList.add('highlight');
-  }
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'card-name';
-  nameEl.textContent = node.name;
-  card.appendChild(nameEl);
-
-  if (node.position) {
-    const posEl = document.createElement('div');
-    posEl.className = 'card-pos';
-    posEl.textContent = node.position;
-    card.appendChild(posEl);
-  }
-
-  const childCount = countAll(node) - 1;
-  if (childCount > 0) {
-    const countEl = document.createElement('div');
-    countEl.className = 'card-count';
-    countEl.textContent = '▾ ' + childCount;
-    card.appendChild(countEl);
-  }
-
-  return card;
+/* ═══ VIEW 2: TREE LIST ═══ */
+function renderTreeView() {
+  const el = document.getElementById('contentEl'); el.innerHTML = '';
+  const c = document.createElement('div'); c.className = 'tree-view';
+  const ul = document.createElement('ul');
+  treeData.roots.forEach(r => { const li = rTreeNode(r); if (li) ul.appendChild(li); });
+  c.appendChild(ul); el.appendChild(c);
+  renderOrphans(el, 'tree');
 }
 
-// ── Search ──
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  searchQuery = e.target.value.toLowerCase().trim();
-  renderChart();
+function rTreeNode(node) {
+  if (!vis(node)) return null;
+  const self = mS(node) && mF(node);
+  const li = document.createElement('li');
+  const div = document.createElement('div'); div.className = 'tree-node';
+  if (!self) div.classList.add('dimmed');
+
+  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
+  const isOpen = searchQuery ? true : !isCol;
+
+  const tgl = document.createElement('span');
+  tgl.className = 'tree-toggle' + (hasC ? (isOpen ? ' open' : '') : ' leaf');
+  tgl.textContent = '▶'; div.appendChild(tgl);
+
+  const info = document.createElement('div'); info.className = 'tree-info';
+  const nm = document.createElement('div'); nm.className = 'tree-name';
+  if (searchQuery && self) nm.innerHTML = hlText(node.name, searchQuery); else nm.textContent = node.name;
+  info.appendChild(nm);
+  const meta = document.createElement('div'); meta.className = 'tree-meta';
+  if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
+  if (node.leader) { const l = document.createElement('span'); l.textContent = '→ '+node.leader; meta.appendChild(l); }
+  info.appendChild(meta); div.appendChild(info);
+
+  if (node.status) {
+    const b = document.createElement('span');
+    const isA = node.status.toLowerCase()==='active';
+    b.className = 'badge '+(isA?'badge-active':'badge-inactive');
+    b.textContent = isA ? 'Activo' : node.status;
+    div.appendChild(b);
+  }
+  if (hasC) { const cb = document.createElement('span'); cb.className = 'badge badge-count'; cb.textContent = cnt(node)-1; div.appendChild(cb); }
+
+  li.appendChild(div);
+
+  if (hasC) {
+    const cul = document.createElement('ul'); cul.className = 'tree-children'+(isOpen?'':' collapsed');
+    node.children.filter(ch => vis(ch)).forEach(ch => { const cl = rTreeNode(ch); if (cl) cul.appendChild(cl); });
+    li.appendChild(cul);
+    div.addEventListener('click', () => { collapsedSet.has(node.name) ? collapsedSet.delete(node.name) : collapsedSet.add(node.name); render(); });
+  }
+  return li;
+}
+
+/* ── Orphans ── */
+function renderOrphans(el, mode) {
+  const f = treeData.orphans.filter(o => mS(o) && mF(o));
+  if (!f.length) return;
+  const sec = document.createElement('div'); sec.className = 'orphan-section';
+  sec.innerHTML = `<div class="orphan-title">⚠️ Sin conexión al árbol (${f.length})</div>`;
+  if (mode === 'chart') {
+    const g = document.createElement('div'); g.className = 'orphan-grid';
+    f.forEach(o => { const c = document.createElement('div'); c.className = 'org-card'; c.innerHTML = `<div class="card-name">${esc(o.name)}</div>${o.position?'<div class="card-pos">'+esc(o.position)+'</div>':''}`; g.appendChild(c); });
+    sec.appendChild(g);
+  } else {
+    const ul = document.createElement('ul'); ul.style.listStyle = 'none';
+    f.forEach(o => { const li = rTreeNode(o); if (li) ul.appendChild(li); });
+    sec.appendChild(ul);
+  }
+  el.appendChild(sec);
+}
+
+/* ── Helpers ── */
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
+
+/* ── Events ── */
+document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.toLowerCase().trim(); render(); });
+document.getElementById('filterStatus').addEventListener('change', e => { statusFilter = e.target.value; render(); });
+
+document.getElementById('btnViewChart').addEventListener('click', () => {
+  currentView = 'chart';
+  document.getElementById('btnViewChart').classList.add('active');
+  document.getElementById('btnViewTree').classList.remove('active');
+  render();
+});
+document.getElementById('btnViewTree').addEventListener('click', () => {
+  currentView = 'tree';
+  document.getElementById('btnViewTree').classList.add('active');
+  document.getElementById('btnViewChart').classList.remove('active');
+  render();
 });
 
-// ── Expand / Collapse All ──
-function getAllNames(node) {
-  let names = [node.name];
-  node.children.forEach(ch => { names = names.concat(getAllNames(ch)); });
-  return names;
-}
-
-document.getElementById('btnExpandAll').addEventListener('click', () => {
-  collapsedSet.clear();
-  renderChart();
-});
-
+document.getElementById('btnExpandAll').addEventListener('click', () => { collapsedSet.clear(); render(); });
 document.getElementById('btnCollapseAll').addEventListener('click', () => {
   collapsedSet.clear();
-  function collapseIfHasChildren(node) {
-    if (node.children.length > 0) collapsedSet.add(node.name);
-    node.children.forEach(collapseIfHasChildren);
-  }
-  treeData.roots.forEach(collapseIfHasChildren);
-  renderChart();
+  const col = n => { if (n.children.length) collapsedSet.add(n.name); n.children.forEach(col); };
+  treeData.roots.forEach(col); render();
 });
-
 document.getElementById('btnSync').addEventListener('click', loadData);
 
-// ── Init ──
 loadData();
 </script>
 </body>
