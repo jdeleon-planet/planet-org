@@ -32,6 +32,8 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   /* ── Header ── */
@@ -138,8 +140,16 @@
     margin: 0 2px;
   }
 
-  /* ── Content ── */
+  /* ── Content Layout ── */
+  .main-area {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+  }
+
   .content {
+    flex: 1;
     padding: 24px;
     overflow-x: auto;
     overflow-y: auto;
@@ -148,7 +158,7 @@
   }
   .content::-webkit-scrollbar { display: none; }
 
-  /* ── Custom Scrollbar ── */
+  /* ── Custom Scrollbar Horizontal ── */
   .custom-scrollbar {
     position: sticky;
     top: 52px;
@@ -163,6 +173,57 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   .custom-scrollbar.visible { display: flex; }
+
+  /* ── Custom Scrollbar Vertical ── */
+  .custom-scrollbar-v {
+    width: 44px;
+    background: var(--header-bg);
+    padding: 12px 6px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: -2px 0 6px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+  }
+  .custom-scrollbar-v.visible { display: flex; }
+
+  .sbv-arrow {
+    width: 30px; height: 30px;
+    background: var(--card);
+    color: #fff;
+    border: none; border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .sbv-arrow:hover { background: var(--accent); }
+
+  .sbv-track {
+    flex: 1;
+    width: 18px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    min-height: 60px;
+  }
+
+  .sbv-thumb {
+    position: absolute;
+    left: 2px;
+    width: 14px;
+    min-height: 40px;
+    background: var(--accent);
+    border-radius: 7px;
+    cursor: grab;
+    transition: background 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .sbv-thumb:hover { background: #fbbf24; }
+  .sbv-thumb.dragging { cursor: grabbing; background: #fbbf24; }
 
   .sb-arrow {
     width: 32px; height: 32px;
@@ -409,10 +470,20 @@
   <button class="sb-arrow" id="sbRight">▶</button>
 </div>
 
-<div class="content" id="contentEl">
-  <div class="loading" id="loadingEl">
-    <div class="spinner"></div>
-    <span>Cargando datos del Sheet…</span>
+<div class="main-area">
+  <div class="content" id="contentEl">
+    <div class="loading" id="loadingEl">
+      <div class="spinner"></div>
+      <span>Cargando datos del Sheet…</span>
+    </div>
+  </div>
+
+  <div class="custom-scrollbar-v" id="customScrollbarV">
+    <button class="sbv-arrow" id="sbUp">▲</button>
+    <div class="sbv-track" id="sbvTrack">
+      <div class="sbv-thumb" id="sbvThumb"></div>
+    </div>
+    <button class="sbv-arrow" id="sbDown">▼</button>
   </div>
 </div>
 
@@ -749,81 +820,121 @@ document.getElementById('btnCollapseAll').addEventListener('click', () => {
 });
 document.getElementById('btnSync').addEventListener('click', loadData);
 
-/* ── Custom Scrollbar ── */
+/* ── Custom Scrollbar Horizontal ── */
 const contentEl = document.getElementById('contentEl');
 const scrollbar = document.getElementById('customScrollbar');
 const sbTrack = document.getElementById('sbTrack');
 const sbThumb = document.getElementById('sbThumb');
-let isDragging = false, dragStartX = 0, dragStartScroll = 0;
+let isDraggingH = false, dragStartX = 0, dragStartScrollX = 0;
 
-function updateScrollbar() {
+function updateScrollbarH() {
   const el = contentEl;
   const hasScroll = el.scrollWidth > el.clientWidth + 2;
   scrollbar.classList.toggle('visible', hasScroll);
   if (!hasScroll) return;
-
   const ratio = el.clientWidth / el.scrollWidth;
   const trackW = sbTrack.offsetWidth;
   const thumbW = Math.max(50, trackW * ratio);
   const maxThumbLeft = trackW - thumbW;
   const scrollRatio = el.scrollLeft / (el.scrollWidth - el.clientWidth);
-  const thumbLeft = scrollRatio * maxThumbLeft;
-
   sbThumb.style.width = thumbW + 'px';
-  sbThumb.style.left = thumbLeft + 'px';
+  sbThumb.style.left = (scrollRatio * maxThumbLeft) + 'px';
 }
 
-contentEl.addEventListener('scroll', updateScrollbar);
-window.addEventListener('resize', updateScrollbar);
+contentEl.addEventListener('scroll', () => { updateScrollbarH(); updateScrollbarV(); });
+window.addEventListener('resize', () => { updateScrollbarH(); updateScrollbarV(); });
 
-// Drag thumb
 sbThumb.addEventListener('mousedown', e => {
-  isDragging = true; dragStartX = e.clientX; dragStartScroll = contentEl.scrollLeft;
+  isDraggingH = true; dragStartX = e.clientX; dragStartScrollX = contentEl.scrollLeft;
   sbThumb.classList.add('dragging'); e.preventDefault();
 });
-document.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const trackW = sbTrack.offsetWidth;
-  const thumbW = sbThumb.offsetWidth;
-  const maxThumbLeft = trackW - thumbW;
-  const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
-  const dx = e.clientX - dragStartX;
-  const scrollDelta = (dx / maxThumbLeft) * maxScroll;
-  contentEl.scrollLeft = dragStartScroll + scrollDelta;
-});
-document.addEventListener('mouseup', () => { isDragging = false; sbThumb.classList.remove('dragging'); });
-
-// Touch drag
 sbThumb.addEventListener('touchstart', e => {
-  isDragging = true; dragStartX = e.touches[0].clientX; dragStartScroll = contentEl.scrollLeft;
+  isDraggingH = true; dragStartX = e.touches[0].clientX; dragStartScrollX = contentEl.scrollLeft;
   sbThumb.classList.add('dragging'); e.preventDefault();
 }, { passive: false });
-document.addEventListener('touchmove', e => {
-  if (!isDragging) return;
-  const trackW = sbTrack.offsetWidth;
-  const thumbW = sbThumb.offsetWidth;
-  const maxThumbLeft = trackW - thumbW;
-  const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
-  const dx = e.touches[0].clientX - dragStartX;
-  contentEl.scrollLeft = dragStartScroll + (dx / maxThumbLeft) * maxScroll;
-});
-document.addEventListener('touchend', () => { isDragging = false; sbThumb.classList.remove('dragging'); });
 
-// Click track to jump
 sbTrack.addEventListener('click', e => {
   if (e.target === sbThumb) return;
   const rect = sbTrack.getBoundingClientRect();
-  const clickRatio = (e.clientX - rect.left) / rect.width;
-  contentEl.scrollLeft = clickRatio * (contentEl.scrollWidth - contentEl.clientWidth);
+  contentEl.scrollLeft = ((e.clientX - rect.left) / rect.width) * (contentEl.scrollWidth - contentEl.clientWidth);
 });
-
-// Arrow buttons
 document.getElementById('sbLeft').addEventListener('click', () => { contentEl.scrollBy({ left: -300, behavior: 'smooth' }); });
 document.getElementById('sbRight').addEventListener('click', () => { contentEl.scrollBy({ left: 300, behavior: 'smooth' }); });
 
+/* ── Custom Scrollbar Vertical ── */
+const scrollbarV = document.getElementById('customScrollbarV');
+const sbvTrack = document.getElementById('sbvTrack');
+const sbvThumb = document.getElementById('sbvThumb');
+let isDraggingV = false, dragStartY = 0, dragStartScrollY = 0;
+
+function updateScrollbarV() {
+  const el = contentEl;
+  const hasScroll = el.scrollHeight > el.clientHeight + 2;
+  scrollbarV.classList.toggle('visible', hasScroll);
+  if (!hasScroll) return;
+  const ratio = el.clientHeight / el.scrollHeight;
+  const trackH = sbvTrack.offsetHeight;
+  const thumbH = Math.max(40, trackH * ratio);
+  const maxThumbTop = trackH - thumbH;
+  const scrollRatio = el.scrollTop / (el.scrollHeight - el.clientHeight);
+  sbvThumb.style.height = thumbH + 'px';
+  sbvThumb.style.top = (scrollRatio * maxThumbTop) + 'px';
+}
+
+sbvThumb.addEventListener('mousedown', e => {
+  isDraggingV = true; dragStartY = e.clientY; dragStartScrollY = contentEl.scrollTop;
+  sbvThumb.classList.add('dragging'); e.preventDefault();
+});
+sbvThumb.addEventListener('touchstart', e => {
+  isDraggingV = true; dragStartY = e.touches[0].clientY; dragStartScrollY = contentEl.scrollTop;
+  sbvThumb.classList.add('dragging'); e.preventDefault();
+}, { passive: false });
+
+sbvTrack.addEventListener('click', e => {
+  if (e.target === sbvThumb) return;
+  const rect = sbvTrack.getBoundingClientRect();
+  contentEl.scrollTop = ((e.clientY - rect.top) / rect.height) * (contentEl.scrollHeight - contentEl.clientHeight);
+});
+document.getElementById('sbUp').addEventListener('click', () => { contentEl.scrollBy({ top: -300, behavior: 'smooth' }); });
+document.getElementById('sbDown').addEventListener('click', () => { contentEl.scrollBy({ top: 300, behavior: 'smooth' }); });
+
+/* ── Shared drag handlers ── */
+document.addEventListener('mousemove', e => {
+  if (isDraggingH) {
+    const trackW = sbTrack.offsetWidth, thumbW = sbThumb.offsetWidth;
+    const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
+    contentEl.scrollLeft = dragStartScrollX + ((e.clientX - dragStartX) / (trackW - thumbW)) * maxScroll;
+  }
+  if (isDraggingV) {
+    const trackH = sbvTrack.offsetHeight, thumbH = sbvThumb.offsetHeight;
+    const maxScroll = contentEl.scrollHeight - contentEl.clientHeight;
+    contentEl.scrollTop = dragStartScrollY + ((e.clientY - dragStartY) / (trackH - thumbH)) * maxScroll;
+  }
+});
+document.addEventListener('touchmove', e => {
+  if (isDraggingH) {
+    const trackW = sbTrack.offsetWidth, thumbW = sbThumb.offsetWidth;
+    const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
+    contentEl.scrollLeft = dragStartScrollX + ((e.touches[0].clientX - dragStartX) / (trackW - thumbW)) * maxScroll;
+  }
+  if (isDraggingV) {
+    const trackH = sbvTrack.offsetHeight, thumbH = sbvThumb.offsetHeight;
+    const maxScroll = contentEl.scrollHeight - contentEl.clientHeight;
+    contentEl.scrollTop = dragStartScrollY + ((e.touches[0].clientY - dragStartY) / (trackH - thumbH)) * maxScroll;
+  }
+});
+document.addEventListener('mouseup', () => {
+  isDraggingH = false; isDraggingV = false;
+  sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging');
+});
+document.addEventListener('touchend', () => {
+  isDraggingH = false; isDraggingV = false;
+  sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging');
+});
+
 // Update after render
 const origRender = render;
-render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(updateScrollbar); }); };
+render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(() => { updateScrollbarH(); updateScrollbarV(); }); }); };
 
 loadData();
 </script>
