@@ -457,10 +457,15 @@ async function loadData() {
     const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
     allPeople = [];
+    const seen = new Set();
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
-      allPeople.push({ name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email: iE!==-1?(r[iE]||'').trim():'' });
+      const email = iE!==-1 ? (r[iE]||'').trim() : '';
+      const uid = email || name; // email as unique ID, fallback to name
+      if (seen.has(uid)) continue; // skip duplicates
+      seen.add(uid);
+      allPeople.push({ uid, name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email });
     }
     updateStats(); buildTree(); render();
   } catch (e) { el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`; }
@@ -476,9 +481,26 @@ function updateStats() {
 
 /* ── Build Tree ── */
 function buildTree() {
-  const bn = {}; allPeople.forEach(p => { bn[p.name] = { ...p, children: [] }; });
+  // Map by uid (email) for nodes
+  const byUid = {};
+  allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [] }; });
+
+  // Map name → uid for leader lookup (first match wins)
+  const nameToUid = {};
+  allPeople.forEach(p => { if (!nameToUid[p.name]) nameToUid[p.name] = p.uid; });
+
   const roots = [], orphans = [];
-  allPeople.forEach(p => { const n = bn[p.name]; if (!p.leader || !bn[p.leader]) { if (p.leader && !bn[p.leader]) orphans.push(n); else roots.push(n); } else bn[p.leader].children.push(n); });
+  allPeople.forEach(p => {
+    const node = byUid[p.uid];
+    const leaderUid = nameToUid[p.leader];
+    if (!p.leader || !leaderUid || !byUid[leaderUid]) {
+      if (p.leader && !leaderUid) orphans.push(node);
+      else roots.push(node);
+    } else {
+      byUid[leaderUid].children.push(node);
+    }
+  });
+
   const srt = n => { n.children.sort((a,b) => cnt(b)-cnt(a)); n.children.forEach(srt); };
   roots.forEach(srt); roots.sort((a,b) => cnt(b)-cnt(a));
   treeData = { roots, orphans };
@@ -545,10 +567,10 @@ function rChartNode(node, ancestorMatched) {
   }
   card.appendChild(copyRow);
 
-  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
+  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
   if (hasC) {
     const icon = document.createElement('div'); icon.className = 'collapse-icon'; icon.textContent = isCol?'+':'−'; card.appendChild(icon);
-    card.addEventListener('click', () => { collapsedSet.has(node.name) ? collapsedSet.delete(node.name) : collapsedSet.add(node.name); render(); });
+    card.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
   }
   w.appendChild(card);
 
@@ -595,7 +617,7 @@ function rTreeNode(node, ancestorMatched) {
   const div = document.createElement('div'); div.className = 'tree-node';
   if (searchQuery && !isSelf) div.classList.add('dimmed');
 
-  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
+  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
   const isOpen = searchQuery ? true : !isCol;
 
   const tgl = document.createElement('span');
@@ -638,7 +660,7 @@ function rTreeNode(node, ancestorMatched) {
     const cul = document.createElement('ul'); cul.className = 'tree-children'+(isOpen?'':' collapsed');
     node.children.filter(ch => vis(ch, passDown)).forEach(ch => { const cl = rTreeNode(ch, passDown); if (cl) cul.appendChild(cl); });
     li.appendChild(cul);
-    div.addEventListener('click', () => { collapsedSet.has(node.name) ? collapsedSet.delete(node.name) : collapsedSet.add(node.name); render(); });
+    div.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
   }
   return li;
 }
@@ -706,7 +728,7 @@ document.getElementById('btnViewTree').addEventListener('click', () => {
 document.getElementById('btnExpandAll').addEventListener('click', () => { collapsedSet.clear(); render(); });
 document.getElementById('btnCollapseAll').addEventListener('click', () => {
   collapsedSet.clear();
-  const col = n => { if (n.children.length) collapsedSet.add(n.name); n.children.forEach(col); };
+  const col = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(col); };
   treeData.roots.forEach(col); render();
 });
 document.getElementById('btnSync').addEventListener('click', loadData);
