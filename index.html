@@ -268,7 +268,7 @@
 
   <select class="filter-select" id="filterStatus">
     <option value="all">Todos</option>
-    <option value="active">Activos</option>
+    <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
   </select>
 
@@ -298,7 +298,7 @@ let allPeople = [];
 let treeData = { roots: [], orphans: [] };
 let collapsedSet = new Set();
 let searchQuery = '';
-let statusFilter = 'all';
+let statusFilter = 'active';
 let currentView = 'chart';
 
 /* ── CSV Parser ── */
@@ -341,7 +341,7 @@ async function loadData() {
 }
 
 function updateStats() {
-  const t = allPeople.length, a = allPeople.filter(p => p.status.toLowerCase()==='active').length;
+  const t = allPeople.length, a = allPeople.filter(p => isActivo(p.status)).length;
   document.getElementById('statTotal').textContent = t;
   document.getElementById('statActive').textContent = a;
   document.getElementById('statInactive').textContent = t - a;
@@ -359,8 +359,9 @@ function buildTree() {
 function cnt(n) { let c = 1; for (const ch of n.children) c += cnt(ch); return c; }
 
 /* ── Filters ── */
+function isActivo(status) { const s = status.toLowerCase(); return s.startsWith('activo'); }
 function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery); }
-function mF(n) { if (statusFilter==='all') return true; const s = n.status.toLowerCase(); return statusFilter==='active' ? s==='active' : s!=='active'; }
+function mF(n) { if (statusFilter==='all') return true; return statusFilter==='active' ? isActivo(n.status) : !isActivo(n.status); }
 function vis(n) { if (mS(n) && mF(n)) return true; return n.children.some(ch => vis(ch)); }
 
 /* ── Render ── */
@@ -393,7 +394,7 @@ function rChartNode(node) {
   const cc = cnt(node)-1;
   if (cc > 0) card.innerHTML += `<div class="card-count">▾ ${cc}</div>`;
   if (node.status) {
-    const isA = node.status.toLowerCase()==='active';
+    const isA = isActivo(node.status);
     card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
   }
 
@@ -464,7 +465,7 @@ function rTreeNode(node) {
 
   if (node.status) {
     const b = document.createElement('span');
-    const isA = node.status.toLowerCase()==='active';
+    const isA = isActivo(node.status);
     b.className = 'badge '+(isA?'badge-active':'badge-inactive');
     b.textContent = isA ? 'Activo' : node.status;
     div.appendChild(b);
