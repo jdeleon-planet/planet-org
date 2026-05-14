@@ -362,7 +362,14 @@ function cnt(n) { let c = 1; for (const ch of n.children) c += cnt(ch); return c
 function isActivo(status) { const s = status.toLowerCase(); return s.startsWith('activo'); }
 function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery); }
 function mF(n) { if (statusFilter==='all') return true; return statusFilter==='active' ? isActivo(n.status) : !isActivo(n.status); }
-function vis(n) { if (mS(n) && mF(n)) return true; return n.children.some(ch => vis(ch)); }
+function selfMatch(n) { return mS(n) && mF(n); }
+// Show node if: it matches, OR a descendant matches (path down), OR ancestor matched (show subordinates)
+function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
+function vis(n, ancestorMatched) {
+  if (ancestorMatched && mF(n)) return true;
+  if (selfMatch(n)) return true;
+  return n.children.some(ch => hasMatchBelow(ch));
+}
 
 /* ── Render ── */
 function render() { currentView === 'chart' ? renderChart() : renderTreeView(); }
@@ -372,23 +379,24 @@ function renderChart() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
   const c = document.createElement('div'); c.className = 'org-chart';
   treeData.roots.forEach((r,i) => {
-    if (!vis(r)) return;
+    if (!vis(r, false)) return;
     if (i > 0) { const sp = document.createElement('div'); sp.style.height = '36px'; c.appendChild(sp); }
-    const nd = rChartNode(r); if (nd) c.appendChild(nd);
+    const nd = rChartNode(r, false); if (nd) c.appendChild(nd);
   });
   el.appendChild(c);
   renderOrphans(el, 'chart');
 }
 
-function rChartNode(node) {
-  if (!vis(node)) return null;
-  const self = mS(node) && mF(node);
+function rChartNode(node, ancestorMatched) {
+  if (!vis(node, ancestorMatched)) return null;
+  const isSelf = selfMatch(node);
+  const showAsSelf = isSelf || ancestorMatched;
   const w = document.createElement('div'); w.className = 'org-node';
 
   // Card
   const card = document.createElement('div'); card.className = 'org-card';
-  if (searchQuery && self) card.classList.add('highlight');
-  if (!self) card.classList.add('dimmed');
+  if (searchQuery && isSelf) card.classList.add('highlight');
+  if (!showAsSelf && !isSelf) card.classList.add('dimmed');
   card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
     + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '');
   const cc = cnt(node)-1;
@@ -405,8 +413,9 @@ function rChartNode(node) {
   }
   w.appendChild(card);
 
+  const passDown = isSelf || ancestorMatched;
   if (hasC && !isCol) {
-    const vc = node.children.filter(ch => vis(ch));
+    const vc = node.children.filter(ch => vis(ch, passDown));
     if (vc.length > 0) {
       const vl = document.createElement('div'); vl.className = 'org-vert-line'; w.appendChild(vl);
       const cw = document.createElement('div'); cw.className = 'org-children-wrap';
@@ -414,7 +423,7 @@ function rChartNode(node) {
       vc.forEach(ch => {
         const br = document.createElement('div'); br.className = 'org-child-branch';
         const cv = document.createElement('div'); cv.className = 'org-child-vert'; br.appendChild(cv);
-        const cn = rChartNode(ch); if (cn) br.appendChild(cn);
+        const cn = rChartNode(ch, passDown); if (cn) br.appendChild(cn);
         hc.appendChild(br);
       });
       cw.appendChild(hc); w.appendChild(cw);
@@ -435,17 +444,18 @@ function renderTreeView() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
   const c = document.createElement('div'); c.className = 'tree-view';
   const ul = document.createElement('ul');
-  treeData.roots.forEach(r => { const li = rTreeNode(r); if (li) ul.appendChild(li); });
+  treeData.roots.forEach(r => { const li = rTreeNode(r, false); if (li) ul.appendChild(li); });
   c.appendChild(ul); el.appendChild(c);
   renderOrphans(el, 'tree');
 }
 
-function rTreeNode(node) {
-  if (!vis(node)) return null;
-  const self = mS(node) && mF(node);
+function rTreeNode(node, ancestorMatched) {
+  if (!vis(node, ancestorMatched)) return null;
+  const isSelf = selfMatch(node);
+  const showAsSelf = isSelf || ancestorMatched;
   const li = document.createElement('li');
   const div = document.createElement('div'); div.className = 'tree-node';
-  if (!self) div.classList.add('dimmed');
+  if (!showAsSelf && !isSelf) div.classList.add('dimmed');
 
   const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
   const isOpen = searchQuery ? true : !isCol;
@@ -456,7 +466,7 @@ function rTreeNode(node) {
 
   const info = document.createElement('div'); info.className = 'tree-info';
   const nm = document.createElement('div'); nm.className = 'tree-name';
-  if (searchQuery && self) nm.innerHTML = hlText(node.name, searchQuery); else nm.textContent = node.name;
+  if (searchQuery && isSelf) nm.innerHTML = hlText(node.name, searchQuery); else nm.textContent = node.name;
   info.appendChild(nm);
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
@@ -474,9 +484,10 @@ function rTreeNode(node) {
 
   li.appendChild(div);
 
+  const passDown = isSelf || ancestorMatched;
   if (hasC) {
     const cul = document.createElement('ul'); cul.className = 'tree-children'+(isOpen?'':' collapsed');
-    node.children.filter(ch => vis(ch)).forEach(ch => { const cl = rTreeNode(ch); if (cl) cul.appendChild(cl); });
+    node.children.filter(ch => vis(ch, passDown)).forEach(ch => { const cl = rTreeNode(ch, passDown); if (cl) cul.appendChild(cl); });
     li.appendChild(cul);
     div.addEventListener('click', () => { collapsedSet.has(node.name) ? collapsedSet.delete(node.name) : collapsedSet.add(node.name); render(); });
   }
@@ -495,7 +506,7 @@ function renderOrphans(el, mode) {
     sec.appendChild(g);
   } else {
     const ul = document.createElement('ul'); ul.style.listStyle = 'none';
-    f.forEach(o => { const li = rTreeNode(o); if (li) ul.appendChild(li); });
+    f.forEach(o => { const li = rTreeNode(o, false); if (li) ul.appendChild(li); });
     sec.appendChild(ul);
   }
   el.appendChild(sec);
