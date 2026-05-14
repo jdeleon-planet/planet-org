@@ -71,7 +71,7 @@
   }
   .search-box {
     width: 100%;
-    padding: 7px 10px 7px 32px;
+    padding: 7px 30px 7px 32px;
     border: 1px solid var(--border);
     border-radius: 7px;
     font-size: 0.83rem;
@@ -79,6 +79,16 @@
     outline: none;
   }
   .search-box:focus { border-color: var(--card); }
+
+  .search-clear {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border: none; background: var(--border); color: var(--text);
+    border-radius: 50%; font-size: 0.7rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s; line-height: 1;
+  }
+  .search-clear:hover { background: var(--text2); color: #fff; }
 
   .btn {
     padding: 7px 12px;
@@ -133,15 +143,69 @@
     padding: 24px;
     overflow-x: auto;
     overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* ── Custom Scrollbar ── */
+  .custom-scrollbar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    background: var(--header-bg);
+    padding: 8px 20px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+  }
+  .custom-scrollbar.visible { display: flex; }
+
+  .sb-arrow {
+    width: 32px; height: 32px;
+    background: var(--card);
+    color: #fff;
+    border: none; border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .sb-arrow:hover { background: var(--accent); }
+
+  .sb-track {
+    flex: 1;
+    height: 18px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
   }
 
-  /* Visible scrollbar */
-  .content::-webkit-scrollbar { height: 14px; }
-  .content::-webkit-scrollbar-track { background: #dfe3ea; border-radius: 7px; margin: 0 20px; }
-  .content::-webkit-scrollbar-thumb { background: var(--card); border-radius: 7px; border: 2px solid #dfe3ea; min-width: 60px; }
-  .content::-webkit-scrollbar-thumb:hover { background: var(--card-hover); }
-  /* Firefox */
-  .content { scrollbar-width: auto; scrollbar-color: var(--card) #dfe3ea; }
+  .sb-thumb {
+    position: absolute;
+    top: 2px;
+    height: 14px;
+    min-width: 50px;
+    background: var(--accent);
+    border-radius: 7px;
+    cursor: grab;
+    transition: background 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .sb-thumb:hover { background: #fbbf24; }
+  .sb-thumb.dragging { cursor: grabbing; background: #fbbf24; }
+
+  .sb-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
 
   .scroll-hint {
     text-align: center;
@@ -316,6 +380,7 @@
   <div class="search-wrap">
     <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre…">
+    <button class="search-clear" id="searchClear" style="display:none">✕</button>
   </div>
 
   <select class="filter-select" id="filterStatus">
@@ -341,6 +406,14 @@
     <div class="spinner"></div>
     <span>Cargando datos del Sheet…</span>
   </div>
+</div>
+
+<div class="custom-scrollbar" id="customScrollbar">
+  <button class="sb-arrow" id="sbLeft">◀</button>
+  <div class="sb-track" id="sbTrack">
+    <div class="sb-thumb" id="sbThumb"></div>
+  </div>
+  <button class="sb-arrow" id="sbRight">▶</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -431,8 +504,6 @@ function render() { currentView === 'chart' ? renderChart() : renderTreeView(); 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
 function renderChart() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
-  const hint = document.createElement('div'); hint.className = 'scroll-hint'; hint.textContent = '← Desliza para ver todo el organigrama →';
-  el.appendChild(hint);
   const c = document.createElement('div'); c.className = 'org-chart';
   treeData.roots.forEach((r,i) => {
     if (!vis(r, false)) return;
@@ -441,8 +512,6 @@ function renderChart() {
   });
   el.appendChild(c);
   renderOrphans(el, 'chart');
-  // Hide hint if no scroll needed
-  requestAnimationFrame(() => { if (el.scrollWidth <= el.clientWidth) hint.style.display = 'none'; });
 }
 
 function rChartNode(node, ancestorMatched) {
@@ -608,7 +677,17 @@ function showToast(msg) {
 }
 
 /* ── Events ── */
-document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.toLowerCase().trim(); render(); });
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  document.getElementById('searchClear').style.display = e.target.value ? 'flex' : 'none';
+  render();
+});
+document.getElementById('searchClear').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  searchQuery = '';
+  render();
+});
 document.getElementById('filterStatus').addEventListener('change', e => { statusFilter = e.target.value; render(); });
 
 document.getElementById('btnViewChart').addEventListener('click', () => {
@@ -631,6 +710,82 @@ document.getElementById('btnCollapseAll').addEventListener('click', () => {
   treeData.roots.forEach(col); render();
 });
 document.getElementById('btnSync').addEventListener('click', loadData);
+
+/* ── Custom Scrollbar ── */
+const contentEl = document.getElementById('contentEl');
+const scrollbar = document.getElementById('customScrollbar');
+const sbTrack = document.getElementById('sbTrack');
+const sbThumb = document.getElementById('sbThumb');
+let isDragging = false, dragStartX = 0, dragStartScroll = 0;
+
+function updateScrollbar() {
+  const el = contentEl;
+  const hasScroll = el.scrollWidth > el.clientWidth + 2;
+  scrollbar.classList.toggle('visible', hasScroll);
+  if (!hasScroll) return;
+
+  const ratio = el.clientWidth / el.scrollWidth;
+  const trackW = sbTrack.offsetWidth;
+  const thumbW = Math.max(50, trackW * ratio);
+  const maxThumbLeft = trackW - thumbW;
+  const scrollRatio = el.scrollLeft / (el.scrollWidth - el.clientWidth);
+  const thumbLeft = scrollRatio * maxThumbLeft;
+
+  sbThumb.style.width = thumbW + 'px';
+  sbThumb.style.left = thumbLeft + 'px';
+}
+
+contentEl.addEventListener('scroll', updateScrollbar);
+window.addEventListener('resize', updateScrollbar);
+
+// Drag thumb
+sbThumb.addEventListener('mousedown', e => {
+  isDragging = true; dragStartX = e.clientX; dragStartScroll = contentEl.scrollLeft;
+  sbThumb.classList.add('dragging'); e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const trackW = sbTrack.offsetWidth;
+  const thumbW = sbThumb.offsetWidth;
+  const maxThumbLeft = trackW - thumbW;
+  const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
+  const dx = e.clientX - dragStartX;
+  const scrollDelta = (dx / maxThumbLeft) * maxScroll;
+  contentEl.scrollLeft = dragStartScroll + scrollDelta;
+});
+document.addEventListener('mouseup', () => { isDragging = false; sbThumb.classList.remove('dragging'); });
+
+// Touch drag
+sbThumb.addEventListener('touchstart', e => {
+  isDragging = true; dragStartX = e.touches[0].clientX; dragStartScroll = contentEl.scrollLeft;
+  sbThumb.classList.add('dragging'); e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const trackW = sbTrack.offsetWidth;
+  const thumbW = sbThumb.offsetWidth;
+  const maxThumbLeft = trackW - thumbW;
+  const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
+  const dx = e.touches[0].clientX - dragStartX;
+  contentEl.scrollLeft = dragStartScroll + (dx / maxThumbLeft) * maxScroll;
+});
+document.addEventListener('touchend', () => { isDragging = false; sbThumb.classList.remove('dragging'); });
+
+// Click track to jump
+sbTrack.addEventListener('click', e => {
+  if (e.target === sbThumb) return;
+  const rect = sbTrack.getBoundingClientRect();
+  const clickRatio = (e.clientX - rect.left) / rect.width;
+  contentEl.scrollLeft = clickRatio * (contentEl.scrollWidth - contentEl.clientWidth);
+});
+
+// Arrow buttons
+document.getElementById('sbLeft').addEventListener('click', () => { contentEl.scrollBy({ left: -300, behavior: 'smooth' }); });
+document.getElementById('sbRight').addEventListener('click', () => { contentEl.scrollBy({ left: 300, behavior: 'smooth' }); });
+
+// Update after render
+const origRender = render;
+render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(updateScrollbar); }); };
 
 loadData();
 </script>
