@@ -129,12 +129,32 @@
   }
 
   /* ── Content ── */
-  .content { padding: 24px; overflow: auto; }
+  .content {
+    padding: 24px;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  /* Visible scrollbar */
+  .content::-webkit-scrollbar { height: 14px; }
+  .content::-webkit-scrollbar-track { background: #dfe3ea; border-radius: 7px; margin: 0 20px; }
+  .content::-webkit-scrollbar-thumb { background: var(--card); border-radius: 7px; border: 2px solid #dfe3ea; min-width: 60px; }
+  .content::-webkit-scrollbar-thumb:hover { background: var(--card-hover); }
+  /* Firefox */
+  .content { scrollbar-width: auto; scrollbar-color: var(--card) #dfe3ea; }
+
+  .scroll-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text2);
+    padding: 6px 0 2px;
+    user-select: none;
+  }
 
   /* ═══════════════════════════════════
      VIEW: ORG CHART (Visual)
      ═══════════════════════════════════ */
-  .org-chart { display: flex; flex-direction: column; align-items: center; }
+  .org-chart { display: flex; flex-direction: column; align-items: center; min-width: max-content; padding-bottom: 20px; }
   .org-node { display: flex; flex-direction: column; align-items: center; }
 
   .org-card {
@@ -217,7 +237,7 @@
   /* ═══════════════════════════════════
      VIEW: TREE LIST
      ═══════════════════════════════════ */
-  .tree-view { max-width: 900px; margin: 0 auto; }
+  .tree-view { max-width: 900px; margin: 0 auto; min-width: max-content; }
   .tree-view ul { list-style: none; padding-left: 22px; border-left: 1px solid var(--border); margin-left: 11px; }
   .tree-view > ul { border-left: none; padding-left: 0; margin-left: 0; }
 
@@ -411,6 +431,8 @@ function render() { currentView === 'chart' ? renderChart() : renderTreeView(); 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
 function renderChart() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
+  const hint = document.createElement('div'); hint.className = 'scroll-hint'; hint.textContent = '← Desliza para ver todo el organigrama →';
+  el.appendChild(hint);
   const c = document.createElement('div'); c.className = 'org-chart';
   treeData.roots.forEach((r,i) => {
     if (!vis(r, false)) return;
@@ -419,6 +441,8 @@ function renderChart() {
   });
   el.appendChild(c);
   renderOrphans(el, 'chart');
+  // Hide hint if no scroll needed
+  requestAnimationFrame(() => { if (el.scrollWidth <= el.clientWidth) hint.style.display = 'none'; });
 }
 
 function rChartNode(node, ancestorMatched) {
