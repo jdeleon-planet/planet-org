@@ -456,17 +456,38 @@ async function loadData() {
     const hd = rows[0].map(h => h.replace(/\r/g, '').trim());
     const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
-    allPeople = [];
-    const seen = new Set();
+
+    // First pass: collect all rows
+    const rawPeople = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
       const email = iE!==-1 ? (r[iE]||'').trim() : '';
-      const uid = email || name; // email as unique ID, fallback to name
-      if (seen.has(uid)) continue; // skip duplicates
-      seen.add(uid);
-      allPeople.push({ uid, name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email });
+      rawPeople.push({ name, position: (r[iP]||'').trim(), leaderName: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email });
     }
+
+    // Build name → email map (first match with email wins)
+    const nameToEmail = {};
+    rawPeople.forEach(p => {
+      if (p.email && !nameToEmail[p.name]) nameToEmail[p.name] = p.email;
+    });
+    // Fallback: if no email, use name as key
+    rawPeople.forEach(p => {
+      if (!nameToEmail[p.name]) nameToEmail[p.name] = p.name;
+    });
+
+    // Deduplicate by email (unique key)
+    const seen = new Set();
+    allPeople = [];
+    rawPeople.forEach(p => {
+      const uid = p.email || p.name;
+      if (seen.has(uid)) return;
+      seen.add(uid);
+      // Convert leader name → leader email
+      const leaderEmail = p.leaderName ? (nameToEmail[p.leaderName] || '') : '';
+      allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: leaderEmail, status: p.status, email: p.email });
+    });
+
     updateStats(); buildTree(); render();
   } catch (e) { el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`; }
   finally { document.getElementById('loadingEl').style.display = 'none'; }
@@ -485,19 +506,14 @@ function buildTree() {
   const byUid = {};
   allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [] }; });
 
-  // Map name → uid for leader lookup (first match wins)
-  const nameToUid = {};
-  allPeople.forEach(p => { if (!nameToUid[p.name]) nameToUid[p.name] = p.uid; });
-
   const roots = [], orphans = [];
   allPeople.forEach(p => {
     const node = byUid[p.uid];
-    const leaderUid = nameToUid[p.leader];
-    if (!p.leader || !leaderUid || !byUid[leaderUid]) {
-      if (p.leader && !leaderUid) orphans.push(node);
+    if (!p.leaderUid || !byUid[p.leaderUid]) {
+      if (p.leaderName && !byUid[p.leaderUid]) orphans.push(node);
       else roots.push(node);
     } else {
-      byUid[leaderUid].children.push(node);
+      byUid[p.leaderUid].children.push(node);
     }
   });
 
@@ -631,7 +647,7 @@ function rTreeNode(node, ancestorMatched) {
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
   if (node.email) { const e = document.createElement('span'); e.textContent = node.email; meta.appendChild(e); }
-  if (node.leader) { const l = document.createElement('span'); l.textContent = '→ '+node.leader; meta.appendChild(l); }
+  if (node.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+node.leaderName; meta.appendChild(l); }
   info.appendChild(meta); div.appendChild(info);
 
   // Copy buttons
