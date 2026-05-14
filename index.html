@@ -171,6 +171,38 @@
     font-size: 10px; color: #fff; border: 2px solid var(--bg);
   }
 
+  .org-card .card-email { font-size: 0.62rem; color: var(--card-sub); opacity: 0.8; margin-top: 1px; word-break: break-all; }
+
+  .copy-row {
+    display: flex; gap: 4px; justify-content: center; margin-top: 6px;
+  }
+  .copy-btn {
+    font-size: 0.62rem; padding: 2px 6px; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1);
+    color: #fff; cursor: pointer; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .tree-copy-btn {
+    font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--surface);
+    cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+  }
+  .tree-copy-btn:hover { background: var(--surface2); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--header-bg); color: #fff;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 0.82rem; font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
   .org-vert-line { width: 2px; height: 22px; background: var(--line); }
   .org-children-wrap { display: flex; flex-direction: column; align-items: center; }
   .org-horiz-connector { display: flex; align-items: flex-start; position: relative; }
@@ -291,6 +323,8 @@
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS23c3nYCU-Of7Y0VM_o0SOeWIL4DNp_e2fY3QxUjBRAzZ0BU5Tb52kiY7vMWy3JUmMuXVQFF9r2F4-/pub?gid=0&single=true&output=csv';
 
@@ -327,13 +361,13 @@ async function loadData() {
     const rows = parseCSV(text);
     if (rows.length < 2) throw new Error('No data');
     const hd = rows[0].map(h => h.replace(/\r/g, '').trim());
-    const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status');
+    const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
     allPeople = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
-      allPeople.push({ name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'' });
+      allPeople.push({ name, position: (r[iP]||'').trim(), leader: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email: iE!==-1?(r[iE]||'').trim():'' });
     }
     updateStats(); buildTree(); render();
   } catch (e) { el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`; }
@@ -360,7 +394,7 @@ function cnt(n) { let c = 1; for (const ch of n.children) c += cnt(ch); return c
 
 /* ── Filters ── */
 function isActivo(status) { const s = status.toLowerCase(); return s.startsWith('activo'); }
-function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery); }
+function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery) || n.email.toLowerCase().includes(searchQuery); }
 function mF(n) { if (statusFilter==='all') return true; return statusFilter==='active' ? isActivo(n.status) : !isActivo(n.status); }
 function selfMatch(n) { return mS(n) && mF(n); }
 // Show node if: it matches, OR a descendant matches (path down), OR ancestor matched (show subordinates)
@@ -390,21 +424,33 @@ function renderChart() {
 function rChartNode(node, ancestorMatched) {
   if (!vis(node, ancestorMatched)) return null;
   const isSelf = selfMatch(node);
-  const showAsSelf = isSelf || ancestorMatched;
   const w = document.createElement('div'); w.className = 'org-node';
 
   // Card
   const card = document.createElement('div'); card.className = 'org-card';
   if (searchQuery && isSelf) card.classList.add('highlight');
-  if (!showAsSelf && !isSelf) card.classList.add('dimmed');
+  if (searchQuery && !isSelf) card.classList.add('dimmed');
   card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
-    + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '');
+    + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '')
+    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '');
   const cc = cnt(node)-1;
   if (cc > 0) card.innerHTML += `<div class="card-count">▾ ${cc}</div>`;
   if (node.status) {
     const isA = isActivo(node.status);
     card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
   }
+
+  // Copy buttons
+  const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
+  const btnName = document.createElement('button'); btnName.className = 'copy-btn'; btnName.textContent = '📋 Nombre';
+  btnName.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.name); });
+  copyRow.appendChild(btnName);
+  if (node.email) {
+    const btnEmail = document.createElement('button'); btnEmail.className = 'copy-btn'; btnEmail.textContent = '📧 Email';
+    btnEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
+    copyRow.appendChild(btnEmail);
+  }
+  card.appendChild(copyRow);
 
   const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
   if (hasC) {
@@ -452,10 +498,9 @@ function renderTreeView() {
 function rTreeNode(node, ancestorMatched) {
   if (!vis(node, ancestorMatched)) return null;
   const isSelf = selfMatch(node);
-  const showAsSelf = isSelf || ancestorMatched;
   const li = document.createElement('li');
   const div = document.createElement('div'); div.className = 'tree-node';
-  if (!showAsSelf && !isSelf) div.classList.add('dimmed');
+  if (searchQuery && !isSelf) div.classList.add('dimmed');
 
   const hasC = node.children.length > 0, isCol = collapsedSet.has(node.name);
   const isOpen = searchQuery ? true : !isCol;
@@ -470,8 +515,19 @@ function rTreeNode(node, ancestorMatched) {
   info.appendChild(nm);
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
+  if (node.email) { const e = document.createElement('span'); e.textContent = node.email; meta.appendChild(e); }
   if (node.leader) { const l = document.createElement('span'); l.textContent = '→ '+node.leader; meta.appendChild(l); }
   info.appendChild(meta); div.appendChild(info);
+
+  // Copy buttons
+  const cpName = document.createElement('button'); cpName.className = 'tree-copy-btn'; cpName.textContent = '📋';
+  cpName.title = 'Copiar nombre'; cpName.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.name); });
+  div.appendChild(cpName);
+  if (node.email) {
+    const cpEmail = document.createElement('button'); cpEmail.className = 'tree-copy-btn'; cpEmail.textContent = '📧';
+    cpEmail.title = 'Copiar email'; cpEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
+    div.appendChild(cpEmail);
+  }
 
   if (node.status) {
     const b = document.createElement('span');
@@ -515,6 +571,17 @@ function renderOrphans(el, mode) {
 /* ── Helpers ── */
 function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('Copiado: ' + text)).catch(() => showToast('Error al copiar'));
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
 
 /* ── Events ── */
 document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.toLowerCase().trim(); render(); });
