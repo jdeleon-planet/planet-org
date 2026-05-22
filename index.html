@@ -297,8 +297,18 @@
     user-select: none;
   }
   .org-card:hover { background: var(--card-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
-  .org-card.highlight { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .org-card.dimmed { opacity: 0.45; }
+  .org-card.highlight {
+    background: var(--accent);
+    color: #2C375C;
+    box-shadow: 0 4px 16px rgba(254,203,40,0.5);
+    transform: translateY(-2px) scale(1.03);
+  }
+  .org-card.highlight .card-name { color: #2C375C; }
+  .org-card.highlight .card-pos,
+  .org-card.highlight .card-email,
+  .org-card.highlight .card-count,
+  .org-card.highlight .card-count-expanded { color: #2C375C; opacity: 0.7; }
+  .org-card.highlight .card-status { border: 1px solid rgba(44,55,92,0.3); }
   .org-card .card-name { font-weight: 700; font-size: 0.78rem; line-height: 1.25; margin-bottom: 2px; }
   .org-card .card-pos { font-size: 0.68rem; color: var(--card-sub); }
   .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 0.7; }
@@ -455,7 +465,13 @@
     cursor: pointer; transition: background 0.12s; user-select: none;
   }
   .tree-node:hover { background: var(--surface); }
-  .tree-node.dimmed { opacity: 0.45; }
+  .tree-node.highlight {
+    background: var(--accent);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(254,203,40,0.4);
+  }
+  .tree-node.highlight .tree-name { color: #2C375C; }
+  .tree-node.highlight .tree-meta span { color: #2C375C; opacity: 0.7; }
 
   .tree-toggle {
     width: 18px; height: 18px;
@@ -477,7 +493,7 @@
   .badge-count { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
 
   .tree-children.collapsed { display: none; }
-  .tree-hl { background: rgba(254,203,40,0.25); border-radius: 3px; padding: 0 2px; }
+  .tree-hl { background: var(--accent); color: #2C375C; border-radius: 3px; padding: 1px 3px; font-weight: 700; }
 
   /* ── Orphans ── */
   .orphan-section { margin-top: 36px; padding-top: 18px; border-top: 2px dashed var(--border); }
@@ -820,7 +836,6 @@ function rChartNode(node, ancestorMatched) {
   // Card
   const card = document.createElement('div'); card.className = 'org-card';
   if (searchQuery && isSelf) card.classList.add('highlight');
-  if (searchQuery && !isSelf) card.classList.add('dimmed');
   card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
     + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '')
     + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '')
@@ -908,7 +923,7 @@ function rTreeNode(node, ancestorMatched) {
   const isSelf = selfMatch(node);
   const li = document.createElement('li');
   const div = document.createElement('div'); div.className = 'tree-node';
-  if (searchQuery && !isSelf) div.classList.add('dimmed');
+  if (searchQuery && isSelf) div.classList.add('highlight');
 
   const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
   const isOpen = searchQuery ? true : !isCol;
