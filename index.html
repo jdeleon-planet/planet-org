@@ -781,7 +781,8 @@ function rChartNode(node, ancestorMatched) {
   if (searchQuery && !isSelf) card.classList.add('dimmed');
   card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
     + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '')
-    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '');
+    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '')
+    + (node.leaderName ? `<div class="card-pos" style="margin-top:3px">→ ${esc(node.leaderName)}</div>` : '');
   const cc = cnt(node)-1;
   if (cc > 0) card.innerHTML += `<div class="card-count">▾ ${cc}</div>`;
   if (node.status) {
@@ -942,7 +943,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 /* ── Leader Edit Modal ── */
@@ -1019,15 +1020,19 @@ function showLeaderModal(node) {
 async function saveLeader(node, leaderName) {
   showToast('Guardando...');
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ email: node.email, leader: leaderName })
     });
-    showToast('✅ Líder ' + (leaderName ? 'asignado: ' + leaderName : 'removido'));
-    // Reload data after 2 seconds (give sheet time to update)
-    setTimeout(() => loadData(), 2000);
+    showToast('✅ Guardado. Sync en 5 seg...');
+    // Google Sheets CSV cache can take a few minutes to update
+    // Reload after 5 seconds to try to get fresh data
+    setTimeout(() => {
+      loadData();
+      showToast('Datos recargados — si no ves el cambio, dale Sync en 1 min');
+    }, 5000);
   } catch (e) {
     showToast('❌ Error al guardar: ' + e.message);
   }
