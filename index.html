@@ -520,6 +520,68 @@
     .toolbar { gap: 5px; }
     .toolbar-sep { display: none; }
   }
+  /* ── Print / PDF ── */
+  @media print {
+    body { display: block; min-height: auto; }
+    .toolbar, .custom-scrollbar, .custom-scrollbar-v,
+    .zoom-controls, .toast, .copy-row, .copy-btn,
+    .edit-leader-btn, .tree-copy-btn, .tree-edit-btn,
+    .collapse-icon, .search-clear { display: none !important; }
+
+    .header {
+      background: #2C375C !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      position: relative;
+    }
+
+    .main-area { height: auto; overflow: visible; }
+
+    .content {
+      overflow: visible !important;
+      height: auto !important;
+      padding: 10px;
+    }
+
+    .org-chart {
+      transform: none !important;
+      min-width: auto;
+    }
+
+    .org-card {
+      background: #2C375C !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      box-shadow: none;
+      border: 1px solid #858688;
+    }
+    .org-card.highlight {
+      background: #FECB28 !important;
+      color: #2C375C !important;
+    }
+
+    .tree-node.highlight {
+      background: #FECB28 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .badge {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .print-header {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #858688;
+      margin-bottom: 10px;
+      display: block !important;
+    }
+  }
+
+  .print-header { display: none; }
 </style>
 </head>
 <body>
@@ -561,6 +623,7 @@
   <button class="btn" id="btnExpandAll">Expandir</button>
   <button class="btn" id="btnCollapseAll">Colapsar</button>
   <button class="btn btn-accent" id="btnSync">↻ Sync</button>
+  <button class="btn" id="btnPDF" style="background:var(--accent);color:#2C375C;border-color:var(--accent);font-weight:600">📄 PDF</button>
 </div>
 
 <div class="custom-scrollbar" id="customScrollbar">
@@ -572,6 +635,7 @@
 </div>
 
 <div class="main-area">
+  <div class="print-header" id="printHeader"></div>
   <div class="content" id="contentEl">
     <div class="loading" id="loadingEl">
       <div class="spinner"></div>
@@ -1202,6 +1266,26 @@ document.getElementById('btnCollapseAll').addEventListener('click', () => {
   treeData.roots.forEach(col); render();
 });
 document.getElementById('btnSync').addEventListener('click', loadData);
+
+document.getElementById('btnPDF').addEventListener('click', () => {
+  // Set print header info
+  const filterNames = { all: 'Todos', active: 'Activos', inactive: 'Inactivos', 'orphan-active': 'Huérfanos Activos', 'orphan-inactive': 'Huérfanos Inactivos' };
+  const viewName = currentView === 'chart' ? 'Organigrama' : 'Detalle';
+  const filterName = filterNames[statusFilter] || statusFilter;
+  const searchInfo = searchQuery ? ` | Búsqueda: "${searchQuery}"` : '';
+  const date = new Date().toLocaleDateString('es-PR', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('printHeader').textContent = `Planet Solar — ${viewName} — Filtro: ${filterName}${searchInfo} — ${date}`;
+  
+  // Reset zoom for print
+  const chart = document.querySelector('.org-chart');
+  const oldTransform = chart ? chart.style.transform : '';
+  if (chart) chart.style.transform = 'none';
+  
+  window.print();
+  
+  // Restore zoom
+  if (chart) chart.style.transform = oldTransform;
+});
 
 /* ── Zoom Controls ── */
 let zoomLevel = 100;
