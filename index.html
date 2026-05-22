@@ -978,8 +978,8 @@ function showLeaderModal(node) {
   document.getElementById('modalClose').addEventListener('click', () => overlay.remove());
 
   // Remove leader
-  document.getElementById('modalRemove').addEventListener('click', async () => {
-    await saveLeader(node, '');
+  document.getElementById('modalRemove').addEventListener('click', () => {
+    showConfirmModal(node, '');
     overlay.remove();
   });
 
@@ -1004,8 +1004,8 @@ function showLeaderModal(node) {
       const item = document.createElement('div');
       item.className = 'modal-item';
       item.innerHTML = `<div><span class="modal-item-name">${esc(p.name)}</span><br><span class="modal-item-pos">${esc(p.position || '')} ${p.email ? '· '+esc(p.email) : ''}</span></div>`;
-      item.addEventListener('click', async () => {
-        await saveLeader(node, p.name);
+      item.addEventListener('click', () => {
+        showConfirmModal(node, p.name);
         overlay.remove();
       });
       listEl.appendChild(item);
@@ -1015,6 +1015,43 @@ function showLeaderModal(node) {
   renderList('');
   searchEl.addEventListener('input', e => renderList(e.target.value));
   searchEl.focus();
+}
+
+function showConfirmModal(node, leaderName) {
+  const old = document.getElementById('confirmModal');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'confirmModal';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.maxWidth = '360px';
+
+  const action = leaderName ? `Asignar a <strong>${esc(leaderName)}</strong> como líder` : 'Quitar el líder';
+
+  modal.innerHTML = `
+    <div class="modal-title">¿Confirmar cambio?</div>
+    <div class="modal-sub" style="margin:14px 0;font-size:0.88rem;line-height:1.5">
+      <strong>${esc(node.name)}</strong><br>
+      ${action}
+    </div>
+    <div class="modal-btns" style="justify-content:center;gap:12px">
+      <button class="modal-btn" id="confirmNo" style="min-width:100px">Cancelar</button>
+      <button class="modal-btn" id="confirmYes" style="min-width:100px;background:var(--green);color:#fff;border-color:var(--green);font-weight:600">✅ Confirmar</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('confirmNo').addEventListener('click', () => overlay.remove());
+  document.getElementById('confirmYes').addEventListener('click', async () => {
+    overlay.remove();
+    await saveLeader(node, leaderName);
+  });
 }
 
 async function saveLeader(node, leaderName) {
