@@ -302,6 +302,35 @@
   .org-card .card-name { font-weight: 700; font-size: 0.78rem; line-height: 1.25; margin-bottom: 2px; }
   .org-card .card-pos { font-size: 0.68rem; color: var(--card-sub); }
   .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 0.7; }
+  .org-card .card-count-expanded { font-size: 0.6rem; margin-top: 3px; color: var(--card-sub); opacity: 0.6; }
+
+  /* ── Zoom Controls ── */
+  .zoom-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--header-bg);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .zoom-btn {
+    width: 38px; height: 38px;
+    background: var(--card);
+    color: #fff; border: none; border-radius: 8px;
+    font-size: 1.2rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .zoom-btn:hover { background: var(--accent); }
+  .zoom-label {
+    text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.7);
+    padding: 2px 0;
+  }
   .org-card .card-status {
     font-size: 0.6rem; margin-top: 4px; padding: 1px 6px; border-radius: 10px; display: inline-block;
   }
@@ -545,6 +574,13 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="zoom-controls" id="zoomControls" style="display:none">
+  <button class="zoom-btn" id="zoomIn">＋</button>
+  <div class="zoom-label" id="zoomLabel">100%</div>
+  <button class="zoom-btn" id="zoomOut">−</button>
+  <button class="zoom-btn" id="zoomReset" style="font-size:0.7rem;margin-top:2px">Reset</button>
+</div>
+
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxhER0VTdfc9tkf0kwdu4VnNCirkikyBDVCBJO-odIjJI7n5oKpU-K4Ny2mqG6-aybBPAzAVuoMFbS/pub?gid=1792607424&single=true&output=csv';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymEDMOHJw6Ya2KFgaOgCMkgTnphsUlDx9kYmkQSOxwAZEy6Ia4_N-boRwG7UlgR600OA/exec';
@@ -684,6 +720,7 @@ function render() {
 /* ═══ VIEW: ORPHANS ONLY ═══ */
 function renderOrphansOnly() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
+  showZoomControls(false);
   const isActive = statusFilter === 'orphan-active';
   const filtered = treeData.orphans.filter(o => {
     const statusOk = isActive ? isActivo(o.status) : !isActivo(o.status);
@@ -768,6 +805,8 @@ function renderChart() {
   });
   el.appendChild(c);
   renderOrphans(el, 'chart');
+  showZoomControls(true);
+  requestAnimationFrame(updateZoom);
 }
 
 function rChartNode(node, ancestorMatched) {
@@ -784,7 +823,14 @@ function rChartNode(node, ancestorMatched) {
     + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '')
     + (node.leaderName ? `<div class="card-pos" style="margin-top:3px">→ ${esc(node.leaderName)}</div>` : '');
   const cc = cnt(node)-1;
-  if (cc > 0) card.innerHTML += `<div class="card-count">▾ ${cc}</div>`;
+  const isCol = collapsedSet.has(node.uid);
+  if (cc > 0) {
+    if (isCol) {
+      card.innerHTML += `<div class="card-count" style="opacity:1;font-weight:600">▶ ${cc} persona${cc>1?'s':''}</div>`;
+    } else {
+      card.innerHTML += `<div class="card-count-expanded">▾ ${cc} persona${cc>1?'s':''}</div>`;
+    }
+  }
   if (node.status) {
     const isA = isActivo(node.status);
     card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
@@ -809,7 +855,7 @@ function rChartNode(node, ancestorMatched) {
     card.appendChild(editBtn);
   }
 
-  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
+  const hasC = node.children.length > 0;
   if (hasC) {
     const icon = document.createElement('div'); icon.className = 'collapse-icon'; icon.textContent = isCol?'+':'−'; card.appendChild(icon);
     card.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
@@ -845,6 +891,7 @@ function rChartNode(node, ancestorMatched) {
 /* ═══ VIEW 2: TREE LIST ═══ */
 function renderTreeView() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
+  showZoomControls(false);
   const c = document.createElement('div'); c.className = 'tree-view';
   const ul = document.createElement('ul');
   treeData.roots.forEach(r => { const li = rTreeNode(r, false); if (li) ul.appendChild(li); });
@@ -899,7 +946,7 @@ function rTreeNode(node, ancestorMatched) {
     b.textContent = isA ? 'Activo' : node.status;
     div.appendChild(b);
   }
-  if (hasC) { const cb = document.createElement('span'); cb.className = 'badge badge-count'; cb.textContent = cnt(node)-1; div.appendChild(cb); }
+  if (hasC) { const cb = document.createElement('span'); cb.className = 'badge badge-count'; const tc = cnt(node)-1; cb.textContent = tc + ' persona' + (tc>1?'s':''); div.appendChild(cb); }
 
   li.appendChild(div);
 
@@ -1093,12 +1140,14 @@ document.getElementById('btnViewChart').addEventListener('click', () => {
   currentView = 'chart';
   document.getElementById('btnViewChart').classList.add('active');
   document.getElementById('btnViewTree').classList.remove('active');
+  showZoomControls(true);
   render();
 });
 document.getElementById('btnViewTree').addEventListener('click', () => {
   currentView = 'tree';
   document.getElementById('btnViewTree').classList.add('active');
   document.getElementById('btnViewChart').classList.remove('active');
+  showZoomControls(false);
   render();
 });
 
@@ -1109,6 +1158,38 @@ document.getElementById('btnCollapseAll').addEventListener('click', () => {
   treeData.roots.forEach(col); render();
 });
 document.getElementById('btnSync').addEventListener('click', loadData);
+
+/* ── Zoom Controls ── */
+let zoomLevel = 100;
+const zoomControls = document.getElementById('zoomControls');
+const zoomLabel = document.getElementById('zoomLabel');
+
+function updateZoom() {
+  const el = document.getElementById('contentEl');
+  const chart = el.querySelector('.org-chart');
+  if (chart) {
+    chart.style.transform = `scale(${zoomLevel / 100})`;
+    chart.style.transformOrigin = 'top center';
+  }
+  zoomLabel.textContent = zoomLevel + '%';
+}
+
+function showZoomControls(show) {
+  zoomControls.style.display = show ? 'flex' : 'none';
+}
+
+document.getElementById('zoomIn').addEventListener('click', () => {
+  zoomLevel = Math.min(200, zoomLevel + 10);
+  updateZoom();
+});
+document.getElementById('zoomOut').addEventListener('click', () => {
+  zoomLevel = Math.max(30, zoomLevel - 10);
+  updateZoom();
+});
+document.getElementById('zoomReset').addEventListener('click', () => {
+  zoomLevel = 100;
+  updateZoom();
+});
 
 /* ── Custom Scrollbar Horizontal ── */
 const contentEl = document.getElementById('contentEl');
