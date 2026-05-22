@@ -448,6 +448,8 @@
     <option value="all">Todos</option>
     <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
+    <option value="orphan-active">⚠️ Huérfanos Activos</option>
+    <option value="orphan-inactive">⚠️ Huérfanos Inactivos</option>
   </select>
 
   <div class="toolbar-sep"></div>
@@ -608,7 +610,81 @@ function vis(n, ancestorMatched) {
 }
 
 /* ── Render ── */
-function render() { currentView === 'chart' ? renderChart() : renderTreeView(); }
+function isOrphanFilter() { return statusFilter === 'orphan-active' || statusFilter === 'orphan-inactive'; }
+function render() {
+  if (isOrphanFilter()) renderOrphansOnly();
+  else if (currentView === 'chart') renderChart();
+  else renderTreeView();
+}
+
+/* ═══ VIEW: ORPHANS ONLY ═══ */
+function renderOrphansOnly() {
+  const el = document.getElementById('contentEl'); el.innerHTML = '';
+  const isActive = statusFilter === 'orphan-active';
+  const filtered = treeData.orphans.filter(o => {
+    const statusOk = isActive ? isActivo(o.status) : !isActivo(o.status);
+    const searchOk = mS(o);
+    return statusOk && searchOk;
+  });
+
+  const title = document.createElement('div'); title.className = 'orphan-title';
+  title.textContent = `⚠️ Huérfanos ${isActive ? 'Activos' : 'Inactivos'} (${filtered.length})`;
+  title.style.marginTop = '10px';
+  el.appendChild(title);
+
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text2);padding:40px;font-size:0.88rem;';
+    empty.textContent = 'No hay huérfanos ' + (isActive ? 'activos' : 'inactivos');
+    el.appendChild(empty);
+    return;
+  }
+
+  if (currentView === 'chart') {
+    const grid = document.createElement('div'); grid.className = 'orphan-grid';
+    filtered.forEach(o => {
+      const card = document.createElement('div'); card.className = 'org-card';
+      card.style.opacity = '1';
+      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>`
+        + (o.position ? `<div class="card-pos">${esc(o.position)}</div>` : '')
+        + (o.email ? `<div class="card-email">${esc(o.email)}</div>` : '')
+        + (o.leaderName ? `<div class="card-pos" style="margin-top:3px">→ ${esc(o.leaderName)}</div>` : '');
+      // Copy buttons
+      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
+      const btnName = document.createElement('button'); btnName.className = 'copy-btn'; btnName.textContent = '📋 Nombre';
+      btnName.addEventListener('click', (e) => { e.stopPropagation(); copyText(o.name); });
+      copyRow.appendChild(btnName);
+      if (o.email) {
+        const btnEmail = document.createElement('button'); btnEmail.className = 'copy-btn'; btnEmail.textContent = '📧 Email';
+        btnEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(o.email); });
+        copyRow.appendChild(btnEmail);
+      }
+      card.appendChild(copyRow);
+      grid.appendChild(card);
+    });
+    el.appendChild(grid);
+  } else {
+    const ul = document.createElement('ul'); ul.style.listStyle = 'none'; ul.style.maxWidth = '900px'; ul.style.margin = '0 auto';
+    filtered.forEach(o => {
+      const li = document.createElement('li');
+      const div = document.createElement('div'); div.className = 'tree-node';
+      const info = document.createElement('div'); info.className = 'tree-info';
+      const nm = document.createElement('div'); nm.className = 'tree-name'; nm.textContent = o.name; info.appendChild(nm);
+      const meta = document.createElement('div'); meta.className = 'tree-meta';
+      if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
+      if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
+      if (o.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+o.leaderName; meta.appendChild(l); }
+      info.appendChild(meta); div.appendChild(info);
+      // Copy
+      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
+      cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
+      if (o.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email'; cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE); }
+      if (o.status) { const b = document.createElement('span'); b.className = 'badge '+(isActivo(o.status)?'badge-active':'badge-inactive'); b.textContent = isActivo(o.status)?'Activo':o.status; div.appendChild(b); }
+      li.appendChild(div); ul.appendChild(li);
+    });
+    el.appendChild(ul);
+  }
+}
 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
 function renderChart() {
