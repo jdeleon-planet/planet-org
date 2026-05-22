@@ -348,6 +348,60 @@
   }
   .toast.show { opacity: 1; }
 
+  /* ── Leader Edit Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+  }
+  .modal {
+    background: #fff; border-radius: 12px; padding: 20px; width: 90%; max-width: 420px;
+    max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .modal-title { font-size: 1rem; font-weight: 700; color: var(--header-bg); margin-bottom: 4px; }
+  .modal-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 12px; }
+  .modal-search {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
+    font-size: 0.85rem; font-family: inherit; outline: none; margin-bottom: 10px;
+  }
+  .modal-search:focus { border-color: var(--card); }
+  .modal-list {
+    flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 7px;
+    max-height: 300px;
+  }
+  .modal-item {
+    padding: 9px 14px; cursor: pointer; font-size: 0.83rem;
+    border-bottom: 1px solid #f0f0f0; transition: background 0.1s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-item:hover { background: #f0f5ff; }
+  .modal-item:last-child { border-bottom: none; }
+  .modal-item-name { font-weight: 600; }
+  .modal-item-pos { font-size: 0.72rem; color: var(--text2); }
+  .modal-btns { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+  .modal-btn {
+    padding: 8px 16px; border-radius: 7px; font-size: 0.8rem; font-family: inherit;
+    cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text);
+  }
+  .modal-btn:hover { background: #f3f4f6; }
+  .modal-btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
+  .modal-btn-danger:hover { background: #dc2626; }
+
+  /* Edit leader button */
+  .edit-leader-btn {
+    font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1);
+    color: #fff; cursor: pointer; font-family: inherit;
+    transition: background 0.15s; margin-top: 4px;
+  }
+  .edit-leader-btn:hover { background: rgba(255,255,255,0.25); }
+  .tree-edit-btn {
+    font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--surface);
+    cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+    color: var(--text2);
+  }
+  .tree-edit-btn:hover { background: var(--surface2); }
+
   .org-vert-line { width: 2px; height: 22px; background: var(--line); }
   .org-children-wrap { display: flex; flex-direction: column; align-items: center; }
   .org-horiz-connector { display: flex; align-items: flex-start; position: relative; }
@@ -493,6 +547,7 @@
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxhER0VTdfc9tkf0kwdu4VnNCirkikyBDVCBJO-odIjJI7n5oKpU-K4Ny2mqG6-aybBPAzAVuoMFbS/pub?gid=1792607424&single=true&output=csv';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymEDMOHJw6Ya2KFgaOgCMkgTnphsUlDx9kYmkQSOxwAZEy6Ia4_N-boRwG7UlgR600OA/exec';
 
 let allPeople = [];
 let treeData = { roots: [], orphans: [] };
@@ -669,6 +724,12 @@ function renderOrphansOnly() {
         copyRow.appendChild(btnEmail);
       }
       card.appendChild(copyRow);
+      // Edit leader
+      if (o.email) {
+        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
+        editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(o); });
+        card.appendChild(editBtn);
+      }
       grid.appendChild(card);
     });
     el.appendChild(grid);
@@ -688,6 +749,7 @@ function renderOrphansOnly() {
       const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
       cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
       if (o.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email'; cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE); }
+      if (o.email) { const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️'; edBtn.title = 'Asignar Líder'; edBtn.addEventListener('click', () => showLeaderModal(o)); div.appendChild(edBtn); }
       if (o.status) { const b = document.createElement('span'); b.className = 'badge '+(isActivo(o.status)?'badge-active':'badge-inactive'); b.textContent = isActivo(o.status)?'Activo':o.status; div.appendChild(b); }
       li.appendChild(div); ul.appendChild(li);
     });
@@ -738,6 +800,13 @@ function rChartNode(node, ancestorMatched) {
     copyRow.appendChild(btnEmail);
   }
   card.appendChild(copyRow);
+
+  // Edit leader button
+  if (node.email) {
+    const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
+    editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(node); });
+    card.appendChild(editBtn);
+  }
 
   const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
   if (hasC) {
@@ -815,6 +884,12 @@ function rTreeNode(node, ancestorMatched) {
     cpEmail.title = 'Copiar email'; cpEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
     div.appendChild(cpEmail);
   }
+  // Edit leader button
+  if (node.email) {
+    const editBtn = document.createElement('button'); editBtn.className = 'tree-edit-btn'; editBtn.textContent = '✏️';
+    editBtn.title = 'Asignar Líder'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(node); });
+    div.appendChild(editBtn);
+  }
 
   if (node.status) {
     const b = document.createElement('span');
@@ -868,6 +943,94 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── Leader Edit Modal ── */
+function showLeaderModal(node) {
+  // Remove existing modal
+  const old = document.getElementById('leaderModal');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'leaderModal';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+
+  modal.innerHTML = `
+    <div class="modal-title">Asignar Líder</div>
+    <div class="modal-sub">Para: <strong>${esc(node.name)}</strong>${node.leaderName ? ' — Actual: '+esc(node.leaderName) : ' — Sin líder'}</div>
+    <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar consultor…">
+    <div class="modal-list" id="modalList"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-danger" id="modalRemove">Quitar Líder</button>
+      <button class="modal-btn" id="modalClose">Cancelar</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Close on overlay click
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('modalClose').addEventListener('click', () => overlay.remove());
+
+  // Remove leader
+  document.getElementById('modalRemove').addEventListener('click', async () => {
+    await saveLeader(node, '');
+    overlay.remove();
+  });
+
+  // Populate list
+  const listEl = document.getElementById('modalList');
+  const searchEl = document.getElementById('modalSearch');
+
+  function renderList(query) {
+    listEl.innerHTML = '';
+    const q = query.toLowerCase().trim();
+    const filtered = allPeople
+      .filter(p => p.uid !== node.uid) // exclude self
+      .filter(p => !q || p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div style="padding:14px;color:var(--text2);text-align:center;font-size:0.83rem">No se encontró</div>';
+      return;
+    }
+
+    filtered.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'modal-item';
+      item.innerHTML = `<div><span class="modal-item-name">${esc(p.name)}</span><br><span class="modal-item-pos">${esc(p.position || '')} ${p.email ? '· '+esc(p.email) : ''}</span></div>`;
+      item.addEventListener('click', async () => {
+        await saveLeader(node, p.name);
+        overlay.remove();
+      });
+      listEl.appendChild(item);
+    });
+  }
+
+  renderList('');
+  searchEl.addEventListener('input', e => renderList(e.target.value));
+  searchEl.focus();
+}
+
+async function saveLeader(node, leaderName) {
+  showToast('Guardando...');
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ email: node.email, leader: leaderName })
+    });
+    showToast('✅ Líder ' + (leaderName ? 'asignado: ' + leaderName : 'removido'));
+    // Reload data after 2 seconds (give sheet time to update)
+    setTimeout(() => loadData(), 2000);
+  } catch (e) {
+    showToast('❌ Error al guardar: ' + e.message);
+  }
 }
 
 /* ── Events ── */
