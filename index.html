@@ -575,16 +575,25 @@ function updateStats() {
 
 /* ── Build Tree ── */
 function buildTree() {
-  // Map by uid (email) for nodes
   const byUid = {};
-  allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [] }; });
+  allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [], isOrphan: false }; });
 
   const roots = [], orphans = [];
   allPeople.forEach(p => {
     const node = byUid[p.uid];
     if (!p.leaderUid || !byUid[p.leaderUid]) {
-      if (p.leaderName && !byUid[p.leaderUid]) orphans.push(node);
-      else roots.push(node);
+      if (p.leaderName && !byUid[p.leaderUid]) {
+        // Leader name exists but not found in data
+        node.isOrphan = true;
+        orphans.push(node);
+      } else if (!p.leaderName) {
+        // No leader assigned at all
+        node.isOrphan = true;
+        roots.push(node);     // still show in tree as root
+        orphans.push(node);   // also appear in orphan filter
+      } else {
+        roots.push(node);
+      }
     } else {
       byUid[p.leaderUid].children.push(node);
     }
