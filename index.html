@@ -623,6 +623,7 @@
   <button class="btn" id="btnExpandAll">Expandir</button>
   <button class="btn" id="btnCollapseAll">Colapsar</button>
   <button class="btn btn-accent" id="btnSync">↻ Sync</button>
+  <span id="syncStatus" style="font-size:0.75rem;color:var(--text2);white-space:nowrap"></span>
   <button class="btn" id="btnPDF" style="background:var(--accent);color:#2C375C;border-color:var(--accent);font-weight:600">📄 PDF</button>
 </div>
 
@@ -692,9 +693,13 @@ function parseCSV(text) {
 async function loadData() {
   document.getElementById('loadingEl').style.display = 'flex';
   const el = document.getElementById('contentEl');
-  showToast('🔄 Sincronizando...');
+  const syncEl = document.getElementById('syncStatus');
+  syncEl.textContent = '🔄 Sincronizando...';
+  syncEl.style.color = 'var(--text2)';
   try {
-    const res = await fetch(CSV_URL);
+    // Cache-busting: add timestamp to URL
+    const cacheBust = CSV_URL + '&_t=' + Date.now();
+    const res = await fetch(cacheBust);
     const text = await res.text();
     const rows = parseCSV(text);
     if (rows.length < 2) throw new Error('No data');
@@ -735,10 +740,13 @@ async function loadData() {
 
     updateStats(); buildTree(); render();
     const activos = allPeople.filter(p => isActivo(p.status)).length;
-    showToast(`✅ Sincronizado — ${allPeople.length} personas (${activos} activos)`);
+    const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit' });
+    syncEl.textContent = `✅ ${allPeople.length} personas (${activos} activos) — ${hora}`;
+    syncEl.style.color = 'var(--green)';
   } catch (e) {
     el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
-    showToast('❌ Error: ' + e.message);
+    syncEl.textContent = '❌ Error: ' + e.message;
+    syncEl.style.color = 'var(--red)';
   }
   finally { document.getElementById('loadingEl').style.display = 'none'; }
 }
