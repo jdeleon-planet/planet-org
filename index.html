@@ -1079,8 +1079,8 @@ function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
 
 function scrollToHighlight(container) {
-  // Use double RAF to ensure DOM is fully laid out
-  requestAnimationFrame(() => { requestAnimationFrame(() => {
+  // Triple RAF to ensure DOM + zoom + layout are fully resolved
+  requestAnimationFrame(() => { requestAnimationFrame(() => { requestAnimationFrame(() => {
     const highlighted = container.querySelector('.org-card.highlight, .tree-node.highlight');
     if (!highlighted) {
       // No search — center on first root
@@ -1095,13 +1095,28 @@ function scrollToHighlight(container) {
       }
       return;
     }
-    // Scroll to center the highlighted element
-    const cRect = container.getBoundingClientRect();
-    const eRect = highlighted.getBoundingClientRect();
-    const scrollX = eRect.left - cRect.left + container.scrollLeft - (cRect.width / 2) + (eRect.width / 2);
-    const scrollY = eRect.top - cRect.top + container.scrollTop - (cRect.height / 3);
-    container.scrollTo({ left: Math.max(0, scrollX), top: Math.max(0, scrollY), behavior: 'smooth' });
-  }); });
+    // Calculate position relative to scrollable container
+    const containerRect = container.getBoundingClientRect();
+    const elemRect = highlighted.getBoundingClientRect();
+
+    // Where the element currently is relative to container's viewport
+    const elemCenterX = elemRect.left + elemRect.width / 2 - containerRect.left;
+    const elemCenterY = elemRect.top + elemRect.height / 2 - containerRect.top;
+
+    // Target: center of container
+    const targetX = containerRect.width / 2;
+    const targetY = containerRect.height / 2;
+
+    // Adjust scroll
+    const newScrollLeft = container.scrollLeft + (elemCenterX - targetX);
+    const newScrollTop = container.scrollTop + (elemCenterY - targetY);
+
+    container.scrollTo({
+      left: Math.max(0, newScrollLeft),
+      top: Math.max(0, newScrollTop),
+      behavior: 'smooth'
+    });
+  }); }); });
 }
 
 function copyText(text) {
