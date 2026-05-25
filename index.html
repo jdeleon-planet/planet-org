@@ -886,6 +886,7 @@ function renderOrphansOnly() {
     });
     el.appendChild(ul);
   }
+  scrollToHighlight(el);
 }
 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
@@ -900,10 +901,8 @@ function renderChart() {
   el.appendChild(c);
   renderOrphans(el, 'chart');
   showZoomControls(true);
-  requestAnimationFrame(() => {
-    updateZoom();
-    scrollToHighlight(el);
-  });
+  updateZoom();
+  scrollToHighlight(el);
 }
 
 function rChartNode(node, ancestorMatched) {
@@ -993,7 +992,7 @@ function renderTreeView() {
   treeData.roots.forEach(r => { const li = rTreeNode(r, false); if (li) ul.appendChild(li); });
   c.appendChild(ul); el.appendChild(c);
   renderOrphans(el, 'tree');
-  requestAnimationFrame(() => scrollToHighlight(el));
+  scrollToHighlight(el);
 }
 
 function rTreeNode(node, ancestorMatched) {
@@ -1080,28 +1079,29 @@ function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
 
 function scrollToHighlight(container) {
-  const highlighted = container.querySelector('.highlight, .tree-hl');
-  if (!highlighted) {
-    // No search — scroll to top-left (center on first root)
-    container.scrollLeft = 0;
-    container.scrollTop = 0;
-    const chart = container.querySelector('.org-chart');
-    if (chart) {
-      const chartW = chart.scrollWidth;
-      const containerW = container.clientWidth;
-      if (chartW > containerW) {
-        container.scrollLeft = (chartW - containerW) / 2;
+  // Use double RAF to ensure DOM is fully laid out
+  requestAnimationFrame(() => { requestAnimationFrame(() => {
+    const highlighted = container.querySelector('.org-card.highlight, .tree-node.highlight');
+    if (!highlighted) {
+      // No search — center on first root
+      container.scrollTop = 0;
+      const chart = container.querySelector('.org-chart');
+      if (chart) {
+        const chartW = chart.scrollWidth;
+        const containerW = container.clientWidth;
+        container.scrollLeft = chartW > containerW ? (chartW - containerW) / 2 : 0;
+      } else {
+        container.scrollLeft = 0;
       }
+      return;
     }
-    return;
-  }
-  // Scroll to highlighted element
-  const card = highlighted.closest('.org-card') || highlighted.closest('.tree-node') || highlighted;
-  const cRect = container.getBoundingClientRect();
-  const eRect = card.getBoundingClientRect();
-  const scrollX = eRect.left - cRect.left + container.scrollLeft - (cRect.width / 2) + (eRect.width / 2);
-  const scrollY = eRect.top - cRect.top + container.scrollTop - (cRect.height / 2) + (eRect.height / 2);
-  container.scrollTo({ left: Math.max(0, scrollX), top: Math.max(0, scrollY), behavior: 'smooth' });
+    // Scroll to center the highlighted element
+    const cRect = container.getBoundingClientRect();
+    const eRect = highlighted.getBoundingClientRect();
+    const scrollX = eRect.left - cRect.left + container.scrollLeft - (cRect.width / 2) + (eRect.width / 2);
+    const scrollY = eRect.top - cRect.top + container.scrollTop - (cRect.height / 3);
+    container.scrollTo({ left: Math.max(0, scrollX), top: Math.max(0, scrollY), behavior: 'smooth' });
+  }); });
 }
 
 function copyText(text) {
