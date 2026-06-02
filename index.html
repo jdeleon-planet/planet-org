@@ -1866,11 +1866,26 @@ function renderSidePanel() {
   const panel = document.getElementById('sidePanelContent');
   if (!panel) return;
 
-  // Get visible people based on current filter
-  const visible = allPeople.filter(p => {
+  // Get visible people based on current filter AND search
+  let visible = allPeople.filter(p => {
     const node = { uid: p.uid, name: p.name, position: p.position, status: p.status, email: p.email, leaderName: p.leaderName, leaderUid: p.leaderUid, children: [] };
-    return mF(node);
+    if (!mF(node)) return false;
+    if (searchQuery) return mS(node);
+    return true;
   });
+
+  // Also include Luis hierarchy matches when searching in inactive/all
+  if (searchQuery && (statusFilter === 'inactive' || statusFilter === 'all')) {
+    const luisMatches = allPeople.filter(p => {
+      if (!isInLuisAcostaHierarchy({uid: p.uid})) return false;
+      if (!mS(p)) return false;
+      if (statusFilter === 'inactive') return !isActivo(p.status);
+      return true;
+    });
+    // Merge without duplicates
+    const uids = new Set(visible.map(p => p.uid));
+    luisMatches.forEach(p => { if (!uids.has(p.uid)) visible.push(p); });
+  }
 
   // Count by position
   const counts = {};
