@@ -915,12 +915,15 @@ function isInLuisAcostaHierarchy(n) {
   return luisAcostaUids.has(n.uid);
 }
 
-function isOrphanNode(n) {
+function displayLeaderName(node) {
+  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(node)) return '🔒 Privado';
+  return node.leaderName;
+}
   return treeData.orphans && treeData.orphans.some(o => o.uid === n.uid);
 }
 
 function mF(n) {
-  // Luis Acosta filter — show only his hierarchy
+  // Luis Acosta filter — show only active in his hierarchy
   if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
   // All other filters — exclude Luis Acosta's hierarchy
   if (isInLuisAcostaHierarchy(n)) return false;
@@ -1238,7 +1241,7 @@ function rTreeNode(node, ancestorMatched) {
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
   if (node.email) { const e = document.createElement('span'); e.textContent = node.email; meta.appendChild(e); }
-  if (node.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+node.leaderName; meta.appendChild(l); }
+  if (node.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+displayLeaderName(node); meta.appendChild(l); }
   info.appendChild(meta); div.appendChild(info);
 
   // Copy buttons
@@ -1388,7 +1391,7 @@ function showLeaderModal(node) {
 
   modal.innerHTML = `
     <div class="modal-title">Asignar Líder</div>
-    <div class="modal-sub">Para: <strong>${esc(node.name)}</strong>${node.leaderName ? ' — Actual: '+esc(node.leaderName) : ' — Sin líder'}</div>
+    <div class="modal-sub">Para: <strong>${esc(node.name)}</strong>${node.leaderName ? ' — Actual: '+esc(displayLeaderName(node)) : ' — Sin líder'}</div>
     <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar consultor…">
     <div class="modal-list" id="modalList"></div>
     <div class="modal-btns">
