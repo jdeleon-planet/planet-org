@@ -1466,12 +1466,22 @@ async function saveLeader(node, leaderName) {
 document.getElementById('searchInput').addEventListener('input', e => {
   searchQuery = e.target.value.toLowerCase().trim();
   document.getElementById('searchClear').style.display = e.target.value ? 'flex' : 'none';
+  // Collapse everything when searching so user expands manually
+  if (searchQuery) {
+    collapsedSet.clear();
+    const collapseAll = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(collapseAll); };
+    treeData.roots.forEach(collapseAll);
+  } else {
+    // Clear collapsed when search is cleared so everything is visible
+    collapsedSet.clear();
+  }
   render();
 });
 document.getElementById('searchClear').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchClear').style.display = 'none';
   searchQuery = '';
+  collapsedSet.clear();
   render();
 });
 document.getElementById('filterStatus').addEventListener('change', e => {
