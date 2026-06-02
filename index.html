@@ -599,8 +599,8 @@
 
   <div class="toolbar-sep"></div>
 
-  <button class="btn-view active" id="btnViewChart">▦ Organigrama</button>
-  <button class="btn-view" id="btnViewTree">☰ Detalle</button>
+  <button class="btn-view" id="btnViewChart">▦ Organigrama</button>
+  <button class="btn-view active" id="btnViewTree">☰ Detalle</button>
 
   <div class="toolbar-sep"></div>
 
@@ -671,7 +671,7 @@ let treeData = { roots: [], orphans: [] };
 let collapsedSet = new Set();
 let searchQuery = '';
 let statusFilter = 'active';
-let currentView = 'chart';
+let currentView = 'tree';
 
 /* ── CSV Parser ── */
 function parseCSV(text) {
