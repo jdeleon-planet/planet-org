@@ -927,14 +927,9 @@ function isOrphanNode(n) {
 function mF(n) {
   // Luis Acosta filter — show only active in his hierarchy
   if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
-  // If searching, show Luis hierarchy members but leader name stays masked
-  if (searchQuery && isInLuisAcostaHierarchy(n)) {
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'active') return isActivo(n.status);
-    if (statusFilter === 'inactive') return !isActivo(n.status);
-    return false;
-  }
-  // All other filters without search — exclude Luis Acosta's hierarchy
+  // In inactive filter, allow Luis hierarchy inactives (for leader correction)
+  if (statusFilter === 'inactive' && isInLuisAcostaHierarchy(n)) return !isActivo(n.status);
+  // All other filters — exclude Luis Acosta's hierarchy completely
   if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
   if (statusFilter === 'active') return isActivo(n.status);
@@ -967,8 +962,8 @@ function render() {
   if (statusFilter === 'no-leader') renderNoLeader();
   else if (currentView === 'chart') renderChart();
   else renderTreeView();
-  // If searching in non-administrative filter, append Luis hierarchy matches at bottom
-  if (searchQuery && statusFilter !== 'luis-acosta') renderLuisSearchResults();
+  // If searching in inactive filter, append Luis hierarchy matches at bottom
+  if (searchQuery && statusFilter === 'inactive') renderLuisSearchResults();
 }
 
 /* ═══ VIEW: ACTIVOS SIN LÍDER ═══ */
@@ -1150,12 +1145,12 @@ function renderOrphans(el, mode) {
 /* ═══ LUIS SEARCH RESULTS (flat, no hierarchy) ═══ */
 function renderLuisSearchResults() {
   const el = document.getElementById('contentEl');
+  // Only show in inactive filter
+  if (statusFilter !== 'inactive') return;
   const matches = allPeople.filter(p => {
     if (!isInLuisAcostaHierarchy({uid: p.uid})) return false;
     if (!mS(p)) return false;
-    if (statusFilter === 'active') return isActivo(p.status);
-    if (statusFilter === 'inactive') return !isActivo(p.status);
-    return true;
+    return !isActivo(p.status);
   });
   if (!matches.length) return;
 
