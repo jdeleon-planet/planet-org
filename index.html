@@ -1467,14 +1467,22 @@ document.getElementById('searchInput').addEventListener('input', e => {
   searchQuery = e.target.value.toLowerCase().trim();
   document.getElementById('searchClear').style.display = e.target.value ? 'flex' : 'none';
   if (searchQuery) {
-    // Collapse only nodes that have children (subordinates), keep roots visible
-    // Only collapse children of children (2nd level+), so top leaders stay open
+    // First collapse everything
     collapsedSet.clear();
-    const collapseChildren = (n, depth) => {
-      if (depth > 0 && n.children.length) collapsedSet.add(n.uid);
-      n.children.forEach(ch => collapseChildren(ch, depth + 1));
+    const collapseAll = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(collapseAll); };
+    treeData.roots.forEach(collapseAll);
+    // Then expand the path to every matching node
+    const expandPath = (n) => {
+      if (mS(n)) return true; // this node matches
+      for (const ch of n.children) {
+        if (expandPath(ch)) {
+          collapsedSet.delete(n.uid); // expand this ancestor
+          return true;
+        }
+      }
+      return false;
     };
-    treeData.roots.forEach(r => collapseChildren(r, 0));
+    treeData.roots.forEach(r => expandPath(r));
   } else {
     collapsedSet.clear();
   }
