@@ -927,8 +927,10 @@ function isOrphanNode(n) {
 function mF(n) {
   // Luis Acosta filter — show only active in his hierarchy
   if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
-  // In inactive filter, allow Luis hierarchy inactives (for leader correction)
-  if (statusFilter === 'inactive' && isInLuisAcostaHierarchy(n)) return !isActivo(n.status);
+  // In inactive and all filters, allow Luis hierarchy (for leader correction)
+  if ((statusFilter === 'inactive' || statusFilter === 'all') && isInLuisAcostaHierarchy(n)) {
+    return statusFilter === 'all' ? true : !isActivo(n.status);
+  }
   // All other filters — exclude Luis Acosta's hierarchy completely
   if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
@@ -962,8 +964,8 @@ function render() {
   if (statusFilter === 'no-leader') renderNoLeader();
   else if (currentView === 'chart') renderChart();
   else renderTreeView();
-  // If searching in inactive filter, append Luis hierarchy matches at bottom
-  if (searchQuery && statusFilter === 'inactive') renderLuisSearchResults();
+  // If searching in inactive or all filter, append Luis hierarchy matches at bottom
+  if (searchQuery && (statusFilter === 'inactive' || statusFilter === 'all')) renderLuisSearchResults();
 }
 
 /* ═══ VIEW: ACTIVOS SIN LÍDER ═══ */
@@ -1145,12 +1147,12 @@ function renderOrphans(el, mode) {
 /* ═══ LUIS SEARCH RESULTS (flat, no hierarchy) ═══ */
 function renderLuisSearchResults() {
   const el = document.getElementById('contentEl');
-  // Only show in inactive filter
-  if (statusFilter !== 'inactive') return;
+  if (statusFilter !== 'inactive' && statusFilter !== 'all') return;
   const matches = allPeople.filter(p => {
     if (!isInLuisAcostaHierarchy({uid: p.uid})) return false;
     if (!mS(p)) return false;
-    return !isActivo(p.status);
+    if (statusFilter === 'inactive') return !isActivo(p.status);
+    return true; // all
   });
   if (!matches.length) return;
 
