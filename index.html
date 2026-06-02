@@ -591,6 +591,7 @@
     <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
     <option value="no-leader">⚠️ Activos sin líder</option>
+    <option value="luis-acosta">🔒 Luis Acosta</option>
   </select>
 
   <div class="toolbar-sep"></div>
@@ -780,7 +781,7 @@ async function loadData() {
       allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: leaderEmail, status: p.status, email: p.email });
     });
 
-    updateStats(); buildTree(); render();
+    updateStats(); buildTree(); buildLuisAcostaSet(); render();
 
     const activos = allPeople.filter(p => isActivo(p.status)).length;
     const inactivos = allPeople.length - activos;
@@ -831,6 +832,12 @@ function updateStats() {
     document.getElementById('statTotal').textContent = totalNoLeader;
     document.getElementById('statActive').textContent = totalNoLeader;
     document.getElementById('statInactive').textContent = 0;
+  } else if (statusFilter === 'luis-acosta') {
+    const total = luisAcostaUids.size;
+    const active = allPeople.filter(p => luisAcostaUids.has(p.uid) && isActivo(p.status)).length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statInactive').textContent = total - active;
   } else {
     document.getElementById('statTotal').textContent = totalAll;
     document.getElementById('statActive').textContent = totalActive;
@@ -885,11 +892,38 @@ function cntSubFiltered(n) {
 /* ── Filters ── */
 function isActivo(status) { const s = (status||'').toLowerCase(); return s.startsWith('activo'); }
 function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || (n.position||'').toLowerCase().includes(searchQuery) || (n.email||'').toLowerCase().includes(searchQuery); }
+/* ── Luis Acosta hierarchy ── */
+// Build a set of UIDs that are Luis Acosta or under his hierarchy
+let luisAcostaUids = new Set();
+function buildLuisAcostaSet() {
+  luisAcostaUids = new Set();
+  // Find Luis Acosta's node
+  const luisNode = allPeople.find(p => p.name.toLowerCase().includes('luis acosta'));
+  if (!luisNode) return;
+  // Find his node in tree
+  const byUid = {};
+  allPeople.forEach(p => { byUid[p.uid] = p; });
+  // Collect all UIDs in his subtree
+  const collect = (uid) => {
+    luisAcostaUids.add(uid);
+    allPeople.filter(p => p.leaderUid === uid).forEach(p => collect(p.uid));
+  };
+  collect(luisNode.uid);
+}
+
+function isInLuisAcostaHierarchy(n) {
+  return luisAcostaUids.has(n.uid);
+}
+
 function isOrphanNode(n) {
   return treeData.orphans && treeData.orphans.some(o => o.uid === n.uid);
 }
 
 function mF(n) {
+  // Luis Acosta filter — show only his hierarchy
+  if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n);
+  // All other filters — exclude Luis Acosta's hierarchy
+  if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
   if (statusFilter === 'active') return isActivo(n.status);
   if (statusFilter === 'inactive') return !isActivo(n.status);
@@ -1496,9 +1530,21 @@ document.getElementById('searchClear').addEventListener('click', () => {
   render();
 });
 document.getElementById('filterStatus').addEventListener('change', e => {
-  statusFilter = e.target.value;
-  buildTree(); // rebuild tree with new filter for sorting
-  render();
+  const selected = e.target.value;
+  if (selected === 'luis-acosta') {
+    // Reset select visually while PIN is pending
+    e.target.value = statusFilter;
+    showPinModal(() => {
+      statusFilter = 'luis-acosta';
+      document.getElementById('filterStatus').value = 'luis-acosta';
+      buildTree();
+      render();
+    });
+  } else {
+    statusFilter = selected;
+    buildTree();
+    render();
+  }
 });
 
 document.getElementById('btnViewChart').addEventListener('click', () => {
