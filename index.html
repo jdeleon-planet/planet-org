@@ -1191,7 +1191,7 @@ function rTreeNode(node, ancestorMatched) {
 
   const hasVisibleC = node.children.some(ch => vis(ch, isSelf || ancestorMatched));
   const isCol = collapsedSet.has(node.uid);
-  const isOpen = searchQuery ? true : !isCol;
+  const isOpen = !isCol;
 
   const tgl = document.createElement('span');
   tgl.className = 'tree-toggle' + (hasVisibleC ? (isOpen ? ' open' : '') : ' leaf');
