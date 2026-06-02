@@ -1923,10 +1923,20 @@ function renderSidePanel() {
       }
 
       // ── BELOW: subordinates ──
-      // Collect all subordinates recursively from treeData
+      // Build children map once for performance
+      const childrenMap = {};
+      allPeople.forEach(p => {
+        if (p.leaderUid) {
+          if (!childrenMap[p.leaderUid]) childrenMap[p.leaderUid] = [];
+          childrenMap[p.leaderUid].push(p);
+        }
+      });
+
+      // Collect all subordinates recursively using the map
       const subordinates = [];
       const collectSubs = (uid) => {
-        allPeople.filter(p => p.leaderUid === uid).forEach(p => {
+        const children = childrenMap[uid] || [];
+        children.forEach(p => {
           subordinates.push(p);
           collectSubs(p.uid);
         });
