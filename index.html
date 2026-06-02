@@ -607,7 +607,7 @@
   <button class="btn" id="btnExpandAll">Expandir</button>
   <button class="btn" id="btnCollapseAll">Colapsar</button>
   <button class="btn btn-accent" id="btnSync">↻ Sync</button>
-  <span id="syncStatus" style="font-size:0.75rem;color:var(--text2);white-space:nowrap"></span>
+  <span id="syncStatus" style="font-size:0.75rem;color:var(--text2);white-space:nowrap;display:flex;align-items:center;gap:5px"></span>
   <button class="btn" id="btnPDF" style="background:var(--accent);color:#2C375C;border-color:var(--accent);font-weight:600">📄 PDF</button>
 </div>
 
@@ -638,6 +638,22 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Sync Banner -->
+<div id="syncBanner" style="
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:500;
+  padding:14px 24px;
+  font-size:0.9rem;
+  font-weight:600;
+  text-align:center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+"></div>
+<style>
+@keyframes slideDown { from { transform: translateY(-100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
+</style>
 
 <div class="zoom-controls" id="zoomControls" style="display:none">
   <button class="zoom-btn" id="zoomIn">＋</button>
@@ -673,19 +689,63 @@ function parseCSV(text) {
   return rows;
 }
 
+/* ── Sync Banner ── */
+let syncBannerTimer;
+function showSyncBanner(msg, type) {
+  const banner = document.getElementById('syncBanner');
+  banner.textContent = msg;
+  if (type === 'loading') {
+    banner.style.background = '#2C375C';
+    banner.style.color = '#FECB28';
+  } else if (type === 'success') {
+    banner.style.background = '#22c55e';
+    banner.style.color = '#fff';
+  } else if (type === 'error') {
+    banner.style.background = '#ef4444';
+    banner.style.color = '#fff';
+  }
+  banner.style.display = 'block';
+  banner.style.animation = 'slideDown 0.3s ease';
+  clearTimeout(syncBannerTimer);
+  if (type !== 'loading') {
+    syncBannerTimer = setTimeout(() => {
+      banner.style.opacity = '0';
+      banner.style.transition = 'opacity 0.4s';
+      setTimeout(() => { banner.style.display = 'none'; banner.style.opacity = '1'; banner.style.transition = ''; }, 400);
+    }, 4000);
+  }
+}
+
 /* ── Load ── */
 async function loadData() {
   document.getElementById('loadingEl').style.display = 'flex';
   const el = document.getElementById('contentEl');
   const syncEl = document.getElementById('syncStatus');
-  syncEl.textContent = '🔄 Sincronizando...';
+
+  // Show loading state
+  syncEl.innerHTML = '🔄 Sincronizando...';
   syncEl.style.color = 'var(--text2)';
+  showSyncBanner('🔄 Sincronizando datos...', 'loading');
+
+  // Pulse the sync button
+  const btnSync = document.getElementById('btnSync');
+  btnSync.textContent = '↻ Cargando...';
+  btnSync.disabled = true;
+  btnSync.style.opacity = '0.7';
+
   try {
     const cacheBust = CSV_URL + '&_t=' + Date.now();
-    const res = await fetch(cacheBust);
+    const res = await fetch(cacheBust, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     const rows = parseCSV(text);
-    if (rows.length < 2) throw new Error('No data');
+    if (rows.length < 2) throw new Error('No hay datos en el Sheet');
     const hd = rows[0].map(h => h.replace(/\r/g, '').trim());
     const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
@@ -713,16 +773,31 @@ async function loadData() {
     });
 
     updateStats(); buildTree(); render();
+
     const activos = allPeople.filter(p => isActivo(p.status)).length;
-    const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit' });
-    syncEl.textContent = `✅ ${allPeople.length} personas (${activos} activos) — ${hora}`;
-    syncEl.style.color = 'var(--green)';
+    const inactivos = allPeople.length - activos;
+    const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    // Update toolbar status
+    syncEl.innerHTML = `✅ <strong style="color:var(--green)">${hora}</strong> — ${allPeople.length} personas`;
+    syncEl.style.color = 'var(--text2)';
+
+    // Show success banner
+    showSyncBanner(`✅ Sincronizado a las ${hora} — ${allPeople.length} personas (${activos} activos, ${inactivos} inactivos)`, 'success');
+
   } catch (e) {
-    el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
-    syncEl.textContent = '❌ Error: ' + e.message;
-    syncEl.style.color = 'var(--red)';
+    const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    syncEl.innerHTML = `<span style="color:var(--red)">❌ Error ${hora}</span>`;
+    showSyncBanner(`❌ Error al sincronizar: ${e.message}`, 'error');
+    if (!allPeople.length) {
+      el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
+    }
+  } finally {
+    document.getElementById('loadingEl').style.display = 'none';
+    btnSync.textContent = '↻ Sync';
+    btnSync.disabled = false;
+    btnSync.style.opacity = '1';
   }
-  finally { document.getElementById('loadingEl').style.display = 'none'; }
 }
 
 /* ── Update Stats based on filter ── */
