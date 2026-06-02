@@ -268,14 +268,6 @@
     white-space: nowrap;
   }
 
-  .scroll-hint {
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--text2);
-    padding: 6px 0 2px;
-    user-select: none;
-  }
-
   /* ═══════════════════════════════════
      VIEW: ORG CHART (Visual)
      ═══════════════════════════════════ */
@@ -311,7 +303,7 @@
   .org-card.highlight .card-status { border: 1px solid rgba(44,55,92,0.3); }
   .org-card .card-name { font-weight: 700; font-size: 0.78rem; line-height: 1.25; margin-bottom: 2px; }
   .org-card .card-pos { font-size: 0.68rem; color: var(--card-sub); }
-  .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 0.7; }
+  .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 1; font-weight: 600; }
   .org-card .card-count-expanded { font-size: 0.6rem; margin-top: 3px; color: var(--card-sub); opacity: 0.6; }
 
   /* ── Zoom Controls ── */
@@ -495,12 +487,6 @@
   .tree-children.collapsed { display: none; }
   .tree-hl { background: var(--accent); color: #2C375C; border-radius: 3px; padding: 1px 3px; font-weight: 700; }
 
-  /* ── Orphans ── */
-  .orphan-section { margin-top: 36px; padding-top: 18px; border-top: 2px dashed var(--border); }
-  .orphan-title { font-size: 0.85rem; color: var(--text2); margin-bottom: 14px; font-weight: 600; text-align: center; }
-  .orphan-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .orphan-grid .org-card { cursor: default; }
-
   .loading {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 80px 20px; gap: 14px; color: var(--text2);
@@ -609,8 +595,6 @@
     <option value="all">Todos</option>
     <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
-    <option value="orphan-active">⚠️ Huérfanos Activos</option>
-    <option value="orphan-inactive">⚠️ Huérfanos Inactivos</option>
   </select>
 
   <div class="toolbar-sep"></div>
@@ -697,7 +681,6 @@ async function loadData() {
   syncEl.textContent = '🔄 Sincronizando...';
   syncEl.style.color = 'var(--text2)';
   try {
-    // Cache-busting: add timestamp to URL
     const cacheBust = CSV_URL + '&_t=' + Date.now();
     const res = await fetch(cacheBust);
     const text = await res.text();
@@ -707,33 +690,24 @@ async function loadData() {
     const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
 
-    // First pass: collect all rows
     const rawPeople = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
       const email = iE!==-1 ? (r[iE]||'').trim() : '';
-      rawPeople.push({ name, position: (r[iP]||'').trim(), leaderName: iL!==-1?(r[iL]||'').trim():'', status: iS!==-1?(r[iS]||'').trim():'', email });
+      rawPeople.push({ name, position: (r[iP]||'').trim(), leaderName: iL!==-1?(r[iL]||'').trim():'', status: (r[iS]||'').trim(), email });
     }
 
-    // Build name → email map (first match with email wins)
     const nameToEmail = {};
-    rawPeople.forEach(p => {
-      if (p.email && !nameToEmail[p.name]) nameToEmail[p.name] = p.email;
-    });
-    // Fallback: if no email, use name as key
-    rawPeople.forEach(p => {
-      if (!nameToEmail[p.name]) nameToEmail[p.name] = p.name;
-    });
+    rawPeople.forEach(p => { if (p.email && !nameToEmail[p.name]) nameToEmail[p.name] = p.email; });
+    rawPeople.forEach(p => { if (!nameToEmail[p.name]) nameToEmail[p.name] = p.name; });
 
-    // Deduplicate by email (unique key)
     const seen = new Set();
     allPeople = [];
     rawPeople.forEach(p => {
       const uid = p.email || p.name;
       if (seen.has(uid)) return;
       seen.add(uid);
-      // Convert leader name → leader email
       const leaderEmail = p.leaderName ? (nameToEmail[p.leaderName] || '') : '';
       allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: leaderEmail, status: p.status, email: p.email });
     });
@@ -751,31 +725,44 @@ async function loadData() {
   finally { document.getElementById('loadingEl').style.display = 'none'; }
 }
 
+/* ── Update Stats based on filter ── */
 function updateStats() {
-  const t = allPeople.length, a = allPeople.filter(p => isActivo(p.status)).length;
-  document.getElementById('statTotal').textContent = t;
-  document.getElementById('statActive').textContent = a;
-  document.getElementById('statInactive').textContent = t - a;
+  const totalAll = allPeople.length;
+  const totalActive = allPeople.filter(p => isActivo(p.status)).length;
+  const totalInactive = totalAll - totalActive;
+
+  if (statusFilter === 'active') {
+    document.getElementById('statTotal').textContent = totalActive;
+    document.getElementById('statActive').textContent = totalActive;
+    document.getElementById('statInactive').textContent = 0;
+  } else if (statusFilter === 'inactive') {
+    document.getElementById('statTotal').textContent = totalInactive;
+    document.getElementById('statActive').textContent = 0;
+    document.getElementById('statInactive').textContent = totalInactive;
+  } else {
+    // all
+    document.getElementById('statTotal').textContent = totalAll;
+    document.getElementById('statActive').textContent = totalActive;
+    document.getElementById('statInactive').textContent = totalInactive;
+  }
 }
 
 /* ── Build Tree ── */
 function buildTree() {
   const byUid = {};
-  allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [], isOrphan: false }; });
+  allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [] }; });
 
   const roots = [], orphans = [];
   allPeople.forEach(p => {
     const node = byUid[p.uid];
     if (!p.leaderUid || !byUid[p.leaderUid]) {
       if (p.leaderName && !byUid[p.leaderUid]) {
-        // Leader name exists but not found in data
         node.isOrphan = true;
         orphans.push(node);
       } else if (!p.leaderName) {
-        // No leader assigned at all
         node.isOrphan = true;
-        roots.push(node);     // still show in tree as root
-        orphans.push(node);   // also appear in orphan filter
+        roots.push(node);
+        orphans.push(node);
       } else {
         roots.push(node);
       }
@@ -784,18 +771,36 @@ function buildTree() {
     }
   });
 
-  const srt = n => { n.children.sort((a,b) => cnt(b)-cnt(a)); n.children.forEach(srt); };
-  roots.forEach(srt); roots.sort((a,b) => cnt(b)-cnt(a));
+  // Sort by filtered count (descending)
+  const srt = n => { n.children.sort((a,b) => cntFiltered(b)-cntFiltered(a)); n.children.forEach(srt); };
+  roots.forEach(srt); roots.sort((a,b) => cntFiltered(b)-cntFiltered(a));
   treeData = { roots, orphans };
 }
-function cnt(n) { let c = 1; for (const ch of n.children) c += cnt(ch); return c; }
+
+/* ── Count only nodes matching current filter ── */
+function cntFiltered(n) {
+  let c = mF(n) ? 1 : 0;
+  for (const ch of n.children) c += cntFiltered(ch);
+  return c;
+}
+
+/* ── Count subordinates (children only, not self) matching filter ── */
+function cntSubFiltered(n) {
+  let c = 0;
+  for (const ch of n.children) c += cntFiltered(ch);
+  return c;
+}
 
 /* ── Filters ── */
-function isActivo(status) { const s = status.toLowerCase(); return s.startsWith('activo'); }
-function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || n.position.toLowerCase().includes(searchQuery) || n.email.toLowerCase().includes(searchQuery); }
-function mF(n) { if (statusFilter==='all') return true; return statusFilter==='active' ? isActivo(n.status) : !isActivo(n.status); }
+function isActivo(status) { const s = (status||'').toLowerCase(); return s.startsWith('activo'); }
+function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || (n.position||'').toLowerCase().includes(searchQuery) || (n.email||'').toLowerCase().includes(searchQuery); }
+function mF(n) {
+  if (statusFilter === 'all') return true;
+  if (statusFilter === 'active') return isActivo(n.status);
+  if (statusFilter === 'inactive') return !isActivo(n.status);
+  return true;
+}
 function selfMatch(n) { return mS(n) && mF(n); }
-// Show node if: it matches, OR a descendant matches (path down), OR ancestor matched (show subordinates)
 function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
 function vis(n, ancestorMatched) {
   if (ancestorMatched && mF(n)) return true;
@@ -804,89 +809,10 @@ function vis(n, ancestorMatched) {
 }
 
 /* ── Render ── */
-function isOrphanFilter() { return statusFilter === 'orphan-active' || statusFilter === 'orphan-inactive'; }
 function render() {
-  if (isOrphanFilter()) renderOrphansOnly();
-  else if (currentView === 'chart') renderChart();
+  updateStats();
+  if (currentView === 'chart') renderChart();
   else renderTreeView();
-}
-
-/* ═══ VIEW: ORPHANS ONLY ═══ */
-function renderOrphansOnly() {
-  const el = document.getElementById('contentEl'); el.innerHTML = '';
-  showZoomControls(false);
-  const isActive = statusFilter === 'orphan-active';
-  const filtered = treeData.orphans.filter(o => {
-    const statusOk = isActive ? isActivo(o.status) : !isActivo(o.status);
-    const searchOk = mS(o);
-    return statusOk && searchOk;
-  });
-
-  const title = document.createElement('div'); title.className = 'orphan-title';
-  title.textContent = `⚠️ Huérfanos ${isActive ? 'Activos' : 'Inactivos'} (${filtered.length})`;
-  title.style.marginTop = '10px';
-  el.appendChild(title);
-
-  if (filtered.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center;color:var(--text2);padding:40px;font-size:0.88rem;';
-    empty.textContent = 'No hay huérfanos ' + (isActive ? 'activos' : 'inactivos');
-    el.appendChild(empty);
-    return;
-  }
-
-  if (currentView === 'chart') {
-    const grid = document.createElement('div'); grid.className = 'orphan-grid';
-    filtered.forEach(o => {
-      const card = document.createElement('div'); card.className = 'org-card';
-      card.style.opacity = '1';
-      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>`
-        + (o.position ? `<div class="card-pos">${esc(o.position)}</div>` : '')
-        + (o.email ? `<div class="card-email">${esc(o.email)}</div>` : '')
-        + (o.leaderName ? `<div class="card-pos" style="margin-top:3px">→ ${esc(o.leaderName)}</div>` : '');
-      // Copy buttons
-      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
-      const btnName = document.createElement('button'); btnName.className = 'copy-btn'; btnName.textContent = '📋 Nombre';
-      btnName.addEventListener('click', (e) => { e.stopPropagation(); copyText(o.name); });
-      copyRow.appendChild(btnName);
-      if (o.email) {
-        const btnEmail = document.createElement('button'); btnEmail.className = 'copy-btn'; btnEmail.textContent = '📧 Email';
-        btnEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(o.email); });
-        copyRow.appendChild(btnEmail);
-      }
-      card.appendChild(copyRow);
-      // Edit leader
-      if (o.email) {
-        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-        editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(o); });
-        card.appendChild(editBtn);
-      }
-      grid.appendChild(card);
-    });
-    el.appendChild(grid);
-  } else {
-    const ul = document.createElement('ul'); ul.style.listStyle = 'none'; ul.style.maxWidth = '900px'; ul.style.margin = '0 auto';
-    filtered.forEach(o => {
-      const li = document.createElement('li');
-      const div = document.createElement('div'); div.className = 'tree-node';
-      const info = document.createElement('div'); info.className = 'tree-info';
-      const nm = document.createElement('div'); nm.className = 'tree-name'; nm.textContent = o.name; info.appendChild(nm);
-      const meta = document.createElement('div'); meta.className = 'tree-meta';
-      if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
-      if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
-      if (o.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+o.leaderName; meta.appendChild(l); }
-      info.appendChild(meta); div.appendChild(info);
-      // Copy
-      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
-      cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
-      if (o.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email'; cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE); }
-      if (o.email) { const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️'; edBtn.title = 'Asignar Líder'; edBtn.addEventListener('click', () => showLeaderModal(o)); div.appendChild(edBtn); }
-      if (o.status) { const b = document.createElement('span'); b.className = 'badge '+(isActivo(o.status)?'badge-active':'badge-inactive'); b.textContent = isActivo(o.status)?'Activo':o.status; div.appendChild(b); }
-      li.appendChild(div); ul.appendChild(li);
-    });
-    el.appendChild(ul);
-  }
-  scrollToHighlight(el);
 }
 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
@@ -899,7 +825,6 @@ function renderChart() {
     const nd = rChartNode(r, false); if (nd) c.appendChild(nd);
   });
   el.appendChild(c);
-  renderOrphans(el, 'chart');
   showZoomControls(true);
   updateZoom();
   scrollToHighlight(el);
@@ -913,19 +838,23 @@ function rChartNode(node, ancestorMatched) {
   // Card
   const card = document.createElement('div'); card.className = 'org-card';
   if (searchQuery && isSelf) card.classList.add('highlight');
+
+  // Count filtered subordinates
+  const filteredSubCount = cntSubFiltered(node);
+  const isCol = collapsedSet.has(node.uid);
+
   card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
     + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '')
-    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '')
-    + (node.leaderName ? `<div class="card-pos" style="margin-top:3px">→ ${esc(node.leaderName)}</div>` : '');
-  const cc = cnt(node)-1;
-  const isCol = collapsedSet.has(node.uid);
-  if (cc > 0) {
+    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '');
+
+  if (filteredSubCount > 0) {
     if (isCol) {
-      card.innerHTML += `<div class="card-count" style="opacity:1;font-weight:600">▶ ${cc} persona${cc>1?'s':''}</div>`;
+      card.innerHTML += `<div class="card-count">▶ ${filteredSubCount} persona${filteredSubCount>1?'s':''}</div>`;
     } else {
-      card.innerHTML += `<div class="card-count-expanded">▾ ${cc} persona${cc>1?'s':''}</div>`;
+      card.innerHTML += `<div class="card-count-expanded">▾ ${filteredSubCount} persona${filteredSubCount>1?'s':''}</div>`;
     }
   }
+
   if (node.status) {
     const isA = isActivo(node.status);
     card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
@@ -950,15 +879,15 @@ function rChartNode(node, ancestorMatched) {
     card.appendChild(editBtn);
   }
 
-  const hasC = node.children.length > 0;
-  if (hasC) {
+  const hasVisibleC = node.children.some(ch => vis(ch, isSelf || ancestorMatched));
+  if (hasVisibleC) {
     const icon = document.createElement('div'); icon.className = 'collapse-icon'; icon.textContent = isCol?'+':'−'; card.appendChild(icon);
     card.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
   }
   w.appendChild(card);
 
   const passDown = isSelf || ancestorMatched;
-  if (hasC && !isCol) {
+  if (hasVisibleC && !isCol) {
     const vc = node.children.filter(ch => vis(ch, passDown));
     if (vc.length > 0) {
       const vl = document.createElement('div'); vl.className = 'org-vert-line'; w.appendChild(vl);
@@ -991,7 +920,6 @@ function renderTreeView() {
   const ul = document.createElement('ul');
   treeData.roots.forEach(r => { const li = rTreeNode(r, false); if (li) ul.appendChild(li); });
   c.appendChild(ul); el.appendChild(c);
-  renderOrphans(el, 'tree');
   scrollToHighlight(el);
 }
 
@@ -1002,11 +930,12 @@ function rTreeNode(node, ancestorMatched) {
   const div = document.createElement('div'); div.className = 'tree-node';
   if (searchQuery && isSelf) div.classList.add('highlight');
 
-  const hasC = node.children.length > 0, isCol = collapsedSet.has(node.uid);
+  const hasVisibleC = node.children.some(ch => vis(ch, isSelf || ancestorMatched));
+  const isCol = collapsedSet.has(node.uid);
   const isOpen = searchQuery ? true : !isCol;
 
   const tgl = document.createElement('span');
-  tgl.className = 'tree-toggle' + (hasC ? (isOpen ? ' open' : '') : ' leaf');
+  tgl.className = 'tree-toggle' + (hasVisibleC ? (isOpen ? ' open' : '') : ' leaf');
   tgl.textContent = '▶'; div.appendChild(tgl);
 
   const info = document.createElement('div'); info.className = 'tree-info';
@@ -1028,7 +957,6 @@ function rTreeNode(node, ancestorMatched) {
     cpEmail.title = 'Copiar email'; cpEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
     div.appendChild(cpEmail);
   }
-  // Edit leader button
   if (node.email) {
     const editBtn = document.createElement('button'); editBtn.className = 'tree-edit-btn'; editBtn.textContent = '✏️';
     editBtn.title = 'Asignar Líder'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(node); });
@@ -1042,12 +970,20 @@ function rTreeNode(node, ancestorMatched) {
     b.textContent = isA ? 'Activo' : node.status;
     div.appendChild(b);
   }
-  if (hasC) { const cb = document.createElement('span'); cb.className = 'badge badge-count'; const tc = cnt(node)-1; cb.textContent = tc + ' persona' + (tc>1?'s':''); div.appendChild(cb); }
+
+  // Filtered subordinate count badge
+  const filteredSubCount = cntSubFiltered(node);
+  if (filteredSubCount > 0) {
+    const cb = document.createElement('span');
+    cb.className = 'badge badge-count';
+    cb.textContent = filteredSubCount + ' persona' + (filteredSubCount>1?'s':'');
+    div.appendChild(cb);
+  }
 
   li.appendChild(div);
 
   const passDown = isSelf || ancestorMatched;
-  if (hasC) {
+  if (hasVisibleC) {
     const cul = document.createElement('ul'); cul.className = 'tree-children'+(isOpen?'':' collapsed');
     node.children.filter(ch => vis(ch, passDown)).forEach(ch => { const cl = rTreeNode(ch, passDown); if (cl) cul.appendChild(cl); });
     li.appendChild(cul);
@@ -1056,33 +992,14 @@ function rTreeNode(node, ancestorMatched) {
   return li;
 }
 
-/* ── Orphans ── */
-function renderOrphans(el, mode) {
-  const f = treeData.orphans.filter(o => mS(o) && mF(o));
-  if (!f.length) return;
-  const sec = document.createElement('div'); sec.className = 'orphan-section';
-  sec.innerHTML = `<div class="orphan-title">⚠️ Sin conexión al árbol (${f.length})</div>`;
-  if (mode === 'chart') {
-    const g = document.createElement('div'); g.className = 'orphan-grid';
-    f.forEach(o => { const c = document.createElement('div'); c.className = 'org-card'; c.innerHTML = `<div class="card-name">${esc(o.name)}</div>${o.position?'<div class="card-pos">'+esc(o.position)+'</div>':''}`; g.appendChild(c); });
-    sec.appendChild(g);
-  } else {
-    const ul = document.createElement('ul'); ul.style.listStyle = 'none';
-    f.forEach(o => { const li = rTreeNode(o, false); if (li) ul.appendChild(li); });
-    sec.appendChild(ul);
-  }
-  el.appendChild(sec);
-}
-
 /* ── Helpers ── */
-function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(t) { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
 
 function scrollToHighlight(container) {
   setTimeout(() => {
     const highlighted = container.querySelector('.org-card.highlight, .tree-node.highlight');
     if (!highlighted) {
-      // No search — center on first root
       container.scrollTop = 0;
       const chart = container.querySelector('.org-chart');
       if (chart) {
@@ -1111,7 +1028,6 @@ function showToast(msg) {
 
 /* ── Leader Edit Modal ── */
 function showLeaderModal(node) {
-  // Remove existing modal
   const old = document.getElementById('leaderModal');
   if (old) old.remove();
 
@@ -1136,17 +1052,13 @@ function showLeaderModal(node) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Close on overlay click
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.getElementById('modalClose').addEventListener('click', () => overlay.remove());
-
-  // Remove leader
   document.getElementById('modalRemove').addEventListener('click', () => {
     showConfirmModal(node, '');
     overlay.remove();
   });
 
-  // Populate list
   const listEl = document.getElementById('modalList');
   const searchEl = document.getElementById('modalSearch');
 
@@ -1154,8 +1066,8 @@ function showLeaderModal(node) {
     listEl.innerHTML = '';
     const q = query.toLowerCase().trim();
     const filtered = allPeople
-      .filter(p => p.uid !== node.uid) // exclude self
-      .filter(p => !q || p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q))
+      .filter(p => p.uid !== node.uid)
+      .filter(p => !q || p.name.toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (filtered.length === 0) {
@@ -1227,8 +1139,6 @@ async function saveLeader(node, leaderName) {
       body: JSON.stringify({ email: node.email, leader: leaderName })
     });
     showToast('✅ Guardado. Sync en 5 seg...');
-    // Google Sheets CSV cache can take a few minutes to update
-    // Reload after 5 seconds to try to get fresh data
     setTimeout(() => {
       loadData();
       showToast('Datos recargados — si no ves el cambio, dale Sync en 1 min');
@@ -1250,7 +1160,11 @@ document.getElementById('searchClear').addEventListener('click', () => {
   searchQuery = '';
   render();
 });
-document.getElementById('filterStatus').addEventListener('change', e => { statusFilter = e.target.value; render(); });
+document.getElementById('filterStatus').addEventListener('change', e => {
+  statusFilter = e.target.value;
+  buildTree(); // rebuild tree with new filter for sorting
+  render();
+});
 
 document.getElementById('btnViewChart').addEventListener('click', () => {
   currentView = 'chart';
@@ -1276,22 +1190,19 @@ document.getElementById('btnCollapseAll').addEventListener('click', () => {
 document.getElementById('btnSync').addEventListener('click', loadData);
 
 document.getElementById('btnPDF').addEventListener('click', () => {
-  // Set print header info
-  const filterNames = { all: 'Todos', active: 'Activos', inactive: 'Inactivos', 'orphan-active': 'Huérfanos Activos', 'orphan-inactive': 'Huérfanos Inactivos' };
+  const filterNames = { all: 'Todos', active: 'Activos', inactive: 'Inactivos' };
   const viewName = currentView === 'chart' ? 'Organigrama' : 'Detalle';
   const filterName = filterNames[statusFilter] || statusFilter;
   const searchInfo = searchQuery ? ` | Búsqueda: "${searchQuery}"` : '';
   const date = new Date().toLocaleDateString('es-PR', { year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('printHeader').textContent = `Planet Solar — ${viewName} — Filtro: ${filterName}${searchInfo} — ${date}`;
-  
-  // Reset zoom for print
+
   const chart = document.querySelector('.org-chart');
   const oldTransform = chart ? chart.style.transform : '';
   if (chart) chart.style.transform = 'none';
-  
+
   window.print();
-  
-  // Restore zoom
+
   if (chart) chart.style.transform = oldTransform;
 });
 
@@ -1314,18 +1225,9 @@ function showZoomControls(show) {
   zoomControls.style.display = show ? 'flex' : 'none';
 }
 
-document.getElementById('zoomIn').addEventListener('click', () => {
-  zoomLevel = Math.min(200, zoomLevel + 10);
-  updateZoom();
-});
-document.getElementById('zoomOut').addEventListener('click', () => {
-  zoomLevel = Math.max(30, zoomLevel - 10);
-  updateZoom();
-});
-document.getElementById('zoomReset').addEventListener('click', () => {
-  zoomLevel = 100;
-  updateZoom();
-});
+document.getElementById('zoomIn').addEventListener('click', () => { zoomLevel = Math.min(200, zoomLevel + 10); updateZoom(); });
+document.getElementById('zoomOut').addEventListener('click', () => { zoomLevel = Math.max(30, zoomLevel - 10); updateZoom(); });
+document.getElementById('zoomReset').addEventListener('click', () => { zoomLevel = 100; updateZoom(); });
 
 /* ── Custom Scrollbar Horizontal ── */
 const contentEl = document.getElementById('contentEl');
@@ -1439,7 +1341,7 @@ document.addEventListener('touchend', () => {
   sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging');
 });
 
-// Update after render
+// Update scrollbars after render
 const origRender = render;
 render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(() => { updateScrollbarH(); updateScrollbarV(); }); }); };
 
