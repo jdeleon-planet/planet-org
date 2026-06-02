@@ -590,6 +590,7 @@
     <option value="all">Todos</option>
     <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
+    <option value="no-leader">⚠️ Activos sin líder</option>
   </select>
 
   <div class="toolbar-sep"></div>
@@ -816,6 +817,7 @@ function updateStats() {
   const totalAll = allPeople.length;
   const totalActive = allPeople.filter(p => isActivo(p.status)).length;
   const totalInactive = totalAll - totalActive;
+  const totalNoLeader = treeData.orphans ? treeData.orphans.filter(p => isActivo(p.status)).length : 0;
 
   if (statusFilter === 'active') {
     document.getElementById('statTotal').textContent = totalActive;
@@ -825,8 +827,11 @@ function updateStats() {
     document.getElementById('statTotal').textContent = totalInactive;
     document.getElementById('statActive').textContent = 0;
     document.getElementById('statInactive').textContent = totalInactive;
+  } else if (statusFilter === 'no-leader') {
+    document.getElementById('statTotal').textContent = totalNoLeader;
+    document.getElementById('statActive').textContent = totalNoLeader;
+    document.getElementById('statInactive').textContent = 0;
   } else {
-    // all
     document.getElementById('statTotal').textContent = totalAll;
     document.getElementById('statActive').textContent = totalActive;
     document.getElementById('statInactive').textContent = totalInactive;
@@ -880,10 +885,15 @@ function cntSubFiltered(n) {
 /* ── Filters ── */
 function isActivo(status) { const s = (status||'').toLowerCase(); return s.startsWith('activo'); }
 function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || (n.position||'').toLowerCase().includes(searchQuery) || (n.email||'').toLowerCase().includes(searchQuery); }
+function isOrphanNode(n) {
+  return treeData.orphans && treeData.orphans.some(o => o.uid === n.uid);
+}
+
 function mF(n) {
   if (statusFilter === 'all') return true;
   if (statusFilter === 'active') return isActivo(n.status);
   if (statusFilter === 'inactive') return !isActivo(n.status);
+  if (statusFilter === 'no-leader') return isActivo(n.status) && isOrphanNode(n);
   return true;
 }
 function selfMatch(n) { return mS(n) && mF(n); }
@@ -897,8 +907,89 @@ function vis(n, ancestorMatched) {
 /* ── Render ── */
 function render() {
   updateStats();
-  if (currentView === 'chart') renderChart();
+  if (statusFilter === 'no-leader') renderNoLeader();
+  else if (currentView === 'chart') renderChart();
   else renderTreeView();
+}
+
+/* ═══ VIEW: ACTIVOS SIN LÍDER ═══ */
+function renderNoLeader() {
+  const el = document.getElementById('contentEl'); el.innerHTML = '';
+  showZoomControls(false);
+
+  const filtered = treeData.orphans.filter(o => isActivo(o.status) && mS(o));
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:0.88rem;color:var(--text2);font-weight:600;text-align:center;margin:10px 0 20px;';
+  title.textContent = `⚠️ Activos sin líder asignado (${filtered.length})`;
+  el.appendChild(title);
+
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text2);padding:40px;font-size:0.88rem;';
+    empty.textContent = 'No hay activos sin líder 🎉';
+    el.appendChild(empty);
+    return;
+  }
+
+  if (currentView === 'chart') {
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
+    filtered.forEach(o => {
+      const card = document.createElement('div'); card.className = 'org-card';
+      if (searchQuery && mS(o)) card.classList.add('highlight');
+      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>`
+        + (o.position ? `<div class="card-pos">${esc(o.position)}</div>` : '')
+        + (o.email ? `<div class="card-email">${esc(o.email)}</div>` : '')
+        + (o.leaderName ? `<div class="card-pos" style="margin-top:3px;color:#f87171">→ ${esc(o.leaderName)} (no encontrado)</div>` : '<div class="card-pos" style="margin-top:3px;color:#f87171">Sin líder</div>');
+      card.innerHTML += `<span class="card-status st-active">Activo</span>`;
+      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
+      const btnN = document.createElement('button'); btnN.className = 'copy-btn'; btnN.textContent = '📋 Nombre';
+      btnN.addEventListener('click', e => { e.stopPropagation(); copyText(o.name); }); copyRow.appendChild(btnN);
+      if (o.email) {
+        const btnE = document.createElement('button'); btnE.className = 'copy-btn'; btnE.textContent = '📧 Email';
+        btnE.addEventListener('click', e => { e.stopPropagation(); copyText(o.email); }); copyRow.appendChild(btnE);
+      }
+      card.appendChild(copyRow);
+      if (o.email) {
+        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
+        editBtn.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(o)); });
+        card.appendChild(editBtn);
+      }
+      grid.appendChild(card);
+    });
+    el.appendChild(grid);
+  } else {
+    const tv = document.createElement('div'); tv.className = 'tree-view';
+    const ul = document.createElement('ul'); ul.style.cssText = 'list-style:none;max-width:900px;margin:0 auto;';
+    filtered.forEach(o => {
+      const li = document.createElement('li');
+      const div = document.createElement('div'); div.className = 'tree-node';
+      if (searchQuery && mS(o)) div.classList.add('highlight');
+      const info = document.createElement('div'); info.className = 'tree-info';
+      const nm = document.createElement('div'); nm.className = 'tree-name';
+      if (searchQuery && mS(o)) nm.innerHTML = hlText(o.name, searchQuery); else nm.textContent = o.name;
+      info.appendChild(nm);
+      const meta = document.createElement('div'); meta.className = 'tree-meta';
+      if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
+      if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
+      const lbl = document.createElement('span'); lbl.style.color = '#f87171';
+      lbl.textContent = o.leaderName ? '→ ' + o.leaderName + ' (no encontrado)' : 'Sin líder';
+      meta.appendChild(lbl);
+      info.appendChild(meta); div.appendChild(info);
+      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
+      cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
+      if (o.email) {
+        const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email';
+        cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE);
+        const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️'; edBtn.title = 'Asignar Líder';
+        edBtn.addEventListener('click', () => showPinModal(() => showLeaderModal(o))); div.appendChild(edBtn);
+      }
+      const b = document.createElement('span'); b.className = 'badge badge-active'; b.textContent = 'Activo'; div.appendChild(b);
+      li.appendChild(div); ul.appendChild(li);
+    });
+    tv.appendChild(ul); el.appendChild(tv);
+  }
 }
 
 /* ═══ VIEW 1: ORGANIGRAMA ═══ */
