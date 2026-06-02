@@ -781,7 +781,7 @@ async function loadData() {
       allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: leaderEmail, status: p.status, email: p.email });
     });
 
-    updateStats(); buildTree(); buildLuisAcostaSet(); render();
+    buildTree(); buildLuisAcostaSet(); updateStats(); render();
 
     const activos = allPeople.filter(p => isActivo(p.status)).length;
     const inactivos = allPeople.length - activos;
