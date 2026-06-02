@@ -921,7 +921,7 @@ function isOrphanNode(n) {
 
 function mF(n) {
   // Luis Acosta filter — show only his hierarchy
-  if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n);
+  if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
   // All other filters — exclude Luis Acosta's hierarchy
   if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
