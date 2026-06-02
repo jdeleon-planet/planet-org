@@ -943,15 +943,22 @@ function mF(n) {
   return true;
 }
 function selfMatch(n) { return mS(n) && mF(n); }
-function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
-function vis(n, ancestorMatched) {
-  // For Luis hierarchy in non-administrative filters: only show if directly searched, never as ancestor expansion
-  if (searchQuery && statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) {
-    return mS(n) && mF(n);
-  }
-  if (ancestorMatched && mF(n)) return true;
+function hasMatchBelow(n) {
+  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) return false;
   if (selfMatch(n)) return true;
   return n.children.some(ch => hasMatchBelow(ch));
+}
+function vis(n, ancestorMatched) {
+  // For Luis hierarchy in non-administrative filters:
+  // only show if directly searched — never show ancestors leading to them
+  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) {
+    return searchQuery && mS(n) && mF(n);
+  }
+  // For normal nodes: don't show if only path leads to a Luis hierarchy node
+  if (ancestorMatched && mF(n)) return true;
+  if (selfMatch(n)) return true;
+  // Only count children that are not exclusively Luis hierarchy
+  return n.children.some(ch => hasMatchBelow(ch) && !(statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(ch) && !searchQuery));
 }
 
 /* ── Render ── */
@@ -960,6 +967,8 @@ function render() {
   if (statusFilter === 'no-leader') renderNoLeader();
   else if (currentView === 'chart') renderChart();
   else renderTreeView();
+  // If searching in non-administrative filter, append Luis hierarchy matches at bottom
+  if (searchQuery && statusFilter !== 'luis-acosta') renderLuisSearchResults();
 }
 
 /* ═══ VIEW: ACTIVOS SIN LÍDER ═══ */
@@ -1134,6 +1143,78 @@ function renderOrphans(el, mode) {
       li.appendChild(div); ul.appendChild(li);
     });
     sec.appendChild(ul);
+  }
+  el.appendChild(sec);
+}
+
+/* ═══ LUIS SEARCH RESULTS (flat, no hierarchy) ═══ */
+function renderLuisSearchResults() {
+  const el = document.getElementById('contentEl');
+  const matches = allPeople.filter(p => {
+    if (!isInLuisAcostaHierarchy({uid: p.uid})) return false;
+    if (!mS(p)) return false;
+    if (statusFilter === 'active') return isActivo(p.status);
+    if (statusFilter === 'inactive') return !isActivo(p.status);
+    return true;
+  });
+  if (!matches.length) return;
+
+  const sec = document.createElement('div');
+  sec.style.cssText = 'margin-top:24px;padding-top:20px;border-top:2px dashed var(--border);';
+
+  if (currentView === 'chart') {
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
+    matches.forEach(p => {
+      const card = document.createElement('div'); card.className = 'org-card highlight';
+      card.innerHTML = `<div class="card-name">${hlText(p.name, searchQuery)}</div>`
+        + (p.position ? `<div class="card-pos">${esc(p.position)}</div>` : '')
+        + (p.email ? `<div class="card-email">${esc(p.email)}</div>` : '');
+      const isA = isActivo(p.status);
+      card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(p.status)}</span>`;
+      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
+      const btnN = document.createElement('button'); btnN.className = 'copy-btn'; btnN.textContent = '📋 Nombre';
+      btnN.addEventListener('click', e => { e.stopPropagation(); copyText(p.name); }); copyRow.appendChild(btnN);
+      if (p.email) {
+        const btnE = document.createElement('button'); btnE.className = 'copy-btn'; btnE.textContent = '📧 Email';
+        btnE.addEventListener('click', e => { e.stopPropagation(); copyText(p.email); }); copyRow.appendChild(btnE);
+      }
+      card.appendChild(copyRow);
+      if (p.email) {
+        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
+        editBtn.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(p)); });
+        card.appendChild(editBtn);
+      }
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+  } else {
+    const tv = document.createElement('div'); tv.className = 'tree-view';
+    const ul = document.createElement('ul'); ul.style.listStyle = 'none';
+    matches.forEach(p => {
+      const li = document.createElement('li');
+      const div = document.createElement('div'); div.className = 'tree-node highlight';
+      const info = document.createElement('div'); info.className = 'tree-info';
+      const nm = document.createElement('div'); nm.className = 'tree-name';
+      nm.innerHTML = hlText(p.name, searchQuery); info.appendChild(nm);
+      const meta = document.createElement('div'); meta.className = 'tree-meta';
+      if (p.position) { const sp = document.createElement('span'); sp.textContent = p.position; meta.appendChild(sp); }
+      if (p.email) { const se = document.createElement('span'); se.textContent = p.email; meta.appendChild(se); }
+      info.appendChild(meta); div.appendChild(info);
+      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋';
+      cpN.addEventListener('click', () => copyText(p.name)); div.appendChild(cpN);
+      if (p.email) {
+        const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧';
+        cpE.addEventListener('click', () => copyText(p.email)); div.appendChild(cpE);
+        const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️';
+        edBtn.addEventListener('click', () => showPinModal(() => showLeaderModal(p))); div.appendChild(edBtn);
+      }
+      const isA = isActivo(p.status);
+      const b = document.createElement('span'); b.className = 'badge '+(isA?'badge-active':'badge-inactive');
+      b.textContent = isA ? 'Activo' : p.status; div.appendChild(b);
+      li.appendChild(div); ul.appendChild(li);
+    });
+    tv.appendChild(ul); sec.appendChild(tv);
   }
   el.appendChild(sec);
 }
