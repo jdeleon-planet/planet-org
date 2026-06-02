@@ -718,20 +718,18 @@ function showSyncBanner(msg, type) {
 
 /* ── Load ── */
 async function loadData() {
-  document.getElementById('loadingEl').style.display = 'flex';
+  const loadingElStart = document.getElementById('loadingEl');
+  if (loadingElStart) loadingElStart.style.display = 'flex';
   const el = document.getElementById('contentEl');
   const syncEl = document.getElementById('syncStatus');
 
   // Show loading state
-  syncEl.innerHTML = '🔄 Sincronizando...';
-  syncEl.style.color = 'var(--text2)';
+  if (syncEl) { syncEl.innerHTML = '🔄 Sincronizando...'; syncEl.style.color = 'var(--text2)'; }
   showSyncBanner('🔄 Sincronizando datos...', 'loading');
 
   // Pulse the sync button
   const btnSync = document.getElementById('btnSync');
-  btnSync.textContent = '↻ Cargando...';
-  btnSync.disabled = true;
-  btnSync.style.opacity = '0.7';
+  if (btnSync) { btnSync.textContent = '↻ Cargando...'; btnSync.disabled = true; btnSync.style.opacity = '0.7'; }
 
   try {
     const cacheBust = CSV_URL + '&_t=' + Date.now();
@@ -793,10 +791,14 @@ async function loadData() {
       el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
     }
   } finally {
-    document.getElementById('loadingEl').style.display = 'none';
-    btnSync.textContent = '↻ Sync';
-    btnSync.disabled = false;
-    btnSync.style.opacity = '1';
+    const loadingEl = document.getElementById('loadingEl');
+    if (loadingEl) loadingEl.style.display = 'none';
+    const syncBtn = document.getElementById('btnSync');
+    if (syncBtn) {
+      syncBtn.textContent = '↻ Sync';
+      syncBtn.disabled = false;
+      syncBtn.style.opacity = '1';
+    }
   }
 }
 
