@@ -961,7 +961,7 @@ function rChartNode(node, ancestorMatched) {
   // Edit leader button
   if (node.email) {
     const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-    editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(node); });
+    editBtn.addEventListener('click', (e) => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); });
     card.appendChild(editBtn);
   }
 
@@ -1045,7 +1045,7 @@ function rTreeNode(node, ancestorMatched) {
   }
   if (node.email) {
     const editBtn = document.createElement('button'); editBtn.className = 'tree-edit-btn'; editBtn.textContent = '✏️';
-    editBtn.title = 'Asignar Líder'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); showLeaderModal(node); });
+    editBtn.title = 'Asignar Líder'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); });
     div.appendChild(editBtn);
   }
 
@@ -1110,6 +1110,61 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+/* ── PIN Modal ── */
+function showPinModal(onSuccess) {
+  const old = document.getElementById('pinModal');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'pinModal';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.maxWidth = '320px';
+
+  modal.innerHTML = `
+    <div class="modal-title">🔒 Código de acceso</div>
+    <div class="modal-sub">Ingresa el código para continuar</div>
+    <input type="password" id="pinInput" style="
+      width:100%; padding:12px; border:2px solid var(--border);
+      border-radius:8px; font-size:1.2rem; text-align:center;
+      letter-spacing:6px; font-family:inherit; outline:none; margin:8px 0 4px;
+    " placeholder="••••" maxlength="10">
+    <div id="pinError" style="color:var(--red);font-size:0.78rem;text-align:center;min-height:18px;margin-bottom:6px"></div>
+    <div class="modal-btns" style="justify-content:center;gap:12px">
+      <button class="modal-btn" id="pinCancel" style="min-width:100px">Cancelar</button>
+      <button class="modal-btn" id="pinConfirm" style="min-width:100px;background:var(--card);color:#fff;border-color:var(--card);font-weight:600">Entrar</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  const pinInput = document.getElementById('pinInput');
+  const pinError = document.getElementById('pinError');
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('pinCancel').addEventListener('click', () => overlay.remove());
+
+  function checkPin() {
+    if (pinInput.value === '0700') {
+      overlay.remove();
+      onSuccess();
+    } else {
+      pinError.textContent = '❌ Código incorrecto';
+      pinInput.value = '';
+      pinInput.style.borderColor = 'var(--red)';
+      pinInput.focus();
+      setTimeout(() => { pinInput.style.borderColor = 'var(--border)'; pinError.textContent = ''; }, 2000);
+    }
+  }
+
+  document.getElementById('pinConfirm').addEventListener('click', checkPin);
+  pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
+  setTimeout(() => pinInput.focus(), 100);
 }
 
 /* ── Leader Edit Modal ── */
