@@ -919,6 +919,8 @@ function displayLeaderName(node) {
   if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(node)) return '🔒 Privado';
   return node.leaderName;
 }
+
+function isOrphanNode(n) {
   return treeData.orphans && treeData.orphans.some(o => o.uid === n.uid);
 }
 
