@@ -927,7 +927,14 @@ function isOrphanNode(n) {
 function mF(n) {
   // Luis Acosta filter — show only active in his hierarchy
   if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
-  // All other filters — exclude Luis Acosta's hierarchy
+  // If searching, show Luis hierarchy members but leader name stays masked
+  if (searchQuery && isInLuisAcostaHierarchy(n)) {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'active') return isActivo(n.status);
+    if (statusFilter === 'inactive') return !isActivo(n.status);
+    return false;
+  }
+  // All other filters without search — exclude Luis Acosta's hierarchy
   if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
   if (statusFilter === 'active') return isActivo(n.status);
