@@ -945,6 +945,10 @@ function mF(n) {
 function selfMatch(n) { return mS(n) && mF(n); }
 function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
 function vis(n, ancestorMatched) {
+  // For Luis hierarchy in non-administrative filters: only show if directly searched, never as ancestor expansion
+  if (searchQuery && statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) {
+    return mS(n) && mF(n);
+  }
   if (ancestorMatched && mF(n)) return true;
   if (selfMatch(n)) return true;
   return n.children.some(ch => hasMatchBelow(ch));
@@ -1250,7 +1254,9 @@ function rTreeNode(node, ancestorMatched) {
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
   if (node.email) { const e = document.createElement('span'); e.textContent = node.email; meta.appendChild(e); }
-  if (node.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+displayLeaderName(node); meta.appendChild(l); }
+  if (node.leaderName && !(searchQuery && statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(node))) {
+    const l = document.createElement('span'); l.textContent = '→ '+displayLeaderName(node); meta.appendChild(l);
+  }
   info.appendChild(meta); div.appendChild(info);
 
   // Copy buttons
