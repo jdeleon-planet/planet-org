@@ -633,6 +633,23 @@
 <div class="main-area">
   <div class="print-header" id="printHeader"></div>
 
+  <!-- Side Panel: Simple Position Counts -->
+  <div id="sidePanel" style="
+    width: 200px; min-width: 200px;
+    background: #fff;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: width 0.2s, min-width 0.2s;
+    flex-shrink: 0;
+  ">
+    <div style="padding:10px 12px;background:var(--header-bg);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <span id="sidePanelTitle" style="font-size:0.78rem;font-weight:700;">📊 Posiciones</span>
+      <button id="sidePanelToggle" style="background:none;border:none;color:#fff;cursor:pointer;font-size:0.9rem;padding:0;opacity:0.8;">◀</button>
+    </div>
+    <div id="sidePanelContent" style="flex:1;overflow-y:auto;scrollbar-width:thin;"></div>
+  </div>
+
   <div class="content" id="contentEl">
     <div class="loading" id="loadingEl">
       <div class="spinner"></div>
@@ -1820,8 +1837,71 @@ document.addEventListener('touchend', () => {
 
 // Update scrollbars after render
 const origRender = render;
-render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(() => { updateScrollbarH(); updateScrollbarV(); }); }); };
+render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(() => { updateScrollbarH(); updateScrollbarV(); renderSidePanel(); }); }); };
 
+/* ── Side Panel ── */
+let sidePanelOpen = true;
+
+function renderSidePanel() {
+  const panel = document.getElementById('sidePanelContent');
+  if (!panel) return;
+  panel.innerHTML = '';
+
+  const visible = allPeople.filter(p => {
+    const node = { uid: p.uid, name: p.name, position: p.position, status: p.status, email: p.email, leaderName: p.leaderName, leaderUid: p.leaderUid, children: [] };
+    if (!mF(node)) return false;
+    if (searchQuery) return mS(node);
+    return true;
+  });
+
+  const counts = {};
+  visible.forEach(p => {
+    const pos = (p.position || 'Sin posición').trim();
+    counts[pos] = (counts[pos] || 0) + 1;
+  });
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+  const totalRow = document.createElement('div');
+  totalRow.style.cssText = 'padding:8px 12px;font-size:0.78rem;font-weight:700;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;';
+  totalRow.innerHTML = `<span>Total</span><span style="background:var(--header-bg);color:#fff;padding:1px 7px;border-radius:8px;font-size:0.75rem;">${visible.length}</span>`;
+  panel.appendChild(totalRow);
+
+  if (sorted.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:14px 12px;font-size:0.75rem;color:var(--text2);text-align:center;';
+    empty.textContent = 'Sin datos';
+    panel.appendChild(empty);
+    return;
+  }
+
+  sorted.forEach(([pos, count]) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:5px 12px;font-size:0.75rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f3f3;';
+    row.innerHTML = `
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px;color:var(--text);" title="${esc(pos)}">${esc(pos)}</span>
+      <span style="font-weight:700;color:var(--header-bg);flex-shrink:0;">${count}</span>
+    `;
+    panel.appendChild(row);
+  });
+}
+
+document.getElementById('sidePanelToggle').addEventListener('click', () => {
+  sidePanelOpen = !sidePanelOpen;
+  const panel = document.getElementById('sidePanel');
+  const title = document.getElementById('sidePanelTitle');
+  const content = document.getElementById('sidePanelContent');
+  const btn = document.getElementById('sidePanelToggle');
+  if (sidePanelOpen) {
+    panel.style.width = '200px'; panel.style.minWidth = '200px';
+    btn.textContent = '◀'; title.style.display = 'inline';
+    content.style.display = 'block';
+  } else {
+    panel.style.width = '28px'; panel.style.minWidth = '28px';
+    btn.textContent = '▶'; title.style.display = 'none';
+    content.style.display = 'none';
+  }
+  updateScrollbarH();
+});
 
 loadData();
 </script>
