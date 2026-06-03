@@ -1847,15 +1847,19 @@ function renderSidePanel() {
   if (!panel) return;
   panel.innerHTML = '';
 
-  const visible = allPeople.filter(p => {
-    const node = { uid: p.uid, name: p.name, position: p.position, status: p.status, email: p.email, leaderName: p.leaderName, leaderUid: p.leaderUid, children: [] };
-    if (!mF(node)) return false;
-    if (searchQuery) return mS(node);
-    return true;
-  });
+  // Collect all visible people by walking the tree
+  const visiblePeople = [];
+  const collect = (node, ancestorMatched) => {
+    if (!vis(node, ancestorMatched)) return;
+    if (mF(node)) visiblePeople.push(node);
+    const isSelf = selfMatch(node);
+    const passDown = isSelf || ancestorMatched;
+    node.children.forEach(ch => collect(ch, passDown));
+  };
+  treeData.roots.forEach(r => collect(r, false));
 
   const counts = {};
-  visible.forEach(p => {
+  visiblePeople.forEach(p => {
     const pos = (p.position || 'Sin posición').trim();
     counts[pos] = (counts[pos] || 0) + 1;
   });
@@ -1863,7 +1867,7 @@ function renderSidePanel() {
 
   const totalRow = document.createElement('div');
   totalRow.style.cssText = 'padding:8px 12px;font-size:0.78rem;font-weight:700;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;';
-  totalRow.innerHTML = `<span>Total</span><span style="background:var(--header-bg);color:#fff;padding:1px 7px;border-radius:8px;font-size:0.75rem;">${visible.length}</span>`;
+  totalRow.innerHTML = `<span>Total</span><span style="background:var(--header-bg);color:#fff;padding:1px 7px;border-radius:8px;font-size:0.75rem;">${visiblePeople.length}</span>`;
   panel.appendChild(totalRow);
 
   if (sorted.length === 0) {
