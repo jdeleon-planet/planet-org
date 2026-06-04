@@ -574,7 +574,7 @@
 
 <div class="header">
   <div>
-    <h1>☀️ Planet Solar — Organigrama</h1>
+    <h1>Planet Solar — Organigrama</h1>
     <div class="subtitle">Estructura organizacional</div>
   </div>
 </div>
@@ -908,7 +908,12 @@ function cntSubFiltered(n) {
 
 /* ── Filters ── */
 function isActivo(status) { const s = (status||'').toLowerCase(); return s.startsWith('activo'); }
-function mS(n) { if (!searchQuery) return true; return n.name.toLowerCase().includes(searchQuery) || (n.position||'').toLowerCase().includes(searchQuery) || (n.email||'').toLowerCase().includes(searchQuery); }
+function mS(n) {
+  if (!searchQuery) return true;
+  const words = searchQuery.toLowerCase().trim().split(/\s+/);
+  const haystack = ((n.name||'') + ' ' + (n.position||'') + ' ' + (n.email||'')).toLowerCase();
+  return words.every(w => haystack.includes(w));
+}
 /* ── Luis Acosta hierarchy ── */
 // Build a set of UIDs that are Luis Acosta or under his hierarchy
 let luisAcostaUids = new Set();
