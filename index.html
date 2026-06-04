@@ -1626,11 +1626,11 @@ document.getElementById('searchInput').addEventListener('input', e => {
       const collapseAll = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(collapseAll); };
       treeData.roots.forEach(collapseAll);
       const expandPath = (n) => {
-        if (mS(n)) return true;
+        let found = mS(n);
         for (const ch of n.children) {
-          if (expandPath(ch)) { collapsedSet.delete(n.uid); return true; }
+          if (expandPath(ch)) { collapsedSet.delete(n.uid); found = true; }
         }
-        return false;
+        return found;
       };
       treeData.roots.forEach(r => expandPath(r));
     } else {
