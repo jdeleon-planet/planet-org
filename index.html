@@ -1972,13 +1972,77 @@ function renderSidePanel() {
 
   sorted.forEach(([pos, count]) => {
     const row = document.createElement('div');
-    row.style.cssText = 'padding:5px 12px;font-size:0.75rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f3f3;';
+    row.style.cssText = 'padding:5px 12px;font-size:0.75rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f3f3;cursor:pointer;transition:background 0.12s;';
     row.innerHTML = `
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px;color:var(--text);" title="${esc(pos)}">${esc(pos)}</span>
-      <span style="font-weight:700;color:var(--header-bg);flex-shrink:0;">${count}</span>
+      <span style="font-weight:700;color:var(--header-bg);flex-shrink:0;background:#f0f1f3;padding:1px 7px;border-radius:8px;">${count}</span>
     `;
+    row.addEventListener('mouseenter', () => row.style.background = '#f0f5ff');
+    row.addEventListener('mouseleave', () => row.style.background = '');
+    row.addEventListener('click', () => showPositionModal(pos, visiblePeople));
     panel.appendChild(row);
   });
+}
+
+/* ── Position Detail Modal ── */
+function showPositionModal(pos, visiblePeople) {
+  const old = document.getElementById('positionModal');
+  if (old) old.remove();
+
+  const people = visiblePeople.filter(p => (p.position||'Sin posición').trim() === pos);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'positionModal';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.maxWidth = '500px';
+
+  modal.innerHTML = `
+    <div class="modal-title">${esc(pos)}</div>
+    <div class="modal-sub">${people.length} persona${people.length !== 1 ? 's' : ''}</div>
+  `;
+
+  const list = document.createElement('div');
+  list.style.cssText = 'flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:7px;max-height:400px;';
+
+  people.sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:9px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;gap:8px;';
+    const isA = isActivo(p.status);
+    item.innerHTML = `
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:0.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)}</div>
+        <div style="font-size:0.72rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.email ? esc(p.email) : ''}${p.leaderName ? ' → '+esc(p.leaderName) : ''}</div>
+      </div>
+      <span class="badge ${isA?'badge-active':'badge-inactive'}" style="flex-shrink:0;">${isA?'Activo':esc(p.status)}</span>
+    `;
+    // Copy buttons
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
+    const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
+    cpN.addEventListener('click', () => copyText(p.name)); btns.appendChild(cpN);
+    if (p.email) {
+      const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email';
+      cpE.addEventListener('click', () => copyText(p.email)); btns.appendChild(cpE);
+    }
+    item.appendChild(btns);
+    list.appendChild(item);
+  });
+
+  modal.appendChild(list);
+
+  const btns = document.createElement('div');
+  btns.className = 'modal-btns';
+  btns.innerHTML = `<button class="modal-btn" id="posModalClose">Cerrar</button>`;
+  modal.appendChild(btns);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('posModalClose').addEventListener('click', () => overlay.remove());
 }
 
 document.getElementById('sidePanelToggle').addEventListener('click', () => {
