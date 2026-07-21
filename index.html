@@ -165,8 +165,8 @@
     <button class="search-clear" id="searchClear" style="display:none">✕</button>
   </div>
   <select class="filter-select" id="filterStatus">
-    <option value="all">Todos</option>
-    <option value="active" selected>Activos</option>
+    <option value="all" selected>Todos</option>
+    <option value="active">Activos</option>
     <option value="inactive">Inactivos</option>
     <option value="no-leader">⚠️ Activos sin líder</option>
   </select>
@@ -222,7 +222,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxhER0VTdfc9tk
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymEDMOHJw6Ya2KFgaOgCMkgTnphsUlDx9kYmkQSOxwAZEy6Ia4_N-boRwG7UlgR600OA/exec';
 
 let allPeople = [], treeData = { roots: [], orphans: [] }, collapsedSet = new Set();
-let searchQuery = '', statusFilter = 'active', currentView = 'tree';
+let searchQuery = '', statusFilter = 'all', currentView = 'tree';
 let selectedSearchUid = null;
 
 function parseCSV(text) {
@@ -374,12 +374,15 @@ function mF(n) {
 }
 function selfMatch(n) { return mS(n) && mF(n); }
 function hasMatchBelow(n) {
-  // When selectedSearchUid is set, use wordMatch to find path to target
-  const matches = selectedSearchUid ? (mF(n) && wordMatch(n)) : selfMatch(n);
+  const matches = selectedSearchUid ? (wordMatch(n) && mF(n)) : selfMatch(n);
   if (matches) return true;
+  // Also check if the selected uid is in this subtree regardless of filter
+  if (selectedSearchUid && n.uid === selectedSearchUid) return true;
   return n.children.some(ch => hasMatchBelow(ch));
 }
 function vis(n, ancestorMatched) {
+  // Always show the specifically selected node
+  if (selectedSearchUid && n.uid === selectedSearchUid) return true;
   if (ancestorMatched && mF(n)) return true;
   if (selfMatch(n)) return true;
   return n.children.some(ch => hasMatchBelow(ch));
