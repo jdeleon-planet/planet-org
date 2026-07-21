@@ -669,11 +669,26 @@ function applySearch(query) {
   collapsedSet.clear();
   const collapseAll = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(collapseAll); };
   treeData.roots.forEach(collapseAll);
+
+  // Find if this node or any descendant is the target
+  const hasTarget = n => {
+    if (selectedSearchUid) {
+      if (n.uid === selectedSearchUid) return true;
+      return n.children.some(ch => hasTarget(ch));
+    } else {
+      if (mS(n)) return true;
+      return n.children.some(ch => hasTarget(ch));
+    }
+  };
+
   const expandPath = n => {
-    const isMatch = selectedSearchUid ? n.uid===selectedSearchUid : mS(n);
-    let found = isMatch;
-    for (const ch of n.children) { if (expandPath(ch)) { collapsedSet.delete(n.uid); found=true; } }
-    return found;
+    // Check if any child subtree contains the target
+    for (const ch of n.children) {
+      if (hasTarget(ch)) {
+        collapsedSet.delete(n.uid); // open this node
+        expandPath(ch); // recurse into child
+      }
+    }
   };
   treeData.roots.forEach(r => expandPath(r));
   render();
