@@ -7,497 +7,125 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   :root {
-    --bg: #f0f1f3;
-    --card: #2C375C;
-    --card-hover: #3a4870;
-    --card-text: #ffffff;
-    --card-sub: #b0b6c8;
-    --line: #858688;
-    --header-bg: #2C375C;
-    --header-text: #ffffff;
-    --border: #d0d1d3;
-    --text: #2C375C;
-    --text2: #858688;
-    --accent: #FECB28;
-    --green: #22c55e;
-    --red: #ef4444;
-    --surface: #ffffff;
-    --surface2: #f6f6f7;
+    --bg: #f0f1f3; --card: #2C375C; --card-hover: #3a4870; --card-text: #ffffff;
+    --card-sub: #b0b6c8; --line: #858688; --header-bg: #2C375C; --header-text: #ffffff;
+    --border: #d0d1d3; --text: #2C375C; --text2: #858688; --accent: #FECB28;
+    --green: #22c55e; --red: #ef4444; --surface: #ffffff; --surface2: #f6f6f7;
   }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── Header ── */
-  .header {
-    background: var(--header-bg);
-    color: var(--header-text);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+  .header { background: var(--header-bg); color: var(--header-text); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   .header h1 { font-size: 1.2rem; font-weight: 700; }
   .header .subtitle { font-size: 0.78rem; opacity: 0.7; }
-  .stats { display: flex; gap: 14px; font-size: 0.8rem; opacity: 0.85; }
-  .stats strong { color: #fff; }
-
-  /* ── Toolbar (FIXED) ── */
-  .toolbar {
-    background: #fff;
-    padding: 10px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-  }
+  .toolbar { background: #fff; padding: 10px 24px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
   .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
-  .search-wrap svg {
-    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    width: 15px; height: 15px; stroke: var(--text2);
-  }
-  .search-box {
-    width: 100%;
-    padding: 7px 30px 7px 32px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    font-size: 0.83rem;
-    font-family: inherit;
-    outline: none;
-  }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--text2); }
+  .search-box { width: 100%; padding: 7px 30px 7px 32px; border: 1px solid var(--border); border-radius: 7px; font-size: 0.83rem; font-family: inherit; outline: none; }
   .search-box:focus { border-color: var(--card); }
-
-  .search-clear {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 20px; height: 20px;
-    border: none; background: var(--border); color: var(--text);
-    border-radius: 50%; font-size: 0.7rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s; line-height: 1;
-  }
+  .search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border: none; background: var(--border); color: var(--text); border-radius: 50%; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
   .search-clear:hover { background: var(--text2); color: #fff; }
-
-  .btn {
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: #fff;
-    font-size: 0.78rem;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
+  .btn { padding: 7px 12px; border: 1px solid var(--border); border-radius: 7px; background: #fff; font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .btn:hover { background: #f3f4f6; }
-  .btn-accent { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-  .btn-accent:hover { background: #e5b620; }
-
-  .btn-view {
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: #fff;
-    font-size: 0.78rem;
-    font-family: inherit;
-    cursor: pointer;
-  }
-  .btn-view.active {
-    background: var(--header-bg);
-    color: #fff;
-    border-color: var(--header-bg);
-  }
-
-  .filter-select {
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    font-size: 0.78rem;
-    font-family: inherit;
-    background: #fff;
-    cursor: pointer;
-    outline: none;
-  }
-
-  .toolbar-sep {
-    width: 1px;
-    height: 24px;
-    background: var(--border);
-    margin: 0 2px;
-  }
-
-  /* ── Content Layout ── */
-  .main-area {
-    display: flex;
-    flex: 1;
-    height: calc(100vh - 100px);
-    overflow: hidden;
-  }
-
-  .content {
-    flex: 1;
-    padding: 24px;
-    overflow-x: auto;
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .btn-view { padding: 7px 12px; border: 1px solid var(--border); border-radius: 7px; background: #fff; font-size: 0.78rem; font-family: inherit; cursor: pointer; }
+  .btn-view.active { background: var(--header-bg); color: #fff; border-color: var(--header-bg); }
+  .filter-select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-size: 0.78rem; font-family: inherit; background: #fff; cursor: pointer; outline: none; }
+  .toolbar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 2px; }
+  .main-area { display: flex; flex: 1; height: calc(100vh - 100px); overflow: hidden; }
+  .content { flex: 1; padding: 24px; overflow-x: auto; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
   .content::-webkit-scrollbar { display: none; }
-
-  /* ── Custom Scrollbar Horizontal ── */
-  .custom-scrollbar {
-    position: sticky;
-    top: 52px;
-    left: 0;
-    right: 0;
-    z-index: 99;
-    background: var(--header-bg);
-    padding: 6px 20px;
-    display: none;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
+  .custom-scrollbar { position: sticky; top: 52px; left: 0; right: 0; z-index: 99; background: var(--header-bg); padding: 6px 20px; display: none; align-items: center; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
   .custom-scrollbar.visible { display: flex; }
-
-  /* ── Custom Scrollbar Vertical ── */
-  .custom-scrollbar-v {
-    width: 44px;
-    background: var(--header-bg);
-    padding: 12px 6px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    box-shadow: -2px 0 6px rgba(0,0,0,0.15);
-    flex-shrink: 0;
-  }
+  .custom-scrollbar-v { width: 44px; background: var(--header-bg); padding: 12px 6px; display: none; flex-direction: column; align-items: center; gap: 8px; box-shadow: -2px 0 6px rgba(0,0,0,0.15); flex-shrink: 0; }
   .custom-scrollbar-v.visible { display: flex; }
-
-  .sbv-arrow {
-    width: 30px; height: 30px;
-    background: var(--card);
-    color: #fff;
-    border: none; border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s;
-  }
+  .sbv-arrow { width: 30px; height: 30px; background: var(--card); color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s; }
   .sbv-arrow:hover { background: var(--accent); }
-
-  .sbv-track {
-    flex: 1;
-    width: 18px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 9px;
-    position: relative;
-    cursor: pointer;
-    min-height: 60px;
-  }
-
-  .sbv-thumb {
-    position: absolute;
-    left: 2px;
-    width: 14px;
-    min-height: 40px;
-    background: var(--accent);
-    border-radius: 7px;
-    cursor: grab;
-    transition: background 0.15s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  }
+  .sbv-track { flex: 1; width: 18px; background: rgba(255,255,255,0.15); border-radius: 9px; position: relative; cursor: pointer; min-height: 60px; }
+  .sbv-thumb { position: absolute; left: 2px; width: 14px; min-height: 40px; background: var(--accent); border-radius: 7px; cursor: grab; transition: background 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
   .sbv-thumb:hover { background: #FFD84D; }
   .sbv-thumb.dragging { cursor: grabbing; background: #FFD84D; }
-
-  .sb-arrow {
-    width: 32px; height: 32px;
-    background: var(--card);
-    color: #fff;
-    border: none; border-radius: 6px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s;
-  }
+  .sb-arrow { width: 32px; height: 32px; background: var(--card); color: #fff; border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s; }
   .sb-arrow:hover { background: var(--accent); }
-
-  .sb-track {
-    flex: 1;
-    height: 18px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 9px;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .sb-thumb {
-    position: absolute;
-    top: 2px;
-    height: 14px;
-    min-width: 50px;
-    background: var(--accent);
-    border-radius: 7px;
-    cursor: grab;
-    transition: background 0.15s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  }
+  .sb-track { flex: 1; height: 18px; background: rgba(255,255,255,0.15); border-radius: 9px; position: relative; cursor: pointer; }
+  .sb-thumb { position: absolute; top: 2px; height: 14px; min-width: 50px; background: var(--accent); border-radius: 7px; cursor: grab; transition: background 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
   .sb-thumb:hover { background: #FFD84D; }
   .sb-thumb.dragging { cursor: grabbing; background: #FFD84D; }
-
-  .sb-label {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.6);
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  /* ═══════════════════════════════════
-     VIEW: ORG CHART (Visual)
-     ═══════════════════════════════════ */
   .org-chart { display: flex; flex-direction: column; align-items: center; min-width: max-content; padding-bottom: 20px; }
   .org-node { display: flex; flex-direction: column; align-items: center; }
-
-  .org-card {
-    background: var(--card);
-    color: var(--card-text);
-    border-radius: 8px;
-    padding: 10px 16px;
-    text-align: center;
-    min-width: 130px;
-    max-width: 190px;
-    cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-    position: relative;
-    user-select: none;
-  }
+  .org-card { background: var(--card); color: var(--card-text); border-radius: 8px; padding: 10px 16px; text-align: center; min-width: 130px; max-width: 190px; cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.12); position: relative; user-select: none; }
   .org-card:hover { background: var(--card-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
-  .org-card.highlight {
-    background: var(--accent);
-    color: #2C375C;
-    box-shadow: 0 4px 16px rgba(254,203,40,0.5);
-    transform: translateY(-2px) scale(1.03);
-  }
+  .org-card.highlight { background: var(--accent); color: #2C375C; box-shadow: 0 4px 16px rgba(254,203,40,0.5); transform: translateY(-2px) scale(1.03); }
   .org-card.highlight .card-name { color: #2C375C; }
-  .org-card.highlight .card-pos,
-  .org-card.highlight .card-email,
-  .org-card.highlight .card-count,
-  .org-card.highlight .card-count-expanded { color: #2C375C; opacity: 0.7; }
-  .org-card.highlight .card-status { border: 1px solid rgba(44,55,92,0.3); }
+  .org-card.highlight .card-pos, .org-card.highlight .card-email, .org-card.highlight .card-count, .org-card.highlight .card-count-expanded { color: #2C375C; opacity: 0.7; }
   .org-card .card-name { font-weight: 700; font-size: 0.78rem; line-height: 1.25; margin-bottom: 2px; }
   .org-card .card-pos { font-size: 0.68rem; color: var(--card-sub); }
   .org-card .card-count { font-size: 0.65rem; margin-top: 3px; opacity: 1; font-weight: 600; }
   .org-card .card-count-expanded { font-size: 0.6rem; margin-top: 3px; color: var(--card-sub); opacity: 0.6; }
-
-  /* ── Zoom Controls ── */
-  .zoom-controls {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 150;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    background: var(--header-bg);
-    border-radius: 10px;
-    padding: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-  .zoom-btn {
-    width: 38px; height: 38px;
-    background: var(--card);
-    color: #fff; border: none; border-radius: 8px;
-    font-size: 1.2rem; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
-  }
+  .zoom-controls { position: fixed; bottom: 24px; right: 24px; z-index: 150; display: flex; flex-direction: column; gap: 4px; background: var(--header-bg); border-radius: 10px; padding: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .zoom-btn { width: 38px; height: 38px; background: var(--card); color: #fff; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
   .zoom-btn:hover { background: var(--accent); }
-  .zoom-label {
-    text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.7);
-    padding: 2px 0;
-  }
-  .org-card .card-status {
-    font-size: 0.6rem; margin-top: 4px; padding: 1px 6px; border-radius: 10px; display: inline-block;
-  }
+  .zoom-label { text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 2px 0; }
+  .org-card .card-status { font-size: 0.6rem; margin-top: 4px; padding: 1px 6px; border-radius: 10px; display: inline-block; }
   .card-status.st-active { background: rgba(34,197,94,0.3); }
   .card-status.st-inactive { background: rgba(239,68,68,0.3); }
-
-  .org-card .collapse-icon {
-    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-    width: 16px; height: 16px;
-    background: var(--card-hover); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: #fff; border: 2px solid var(--bg);
-  }
-
+  .org-card .collapse-icon { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; background: var(--card-hover); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; border: 2px solid var(--bg); }
   .org-card .card-email { font-size: 0.62rem; color: var(--card-sub); opacity: 0.8; margin-top: 1px; word-break: break-all; }
-
-  .copy-row {
-    display: flex; gap: 4px; justify-content: center; margin-top: 6px;
-  }
-  .copy-btn {
-    font-size: 0.62rem; padding: 2px 6px; border-radius: 4px;
-    border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1);
-    color: #fff; cursor: pointer; font-family: inherit;
-    transition: background 0.15s;
-  }
+  .copy-row { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+  .copy-btn { font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-family: inherit; transition: background 0.15s; }
   .copy-btn:hover { background: rgba(255,255,255,0.25); }
-
-  .tree-copy-btn {
-    font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;
-    border: 1px solid var(--border); background: var(--surface);
-    cursor: pointer; flex-shrink: 0; transition: background 0.15s;
-  }
+  .tree-copy-btn { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
   .tree-copy-btn:hover { background: var(--surface2); }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: var(--header-bg); color: #fff;
-    padding: 10px 20px; border-radius: 8px;
-    font-size: 0.82rem; font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    opacity: 0; transition: opacity 0.3s;
-    pointer-events: none; z-index: 200;
-  }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--header-bg); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.25); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
   .toast.show { opacity: 1; }
-
-  /* ── Leader Edit Modal ── */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    z-index: 300; display: flex; align-items: center; justify-content: center;
-  }
-  .modal {
-    background: #fff; border-radius: 12px; padding: 20px; width: 90%; max-width: 420px;
-    max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: flex; align-items: center; justify-content: center; }
+  .modal { background: #fff; border-radius: 12px; padding: 20px; width: 90%; max-width: 420px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
   .modal-title { font-size: 1rem; font-weight: 700; color: var(--header-bg); margin-bottom: 4px; }
   .modal-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 12px; }
-  .modal-search {
-    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
-    font-size: 0.85rem; font-family: inherit; outline: none; margin-bottom: 10px;
-  }
+  .modal-search { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 0.85rem; font-family: inherit; outline: none; margin-bottom: 10px; }
   .modal-search:focus { border-color: var(--card); }
-  .modal-list {
-    flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 7px;
-    max-height: 300px;
-  }
-  .modal-item {
-    padding: 9px 14px; cursor: pointer; font-size: 0.83rem;
-    border-bottom: 1px solid #f0f0f0; transition: background 0.1s;
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .modal-list { flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 7px; max-height: 300px; }
+  .modal-item { padding: 9px 14px; cursor: pointer; font-size: 0.83rem; border-bottom: 1px solid #f0f0f0; transition: background 0.1s; display: flex; justify-content: space-between; align-items: center; }
   .modal-item:hover { background: #f0f5ff; }
   .modal-item:last-child { border-bottom: none; }
   .modal-item-name { font-weight: 600; }
   .modal-item-pos { font-size: 0.72rem; color: var(--text2); }
   .modal-btns { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
-  .modal-btn {
-    padding: 8px 16px; border-radius: 7px; font-size: 0.8rem; font-family: inherit;
-    cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text);
-  }
+  .modal-btn { padding: 8px 16px; border-radius: 7px; font-size: 0.8rem; font-family: inherit; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text); }
   .modal-btn:hover { background: #f3f4f6; }
   .modal-btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
   .modal-btn-danger:hover { background: #dc2626; }
-
-  /* Edit leader button */
-  .edit-leader-btn {
-    font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;
-    border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1);
-    color: #fff; cursor: pointer; font-family: inherit;
-    transition: background 0.15s; margin-top: 4px;
-  }
+  .edit-leader-btn { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-family: inherit; transition: background 0.15s; margin-top: 4px; }
   .edit-leader-btn:hover { background: rgba(255,255,255,0.25); }
-  .tree-edit-btn {
-    font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;
-    border: 1px solid var(--border); background: var(--surface);
-    cursor: pointer; flex-shrink: 0; transition: background 0.15s;
-    color: var(--text2);
-  }
+  .tree-edit-btn { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; flex-shrink: 0; transition: background 0.15s; color: var(--text2); }
   .tree-edit-btn:hover { background: var(--surface2); }
-
   .org-vert-line { width: 2px; height: 22px; background: var(--line); }
   .org-children-wrap { display: flex; flex-direction: column; align-items: center; }
   .org-horiz-connector { display: flex; align-items: flex-start; position: relative; }
-  .org-horiz-connector::before {
-    content: ''; position: absolute; top: 0;
-    left: var(--hl); right: var(--hr);
-    height: 2px; background: var(--line);
-  }
+  .org-horiz-connector::before { content: ''; position: absolute; top: 0; left: var(--hl); right: var(--hr); height: 2px; background: var(--line); }
   .org-child-branch { display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
   .org-child-vert { width: 2px; height: 22px; background: var(--line); }
-
-  /* ═══════════════════════════════════
-     VIEW: TREE LIST
-     ═══════════════════════════════════ */
   .tree-view { max-width: 900px; margin: 0 auto; min-width: max-content; }
   .tree-view ul { list-style: none; padding-left: 22px; border-left: 1px solid var(--border); margin-left: 11px; }
   .tree-view > ul { border-left: none; padding-left: 0; margin-left: 0; }
-
-  .tree-node {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 12px; margin: 2px 0; border-radius: 7px;
-    cursor: pointer; transition: background 0.12s; user-select: none;
-  }
+  .tree-node { display: flex; align-items: center; gap: 8px; padding: 7px 12px; margin: 2px 0; border-radius: 7px; cursor: pointer; transition: background 0.12s; user-select: none; }
   .tree-node:hover { background: var(--surface); }
-  .tree-node.highlight {
-    background: var(--accent);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(254,203,40,0.4);
-  }
+  .tree-node.highlight { background: var(--accent); border-radius: 8px; box-shadow: 0 2px 8px rgba(254,203,40,0.4); }
   .tree-node.highlight .tree-name { color: #2C375C; }
   .tree-node.highlight .tree-meta span { color: #2C375C; opacity: 0.7; }
-
-  .tree-toggle {
-    width: 18px; height: 18px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem; color: var(--text2);
-    background: var(--surface); border-radius: 4px; flex-shrink: 0;
-    transition: transform 0.15s; border: 1px solid var(--border);
-  }
+  .tree-toggle { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--text2); background: var(--surface); border-radius: 4px; flex-shrink: 0; transition: transform 0.15s; border: 1px solid var(--border); }
   .tree-toggle.open { transform: rotate(90deg); }
   .tree-toggle.leaf { visibility: hidden; }
-
   .tree-info { flex: 1; min-width: 0; }
   .tree-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tree-meta { font-size: 0.75rem; color: var(--text2); display: flex; gap: 8px; margin-top: 1px; }
-
   .badge { font-size: 0.67rem; padding: 2px 7px; border-radius: 16px; font-weight: 600; flex-shrink: 0; }
   .badge-active { background: rgba(34,197,94,0.12); color: var(--green); }
   .badge-inactive { background: rgba(239,68,68,0.12); color: var(--red); }
   .badge-count { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
-
   .tree-children.collapsed { display: none; }
   .tree-hl { background: var(--accent); color: #2C375C; border-radius: 3px; padding: 1px 3px; font-weight: 700; }
-
-  .loading {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 80px 20px; gap: 14px; color: var(--text2);
-  }
-  .spinner {
-    width: 30px; height: 30px;
-    border: 3px solid var(--border); border-top-color: var(--card);
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-  }
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; gap: 14px; color: var(--text2); }
+  .spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--card); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   @media (max-width: 600px) {
     .header, .toolbar, .content { padding-left: 12px; padding-right: 12px; }
     .org-card { min-width: 100px; padding: 7px 10px; }
@@ -506,202 +134,97 @@
     .toolbar { gap: 5px; }
     .toolbar-sep { display: none; }
   }
-  /* ── Print / PDF ── */
   @media print {
     body { display: block; min-height: auto; }
-    .toolbar, .custom-scrollbar, .custom-scrollbar-v,
-    .zoom-controls, .toast, .copy-row, .copy-btn,
-    .edit-leader-btn, .tree-copy-btn, .tree-edit-btn,
-    .collapse-icon, .search-clear { display: none !important; }
-
-    .header {
-      background: #2C375C !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      position: relative;
-    }
-
+    .toolbar, .custom-scrollbar, .custom-scrollbar-v, .zoom-controls, .toast, .copy-row, .copy-btn, .edit-leader-btn, .tree-copy-btn, .tree-edit-btn, .collapse-icon, .search-clear, #sidePanel { display: none !important; }
+    .header { background: #2C375C !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .main-area { height: auto; overflow: visible; }
-
-    .content {
-      overflow: visible !important;
-      height: auto !important;
-      padding: 10px;
-    }
-
-    .org-chart {
-      transform: none !important;
-      min-width: auto;
-    }
-
-    .org-card {
-      background: #2C375C !important;
-      color: #fff !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      box-shadow: none;
-      border: 1px solid #858688;
-    }
-    .org-card.highlight {
-      background: #FECB28 !important;
-      color: #2C375C !important;
-    }
-
-    .tree-node.highlight {
-      background: #FECB28 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .badge {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .print-header {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #858688;
-      margin-bottom: 10px;
-      display: block !important;
-    }
+    .content { overflow: visible !important; height: auto !important; padding: 10px; }
+    .org-chart { transform: none !important; min-width: auto; }
+    .org-card { background: #2C375C !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none; border: 1px solid #858688; }
+    .org-card.highlight { background: #FECB28 !important; color: #2C375C !important; }
+    .tree-node.highlight { background: #FECB28 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .print-header { text-align: center; font-size: 0.8rem; color: #858688; margin-bottom: 10px; display: block !important; }
   }
-
   .print-header { display: none; }
+  @keyframes slideDown { from { transform: translateY(-100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
 </style>
 </head>
 <body>
-
 <div class="header">
   <div>
     <h1>Planet Solar — Organigrama</h1>
     <div class="subtitle">Estructura organizacional</div>
   </div>
 </div>
-
 <div class="toolbar">
   <div class="search-wrap">
     <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" class="search-box" id="searchInput" placeholder="Buscar por nombre…">
     <button class="search-clear" id="searchClear" style="display:none">✕</button>
   </div>
-
   <select class="filter-select" id="filterStatus">
     <option value="all">Todos</option>
     <option value="active" selected>Activos</option>
     <option value="inactive">Inactivos</option>
     <option value="no-leader">⚠️ Activos sin líder</option>
-    <option value="luis-acosta">🔒 Administrativo</option>
   </select>
-
   <div class="toolbar-sep"></div>
-
   <button class="btn-view" id="btnViewChart">▦ Organigrama</button>
   <button class="btn-view active" id="btnViewTree">☰ Detalle</button>
-
   <div class="toolbar-sep"></div>
-
   <button class="btn" id="btnExpandAll">Expandir</button>
   <button class="btn" id="btnCollapseAll">Colapsar</button>
-  <button class="btn btn-accent" id="btnSync">↻ Sync</button>
+  <button class="btn btn-accent" id="btnSync" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;">↻ Sync</button>
   <span id="syncStatus" style="font-size:0.75rem;color:var(--text2);white-space:nowrap;display:flex;align-items:center;gap:5px"></span>
   <button class="btn" id="btnPDF" style="background:var(--accent);color:#2C375C;border-color:var(--accent);font-weight:600">📄 PDF</button>
-
   <div class="toolbar-sep"></div>
-
   <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-    <div style="padding:5px 10px;border-radius:7px;background:#f0f1f3;border:1px solid var(--border);font-size:0.78rem;white-space:nowrap">
-      Total: <strong id="statTotal" style="color:var(--text)">—</strong>
-    </div>
-    <div style="padding:5px 10px;border-radius:7px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);font-size:0.78rem;white-space:nowrap">
-      Activos: <strong id="statActive" style="color:var(--green)">—</strong>
-    </div>
-    <div style="padding:5px 10px;border-radius:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);font-size:0.78rem;white-space:nowrap">
-      Inactivos: <strong id="statInactive" style="color:var(--red)">—</strong>
-    </div>
+    <div style="padding:5px 10px;border-radius:7px;background:#f0f1f3;border:1px solid var(--border);font-size:0.78rem;white-space:nowrap">Total: <strong id="statTotal" style="color:var(--text)">—</strong></div>
+    <div style="padding:5px 10px;border-radius:7px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);font-size:0.78rem;white-space:nowrap">Activos: <strong id="statActive" style="color:var(--green)">—</strong></div>
+    <div style="padding:5px 10px;border-radius:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);font-size:0.78rem;white-space:nowrap">Inactivos: <strong id="statInactive" style="color:var(--red)">—</strong></div>
   </div>
 </div>
-
 <div class="custom-scrollbar" id="customScrollbar">
   <button class="sb-arrow" id="sbLeft">◀</button>
-  <div class="sb-track" id="sbTrack">
-    <div class="sb-thumb" id="sbThumb"></div>
-  </div>
+  <div class="sb-track" id="sbTrack"><div class="sb-thumb" id="sbThumb"></div></div>
   <button class="sb-arrow" id="sbRight">▶</button>
 </div>
-
 <div class="print-header" id="printHeader"></div>
-
-<div class="main-area">  <!-- Side Panel: Simple Position Counts -->
-  <div id="sidePanel" style="
-    width: 200px; min-width: 200px;
-    background: #fff;
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-    transition: width 0.2s, min-width 0.2s;
-    flex-shrink: 0;
-  ">
+<div class="main-area">
+  <div id="sidePanel" style="width:200px;min-width:200px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width 0.2s,min-width 0.2s;flex-shrink:0;">
     <div style="padding:10px 12px;background:var(--header-bg);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <span id="sidePanelTitle" style="font-size:0.78rem;font-weight:700;">📊 Posiciones</span>
       <button id="sidePanelToggle" style="background:none;border:none;color:#fff;cursor:pointer;font-size:0.9rem;padding:0;opacity:0.8;">◀</button>
     </div>
     <div id="sidePanelContent" style="flex:1;overflow-y:auto;scrollbar-width:thin;"></div>
   </div>
-
   <div class="content" id="contentEl">
-    <div class="loading" id="loadingEl">
-      <div class="spinner"></div>
-      <span>Cargando datos del Sheet…</span>
-    </div>
+    <div class="loading" id="loadingEl"><div class="spinner"></div><span>Cargando datos del Sheet…</span></div>
   </div>
-
   <div class="custom-scrollbar-v" id="customScrollbarV">
     <button class="sbv-arrow" id="sbUp">▲</button>
-    <div class="sbv-track" id="sbvTrack">
-      <div class="sbv-thumb" id="sbvThumb"></div>
-    </div>
+    <div class="sbv-track" id="sbvTrack"><div class="sbv-thumb" id="sbvThumb"></div></div>
     <button class="sbv-arrow" id="sbDown">▼</button>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
-<!-- Sync Banner -->
-<div id="syncBanner" style="
-  display:none;
-  position:fixed;
-  top:0; left:0; right:0;
-  z-index:500;
-  padding:14px 24px;
-  font-size:0.9rem;
-  font-weight:600;
-  text-align:center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-"></div>
-<style>
-@keyframes slideDown { from { transform: translateY(-100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
-</style>
-
+<div id="syncBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:500;padding:14px 24px;font-size:0.9rem;font-weight:600;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.25);"></div>
 <div class="zoom-controls" id="zoomControls" style="display:none">
   <button class="zoom-btn" id="zoomIn">＋</button>
   <div class="zoom-label" id="zoomLabel">100%</div>
   <button class="zoom-btn" id="zoomOut">−</button>
   <button class="zoom-btn" id="zoomReset" style="font-size:0.7rem;margin-top:2px">Reset</button>
 </div>
-
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxhER0VTdfc9tkf0kwdu4VnNCirkikyBDVCBJO-odIjJI7n5oKpU-K4Ny2mqG6-aybBPAzAVuoMFbS/pub?gid=1792607424&single=true&output=csv';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymEDMOHJw6Ya2KFgaOgCMkgTnphsUlDx9kYmkQSOxwAZEy6Ia4_N-boRwG7UlgR600OA/exec';
 
-let allPeople = [];
-let treeData = { roots: [], orphans: [] };
-let collapsedSet = new Set();
-let searchQuery = '';
-let statusFilter = 'active';
-let currentView = 'tree';
+let allPeople = [], treeData = { roots: [], orphans: [] }, collapsedSet = new Set();
+let searchQuery = '', statusFilter = 'active', currentView = 'tree';
+let selectedSearchUid = null;
 
-/* ── CSV Parser ── */
 function parseCSV(text) {
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   const rows = []; let row = [], cell = '', inQ = false;
@@ -717,449 +240,228 @@ function parseCSV(text) {
   return rows;
 }
 
-/* ── Sync Banner ── */
 let syncBannerTimer;
 function showSyncBanner(msg, type) {
   const banner = document.getElementById('syncBanner');
   banner.textContent = msg;
-  if (type === 'loading') {
-    banner.style.background = '#2C375C';
-    banner.style.color = '#FECB28';
-  } else if (type === 'success') {
-    banner.style.background = '#22c55e';
-    banner.style.color = '#fff';
-  } else if (type === 'error') {
-    banner.style.background = '#ef4444';
-    banner.style.color = '#fff';
-  }
+  banner.style.background = type === 'loading' ? '#2C375C' : type === 'success' ? '#22c55e' : '#ef4444';
+  banner.style.color = type === 'loading' ? '#FECB28' : '#fff';
   banner.style.display = 'block';
   banner.style.animation = 'slideDown 0.3s ease';
   clearTimeout(syncBannerTimer);
   if (type !== 'loading') {
     syncBannerTimer = setTimeout(() => {
-      banner.style.opacity = '0';
-      banner.style.transition = 'opacity 0.4s';
+      banner.style.opacity = '0'; banner.style.transition = 'opacity 0.4s';
       setTimeout(() => { banner.style.display = 'none'; banner.style.opacity = '1'; banner.style.transition = ''; }, 400);
     }, 4000);
   }
 }
 
-/* ── Load ── */
 async function loadData() {
   const loadingElStart = document.getElementById('loadingEl');
   if (loadingElStart) loadingElStart.style.display = 'flex';
   const el = document.getElementById('contentEl');
   const syncEl = document.getElementById('syncStatus');
-
-  // Show loading state
   if (syncEl) { syncEl.innerHTML = '🔄 Sincronizando...'; syncEl.style.color = 'var(--text2)'; }
   showSyncBanner('🔄 Sincronizando datos...', 'loading');
-
-  // Pulse the sync button
   const btnSync = document.getElementById('btnSync');
   if (btnSync) { btnSync.textContent = '↻ Cargando...'; btnSync.disabled = true; btnSync.style.opacity = '0.7'; }
-
   try {
-    const cacheBust = CSV_URL + '&_t=' + Date.now();
-    const res = await fetch(cacheBust, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
+    const res = await fetch(CSV_URL + '&_t=' + Date.now(), { cache: 'no-store', headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     const rows = parseCSV(text);
     if (rows.length < 2) throw new Error('No hay datos en el Sheet');
-    const hd = rows[0].map(h => h.replace(/\r/g, '').trim());
+    const hd = rows[0].map(h => h.replace(/\r/g,'').trim());
     const iN = hd.indexOf('Name'), iP = hd.indexOf('Position'), iL = hd.indexOf('Leader'), iS = hd.indexOf('Status'), iE = hd.indexOf('CorporateEmail');
     if (iN === -1) throw new Error('Columna "Name" no encontrada');
-
     const rawPeople = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i], name = (r[iN]||'').trim();
       if (!name) continue;
-      const email = iE!==-1 ? (r[iE]||'').trim() : '';
-      rawPeople.push({ name, position: (r[iP]||'').trim(), leaderName: iL!==-1?(r[iL]||'').trim():'', status: (r[iS]||'').trim(), email });
+      rawPeople.push({ name, position: (r[iP]||'').trim(), leaderName: iL!==-1?(r[iL]||'').trim():'', status: (r[iS]||'').trim(), email: iE!==-1?(r[iE]||'').trim():'' });
     }
-
     const nameToEmail = {};
     rawPeople.forEach(p => { if (p.email && !nameToEmail[p.name]) nameToEmail[p.name] = p.email; });
     rawPeople.forEach(p => { if (!nameToEmail[p.name]) nameToEmail[p.name] = p.name; });
-
     const seen = new Set();
     allPeople = [];
     rawPeople.forEach(p => {
       const uid = p.email || p.name;
       if (seen.has(uid)) return;
       seen.add(uid);
-      const leaderEmail = p.leaderName ? (nameToEmail[p.leaderName] || '') : '';
-      allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: leaderEmail, status: p.status, email: p.email });
+      allPeople.push({ uid, name: p.name, position: p.position, leaderName: p.leaderName, leaderUid: p.leaderName ? (nameToEmail[p.leaderName]||'') : '', status: p.status, email: p.email });
     });
-
-    buildTree(); buildLuisAcostaSet(); updateStats(); render();
-
+    buildTree(); updateStats(); render();
     const activos = allPeople.filter(p => isActivo(p.status)).length;
-    const inactivos = allPeople.length - activos;
     const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    // Update toolbar status
-    syncEl.innerHTML = `✅ <strong style="color:var(--green)">${hora}</strong> — ${allPeople.length} personas`;
-    syncEl.style.color = 'var(--text2)';
-
-    // Show success banner
-    showSyncBanner(`✅ Sincronizado a las ${hora} — ${allPeople.length} personas (${activos} activos, ${inactivos} inactivos)`, 'success');
-
+    if (syncEl) { syncEl.innerHTML = `✅ <strong style="color:var(--green)">${hora}</strong> — ${allPeople.length} personas`; syncEl.style.color = 'var(--text2)'; }
+    showSyncBanner(`✅ Sincronizado a las ${hora} — ${allPeople.length} personas (${activos} activos, ${allPeople.length - activos} inactivos)`, 'success');
   } catch (e) {
     const hora = new Date().toLocaleTimeString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    syncEl.innerHTML = `<span style="color:var(--red)">❌ Error ${hora}</span>`;
+    if (syncEl) syncEl.innerHTML = `<span style="color:var(--red)">❌ Error ${hora}</span>`;
     showSyncBanner(`❌ Error al sincronizar: ${e.message}`, 'error');
-    if (!allPeople.length) {
-      el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
-    }
+    if (!allPeople.length) el.innerHTML = `<div class="loading"><span style="color:var(--red)">Error: ${e.message}</span></div>`;
   } finally {
-    const loadingEl = document.getElementById('loadingEl');
-    if (loadingEl) loadingEl.style.display = 'none';
-    const syncBtn = document.getElementById('btnSync');
-    if (syncBtn) {
-      syncBtn.textContent = '↻ Sync';
-      syncBtn.disabled = false;
-      syncBtn.style.opacity = '1';
-    }
+    const le = document.getElementById('loadingEl'); if (le) le.style.display = 'none';
+    if (btnSync) { btnSync.textContent = '↻ Sync'; btnSync.disabled = false; btnSync.style.opacity = '1'; }
   }
 }
 
-/* ── Update Stats based on filter ── */
 function updateStats() {
-  const totalAll = allPeople.length;
-  const totalActive = allPeople.filter(p => isActivo(p.status)).length;
-  const totalInactive = totalAll - totalActive;
-  const totalNoLeader = treeData.orphans ? treeData.orphans.filter(p => isActivo(p.status)).length : 0;
-
+  const total = allPeople.length;
+  const active = allPeople.filter(p => isActivo(p.status)).length;
+  const inactive = total - active;
+  const noLeader = treeData.orphans ? treeData.orphans.filter(p => isActivo(p.status)).length : 0;
   if (statusFilter === 'active') {
-    document.getElementById('statTotal').textContent = totalActive;
-    document.getElementById('statActive').textContent = totalActive;
+    document.getElementById('statTotal').textContent = active;
+    document.getElementById('statActive').textContent = active;
     document.getElementById('statInactive').textContent = 0;
   } else if (statusFilter === 'inactive') {
-    document.getElementById('statTotal').textContent = totalInactive;
+    document.getElementById('statTotal').textContent = inactive;
     document.getElementById('statActive').textContent = 0;
-    document.getElementById('statInactive').textContent = totalInactive;
+    document.getElementById('statInactive').textContent = inactive;
   } else if (statusFilter === 'no-leader') {
-    document.getElementById('statTotal').textContent = totalNoLeader;
-    document.getElementById('statActive').textContent = totalNoLeader;
+    document.getElementById('statTotal').textContent = noLeader;
+    document.getElementById('statActive').textContent = noLeader;
     document.getElementById('statInactive').textContent = 0;
-  } else if (statusFilter === 'luis-acosta') {
-    const total = luisAcostaUids.size;
-    const active = allPeople.filter(p => luisAcostaUids.has(p.uid) && isActivo(p.status)).length;
+  } else {
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statActive').textContent = active;
-    document.getElementById('statInactive').textContent = total - active;
-  } else {
-    document.getElementById('statTotal').textContent = totalAll;
-    document.getElementById('statActive').textContent = totalActive;
-    document.getElementById('statInactive').textContent = totalInactive;
+    document.getElementById('statInactive').textContent = inactive;
   }
 }
 
-/* ── Build Tree ── */
 function buildTree() {
   const byUid = {};
   allPeople.forEach(p => { byUid[p.uid] = { ...p, children: [] }; });
-
   const roots = [], orphans = [];
   allPeople.forEach(p => {
     const node = byUid[p.uid];
     if (!p.leaderUid || !byUid[p.leaderUid]) {
-      if (p.leaderName && !byUid[p.leaderUid]) {
-        node.isOrphan = true;
-        orphans.push(node);
-      } else if (!p.leaderName) {
-        node.isOrphan = true;
-        roots.push(node);
-        orphans.push(node);
-      } else {
-        roots.push(node);
-      }
-    } else {
-      byUid[p.leaderUid].children.push(node);
-    }
+      if (p.leaderName && !byUid[p.leaderUid]) { node.isOrphan = true; orphans.push(node); }
+      else if (!p.leaderName) { node.isOrphan = true; roots.push(node); orphans.push(node); }
+      else roots.push(node);
+    } else { byUid[p.leaderUid].children.push(node); }
   });
-
-  // Sort by filtered count (descending)
   const srt = n => { n.children.sort((a,b) => cntFiltered(b)-cntFiltered(a)); n.children.forEach(srt); };
   roots.forEach(srt); roots.sort((a,b) => cntFiltered(b)-cntFiltered(a));
   treeData = { roots, orphans };
 }
 
-/* ── Count only nodes matching current filter ── */
-function cntFiltered(n) {
-  let c = mF(n) ? 1 : 0;
-  for (const ch of n.children) c += cntFiltered(ch);
-  return c;
-}
+function isActivo(s) { return (s||'').toLowerCase().startsWith('activo'); }
+function cntFiltered(n) { let c = mF(n)?1:0; for (const ch of n.children) c += cntFiltered(ch); return c; }
+function cntSubFiltered(n) { let c = 0; for (const ch of n.children) c += cntFiltered(ch); return c; }
 
-/* ── Count subordinates (children only, not self) matching filter ── */
-function cntSubFiltered(n) {
-  let c = 0;
-  for (const ch of n.children) c += cntFiltered(ch);
-  return c;
-}
-
-/* ── Filters ── */
-function isActivo(status) { const s = (status||'').toLowerCase(); return s.startsWith('activo'); }
 function mS(n) {
   if (!searchQuery) return true;
   if (selectedSearchUid) return n.uid === selectedSearchUid;
-  const words = searchQuery.toLowerCase().trim().split(/\s+/);
-  const haystack = ((n.name||'') + ' ' + (n.position||'') + ' ' + (n.email||'')).toLowerCase();
-  return words.every(w => haystack.includes(w));
+  const words = searchQuery.split(/\s+/);
+  const hay = ((n.name||'') + ' ' + (n.position||'') + ' ' + (n.email||'')).toLowerCase();
+  return words.every(w => hay.includes(w));
 }
-/* ── Luis Acosta hierarchy ── */
-// Build a set of UIDs that are Luis Acosta or under his hierarchy
-let luisAcostaUids = new Set();
-function buildLuisAcostaSet() {
-  luisAcostaUids = new Set();
-  // Find Luis Acosta's node
-  const luisNode = allPeople.find(p => p.name.toLowerCase().includes('luis acosta'));
-  if (!luisNode) return;
-  // Find his node in tree
-  const byUid = {};
-  allPeople.forEach(p => { byUid[p.uid] = p; });
-  // Collect all UIDs in his subtree
-  const collect = (uid) => {
-    luisAcostaUids.add(uid);
-    allPeople.filter(p => p.leaderUid === uid).forEach(p => collect(p.uid));
-  };
-  collect(luisNode.uid);
-}
-
-function isInLuisAcostaHierarchy(n) {
-  return luisAcostaUids.has(n.uid);
-}
-
-function displayLeaderName(node) {
-  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(node)) return '🔒 Administrativo';
-  return node.leaderName;
-}
-
-function isOrphanNode(n) {
-  return treeData.orphans && treeData.orphans.some(o => o.uid === n.uid);
-}
-
 function mF(n) {
-  // Luis Acosta filter — show only active in his hierarchy
-  if (statusFilter === 'luis-acosta') return isInLuisAcostaHierarchy(n) && isActivo(n.status);
-  // In inactive and all filters, allow Luis hierarchy (for leader correction)
-  if ((statusFilter === 'inactive' || statusFilter === 'all') && isInLuisAcostaHierarchy(n)) {
-    return statusFilter === 'all' ? true : !isActivo(n.status);
-  }
-  // All other filters — exclude Luis Acosta's hierarchy completely
-  if (isInLuisAcostaHierarchy(n)) return false;
   if (statusFilter === 'all') return true;
   if (statusFilter === 'active') return isActivo(n.status);
   if (statusFilter === 'inactive') return !isActivo(n.status);
-  if (statusFilter === 'no-leader') return isActivo(n.status) && isOrphanNode(n);
+  if (statusFilter === 'no-leader') return isActivo(n.status) && !!n.isOrphan;
   return true;
 }
 function selfMatch(n) { return mS(n) && mF(n); }
-function hasMatchBelow(n) {
-  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) return false;
+function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
+function vis(n, ancestorMatched) {
+  if (ancestorMatched && mF(n)) return true;
   if (selfMatch(n)) return true;
   return n.children.some(ch => hasMatchBelow(ch));
 }
-function vis(n, ancestorMatched) {
-  // For Luis hierarchy in non-administrative filters:
-  // only show if directly searched — never show ancestors leading to them
-  if (statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(n)) {
-    return searchQuery && mS(n) && mF(n);
-  }
-  // For normal nodes: don't show if only path leads to a Luis hierarchy node
-  if (ancestorMatched && mF(n)) return true;
-  if (selfMatch(n)) return true;
-  // Only count children that are not exclusively Luis hierarchy
-  return n.children.some(ch => hasMatchBelow(ch) && !(statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(ch) && !searchQuery));
-}
 
-/* ── Render ── */
 function render() {
   updateStats();
   if (statusFilter === 'no-leader') renderNoLeader();
   else if (currentView === 'chart') renderChart();
   else renderTreeView();
-  // If searching in inactive or all filter, append Luis hierarchy matches at bottom
-  if (searchQuery && (statusFilter === 'inactive' || statusFilter === 'all')) renderLuisSearchResults();
 }
 
-/* ═══ VIEW: ACTIVOS SIN LÍDER ═══ */
 function renderNoLeader() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
   showZoomControls(false);
-
   const filtered = treeData.orphans.filter(o => isActivo(o.status) && mS(o));
-
   const title = document.createElement('div');
   title.style.cssText = 'font-size:0.88rem;color:var(--text2);font-weight:600;text-align:center;margin:10px 0 20px;';
   title.textContent = `⚠️ Activos sin líder asignado (${filtered.length})`;
   el.appendChild(title);
-
-  if (filtered.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center;color:var(--text2);padding:40px;font-size:0.88rem;';
-    empty.textContent = 'No hay activos sin líder 🎉';
-    el.appendChild(empty);
-    return;
-  }
-
-  if (currentView === 'chart') {
-    const grid = document.createElement('div');
-    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
-    filtered.forEach(o => {
-      const card = document.createElement('div'); card.className = 'org-card';
-      if (searchQuery && mS(o)) card.classList.add('highlight');
-      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>`
-        + (o.position ? `<div class="card-pos">${esc(o.position)}</div>` : '')
-        + (o.email ? `<div class="card-email">${esc(o.email)}</div>` : '')
-        + (o.leaderName ? `<div class="card-pos" style="margin-top:3px;color:#f87171">→ ${esc(o.leaderName)} (no encontrado)</div>` : '<div class="card-pos" style="margin-top:3px;color:#f87171">Sin líder</div>');
-      card.innerHTML += `<span class="card-status st-active">Activo</span>`;
-      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
-      const btnN = document.createElement('button'); btnN.className = 'copy-btn'; btnN.textContent = '📋 Nombre';
-      btnN.addEventListener('click', e => { e.stopPropagation(); copyText(o.name); }); copyRow.appendChild(btnN);
-      if (o.email) {
-        const btnE = document.createElement('button'); btnE.className = 'copy-btn'; btnE.textContent = '📧 Email';
-        btnE.addEventListener('click', e => { e.stopPropagation(); copyText(o.email); }); copyRow.appendChild(btnE);
-      }
-      card.appendChild(copyRow);
-      if (o.email) {
-        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-        editBtn.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(o)); });
-        card.appendChild(editBtn);
-      }
-      grid.appendChild(card);
-    });
-    el.appendChild(grid);
-  } else {
-    const tv = document.createElement('div'); tv.className = 'tree-view';
-    const ul = document.createElement('ul'); ul.style.cssText = 'list-style:none;max-width:900px;margin:0 auto;';
-    filtered.forEach(o => {
-      const li = document.createElement('li');
-      const div = document.createElement('div'); div.className = 'tree-node';
-      if (searchQuery && mS(o)) div.classList.add('highlight');
-      const info = document.createElement('div'); info.className = 'tree-info';
-      const nm = document.createElement('div'); nm.className = 'tree-name';
-      if (searchQuery && mS(o)) nm.innerHTML = hlText(o.name, searchQuery); else nm.textContent = o.name;
-      info.appendChild(nm);
-      const meta = document.createElement('div'); meta.className = 'tree-meta';
-      if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
-      if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
-      const lbl = document.createElement('span'); lbl.style.color = '#f87171';
-      lbl.textContent = o.leaderName ? '→ ' + o.leaderName + ' (no encontrado)' : 'Sin líder';
-      meta.appendChild(lbl);
-      info.appendChild(meta); div.appendChild(info);
-      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
-      cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
-      if (o.email) {
-        const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email';
-        cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE);
-        const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️'; edBtn.title = 'Asignar Líder';
-        edBtn.addEventListener('click', () => showPinModal(() => showLeaderModal(o))); div.appendChild(edBtn);
-      }
-      const b = document.createElement('span'); b.className = 'badge badge-active'; b.textContent = 'Activo'; div.appendChild(b);
-      li.appendChild(div); ul.appendChild(li);
-    });
-    tv.appendChild(ul); el.appendChild(tv);
-  }
+  if (!filtered.length) { const e = document.createElement('div'); e.style.cssText = 'text-align:center;color:var(--text2);padding:40px;'; e.textContent = 'No hay activos sin líder 🎉'; el.appendChild(e); return; }
+  const tv = document.createElement('div'); tv.className = 'tree-view';
+  const ul = document.createElement('ul'); ul.style.listStyle = 'none';
+  filtered.forEach(o => {
+    const li = document.createElement('li');
+    const div = document.createElement('div'); div.className = 'tree-node';
+    if (searchQuery && mS(o)) div.classList.add('highlight');
+    const info = document.createElement('div'); info.className = 'tree-info';
+    const nm = document.createElement('div'); nm.className = 'tree-name'; nm.textContent = o.name; info.appendChild(nm);
+    const meta = document.createElement('div'); meta.className = 'tree-meta';
+    if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
+    if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
+    const lbl = document.createElement('span'); lbl.style.color = '#f87171';
+    lbl.textContent = o.leaderName ? '→ '+o.leaderName+' (no encontrado)' : 'Sin líder'; meta.appendChild(lbl);
+    info.appendChild(meta); div.appendChild(info);
+    const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
+    if (o.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE); }
+    if (o.email) { const ed = document.createElement('button'); ed.className = 'tree-edit-btn'; ed.textContent = '✏️'; ed.addEventListener('click', () => showPinModal(() => showLeaderModal(o))); div.appendChild(ed); }
+    const b = document.createElement('span'); b.className = 'badge badge-active'; b.textContent = 'Activo'; div.appendChild(b);
+    li.appendChild(div); ul.appendChild(li);
+  });
+  tv.appendChild(ul); el.appendChild(tv);
 }
 
-/* ═══ VIEW 1: ORGANIGRAMA ═══ */
 function renderChart() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
   const c = document.createElement('div'); c.className = 'org-chart';
   treeData.roots.forEach((r,i) => {
-    if (!vis(r, false)) return;
+    if (!vis(r,false)) return;
     if (i > 0) { const sp = document.createElement('div'); sp.style.height = '36px'; c.appendChild(sp); }
-    const nd = rChartNode(r, false); if (nd) c.appendChild(nd);
+    const nd = rChartNode(r,false); if (nd) c.appendChild(nd);
   });
   el.appendChild(c);
-  renderOrphans(el, 'chart');
-  showZoomControls(true);
-  updateZoom();
-  scrollToHighlight(el);
+  renderOrphans(el,'chart');
+  showZoomControls(true); updateZoom(); scrollToHighlight(el);
 }
 
-/* ═══ ORPHANS SECTION ═══ */
 function renderOrphans(el, mode) {
-  // Only show orphans that have a leaderName set but not found in data (true orphans)
-  // exclude those without leaderName (they appear as roots already)
   const filtered = treeData.orphans.filter(o => o.leaderName && mF(o) && mS(o));
   if (!filtered.length) return;
-
-  const sec = document.createElement('div');
-  sec.style.cssText = 'margin-top:40px;padding-top:20px;border-top:2px dashed var(--border);';
-
-  const title = document.createElement('div');
-  title.style.cssText = 'font-size:0.85rem;color:var(--text2);font-weight:600;text-align:center;margin-bottom:16px;';
-  title.textContent = `⚠️ Sin líder asignado en el sistema (${filtered.length})`;
-  sec.appendChild(title);
-
+  const sec = document.createElement('div'); sec.style.cssText = 'margin-top:40px;padding-top:20px;border-top:2px dashed var(--border);';
+  const title = document.createElement('div'); title.style.cssText = 'font-size:0.85rem;color:var(--text2);font-weight:600;text-align:center;margin-bottom:16px;';
+  title.textContent = `⚠️ Sin líder asignado en el sistema (${filtered.length})`; sec.appendChild(title);
   if (mode === 'chart') {
-    const grid = document.createElement('div');
-    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
+    const grid = document.createElement('div'); grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
     filtered.forEach(o => {
       const card = document.createElement('div'); card.className = 'org-card';
-      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>`
-        + (o.position ? `<div class="card-pos">${esc(o.position)}</div>` : '')
-        + (o.email ? `<div class="card-email">${esc(o.email)}</div>` : '')
-        + (o.leaderName ? `<div class="card-pos" style="margin-top:3px;color:#f87171">→ ${esc(o.leaderName)} (no encontrado)</div>` : '');
-      if (o.status) {
-        const isA = isActivo(o.status);
-        card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(o.status)}</span>`;
-      }
-      // Copy buttons
-      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
-      const btnN = document.createElement('button'); btnN.className = 'copy-btn'; btnN.textContent = '📋 Nombre';
-      btnN.addEventListener('click', e => { e.stopPropagation(); copyText(o.name); });
-      copyRow.appendChild(btnN);
-      if (o.email) {
-        const btnE = document.createElement('button'); btnE.className = 'copy-btn'; btnE.textContent = '📧 Email';
-        btnE.addEventListener('click', e => { e.stopPropagation(); copyText(o.email); });
-        copyRow.appendChild(btnE);
-      }
-      card.appendChild(copyRow);
-      if (o.email) {
-        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-        editBtn.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(o)); });
-        card.appendChild(editBtn);
-      }
+      card.innerHTML = `<div class="card-name">${esc(o.name)}</div>${o.position?'<div class="card-pos">'+esc(o.position)+'</div>':''}${o.email?'<div class="card-email">'+esc(o.email)+'</div>':''}${o.leaderName?'<div class="card-pos" style="margin-top:3px;color:#f87171">→ '+esc(o.leaderName)+' (no encontrado)</div>':''}`;
+      if (o.status) card.innerHTML += `<span class="card-status ${isActivo(o.status)?'st-active':'st-inactive'}">${isActivo(o.status)?'Activo':esc(o.status)}</span>`;
+      const cr = document.createElement('div'); cr.className = 'copy-row';
+      const bn = document.createElement('button'); bn.className = 'copy-btn'; bn.textContent = '📋 Nombre'; bn.addEventListener('click', e => { e.stopPropagation(); copyText(o.name); }); cr.appendChild(bn);
+      if (o.email) { const be = document.createElement('button'); be.className = 'copy-btn'; be.textContent = '📧 Email'; be.addEventListener('click', e => { e.stopPropagation(); copyText(o.email); }); cr.appendChild(be); }
+      card.appendChild(cr);
+      if (o.email) { const ed = document.createElement('button'); ed.className = 'edit-leader-btn'; ed.textContent = '✏️ Asignar Líder'; ed.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(o)); }); card.appendChild(ed); }
       grid.appendChild(card);
     });
     sec.appendChild(grid);
   } else {
-    const ul = document.createElement('ul'); ul.style.cssText = 'list-style:none;max-width:900px;margin:0 auto;';
+    const ul = document.createElement('ul'); ul.style.listStyle = 'none';
     filtered.forEach(o => {
-      const li = document.createElement('li');
-      const div = document.createElement('div'); div.className = 'tree-node';
+      const li = document.createElement('li'); const div = document.createElement('div'); div.className = 'tree-node';
       const info = document.createElement('div'); info.className = 'tree-info';
       const nm = document.createElement('div'); nm.className = 'tree-name'; nm.textContent = o.name; info.appendChild(nm);
       const meta = document.createElement('div'); meta.className = 'tree-meta';
       if (o.position) { const p = document.createElement('span'); p.textContent = o.position; meta.appendChild(p); }
       if (o.email) { const e = document.createElement('span'); e.textContent = o.email; meta.appendChild(e); }
-      if (o.leaderName) { const l = document.createElement('span'); l.style.color = '#f87171'; l.textContent = '→ ' + o.leaderName + ' (no encontrado)'; meta.appendChild(l); }
+      if (o.leaderName) { const l = document.createElement('span'); l.style.color = '#f87171'; l.textContent = '→ '+o.leaderName+' (no encontrado)'; meta.appendChild(l); }
       info.appendChild(meta); div.appendChild(info);
-      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
-      cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
-      if (o.email) {
-        const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email';
-        cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE);
-        const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️'; edBtn.title = 'Asignar Líder';
-        edBtn.addEventListener('click', () => showPinModal(() => showLeaderModal(o))); div.appendChild(edBtn);
-      }
-      if (o.status) {
-        const b = document.createElement('span');
-        b.className = 'badge ' + (isActivo(o.status) ? 'badge-active' : 'badge-inactive');
-        b.textContent = isActivo(o.status) ? 'Activo' : o.status;
-        div.appendChild(b);
-      }
+      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.addEventListener('click', () => copyText(o.name)); div.appendChild(cpN);
+      if (o.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.addEventListener('click', () => copyText(o.email)); div.appendChild(cpE); }
+      if (o.email) { const ed = document.createElement('button'); ed.className = 'tree-edit-btn'; ed.textContent = '✏️'; ed.addEventListener('click', () => showPinModal(() => showLeaderModal(o))); div.appendChild(ed); }
+      if (o.status) { const b = document.createElement('span'); b.className = 'badge '+(isActivo(o.status)?'badge-active':'badge-inactive'); b.textContent = isActivo(o.status)?'Activo':o.status; div.appendChild(b); }
       li.appendChild(div); ul.appendChild(li);
     });
     sec.appendChild(ul);
@@ -1167,187 +469,65 @@ function renderOrphans(el, mode) {
   el.appendChild(sec);
 }
 
-/* ═══ LUIS SEARCH RESULTS (flat, no hierarchy) ═══ */
-function renderLuisSearchResults() {
-  const el = document.getElementById('contentEl');
-  if (statusFilter !== 'inactive' && statusFilter !== 'all') return;
-  const matches = allPeople.filter(p => {
-    if (!isInLuisAcostaHierarchy({uid: p.uid})) return false;
-    if (!mS(p)) return false;
-    if (statusFilter === 'inactive') return !isActivo(p.status);
-    return true; // all
-  });
-  if (!matches.length) return;
-
-  const sec = document.createElement('div');
-  sec.style.cssText = 'margin-top:24px;padding-top:20px;border-top:2px dashed var(--border);';
-
-  if (currentView === 'chart') {
-    const grid = document.createElement('div');
-    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;';
-    matches.forEach(p => {
-      const card = document.createElement('div'); card.className = 'org-card highlight';
-      card.innerHTML = `<div class="card-name">${hlText(p.name, searchQuery)}</div>`
-        + (p.position ? `<div class="card-pos">${esc(p.position)}</div>` : '')
-        + (p.email ? `<div class="card-email">${esc(p.email)}</div>` : '');
-      const isA = isActivo(p.status);
-      card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(p.status)}</span>`;
-      const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
-      const btnN = document.createElement('button'); btnN.className = 'copy-btn'; btnN.textContent = '📋 Nombre';
-      btnN.addEventListener('click', e => { e.stopPropagation(); copyText(p.name); }); copyRow.appendChild(btnN);
-      if (p.email) {
-        const btnE = document.createElement('button'); btnE.className = 'copy-btn'; btnE.textContent = '📧 Email';
-        btnE.addEventListener('click', e => { e.stopPropagation(); copyText(p.email); }); copyRow.appendChild(btnE);
-      }
-      card.appendChild(copyRow);
-      if (p.email) {
-        const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-        editBtn.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(p)); });
-        card.appendChild(editBtn);
-      }
-      grid.appendChild(card);
-    });
-    sec.appendChild(grid);
-  } else {
-    const tv = document.createElement('div'); tv.className = 'tree-view';
-    const ul = document.createElement('ul'); ul.style.listStyle = 'none';
-    matches.forEach(p => {
-      const li = document.createElement('li');
-      const div = document.createElement('div'); div.className = 'tree-node highlight';
-      const info = document.createElement('div'); info.className = 'tree-info';
-      const nm = document.createElement('div'); nm.className = 'tree-name';
-      nm.innerHTML = hlText(p.name, searchQuery); info.appendChild(nm);
-      const meta = document.createElement('div'); meta.className = 'tree-meta';
-      if (p.position) { const sp = document.createElement('span'); sp.textContent = p.position; meta.appendChild(sp); }
-      if (p.email) { const se = document.createElement('span'); se.textContent = p.email; meta.appendChild(se); }
-      info.appendChild(meta); div.appendChild(info);
-      const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋';
-      cpN.addEventListener('click', () => copyText(p.name)); div.appendChild(cpN);
-      if (p.email) {
-        const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧';
-        cpE.addEventListener('click', () => copyText(p.email)); div.appendChild(cpE);
-        const edBtn = document.createElement('button'); edBtn.className = 'tree-edit-btn'; edBtn.textContent = '✏️';
-        edBtn.addEventListener('click', () => showPinModal(() => showLeaderModal(p))); div.appendChild(edBtn);
-      }
-      const isA = isActivo(p.status);
-      const b = document.createElement('span'); b.className = 'badge '+(isA?'badge-active':'badge-inactive');
-      b.textContent = isA ? 'Activo' : p.status; div.appendChild(b);
-      li.appendChild(div); ul.appendChild(li);
-    });
-    tv.appendChild(ul); sec.appendChild(tv);
-  }
-  el.appendChild(sec);
-}
-
 function rChartNode(node, ancestorMatched) {
-  if (!vis(node, ancestorMatched)) return null;
+  if (!vis(node,ancestorMatched)) return null;
   const isSelf = selfMatch(node);
   const w = document.createElement('div'); w.className = 'org-node';
-
-  // Card
   const card = document.createElement('div'); card.className = 'org-card';
   if (searchQuery && isSelf) card.classList.add('highlight');
-
-  // Count filtered subordinates
-  const filteredSubCount = cntSubFiltered(node);
-  const isCol = collapsedSet.has(node.uid);
-
-  card.innerHTML = `<div class="card-name">${esc(node.name)}</div>`
-    + (node.position ? `<div class="card-pos">${esc(node.position)}</div>` : '')
-    + (node.email ? `<div class="card-email">${esc(node.email)}</div>` : '');
-
-  if (filteredSubCount > 0) {
-    if (isCol) {
-      card.innerHTML += `<div class="card-count">▶ ${filteredSubCount} persona${filteredSubCount>1?'s':''}</div>`;
-    } else {
-      card.innerHTML += `<div class="card-count-expanded">▾ ${filteredSubCount} persona${filteredSubCount>1?'s':''}</div>`;
-    }
-  }
-
-  if (node.status) {
-    const isA = isActivo(node.status);
-    card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`;
-  }
-
-  // Copy buttons
-  const copyRow = document.createElement('div'); copyRow.className = 'copy-row';
-  const btnName = document.createElement('button'); btnName.className = 'copy-btn'; btnName.textContent = '📋 Nombre';
-  btnName.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.name); });
-  copyRow.appendChild(btnName);
-  if (node.email) {
-    const btnEmail = document.createElement('button'); btnEmail.className = 'copy-btn'; btnEmail.textContent = '📧 Email';
-    btnEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
-    copyRow.appendChild(btnEmail);
-  }
-  card.appendChild(copyRow);
-
-  // Edit leader button
-  if (node.email) {
-    const editBtn = document.createElement('button'); editBtn.className = 'edit-leader-btn'; editBtn.textContent = '✏️ Asignar Líder';
-    editBtn.addEventListener('click', (e) => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); });
-    card.appendChild(editBtn);
-  }
-
-  const hasVisibleC = node.children.some(ch => vis(ch, isSelf || ancestorMatched));
-  if (hasVisibleC) {
+  const fsc = cntSubFiltered(node); const isCol = collapsedSet.has(node.uid);
+  card.innerHTML = `<div class="card-name">${esc(node.name)}</div>${node.position?'<div class="card-pos">'+esc(node.position)+'</div>':''}${node.email?'<div class="card-email">'+esc(node.email)+'</div>':''}`;
+  if (fsc > 0) card.innerHTML += isCol ? `<div class="card-count">▶ ${fsc} persona${fsc>1?'s':''}</div>` : `<div class="card-count-expanded">▾ ${fsc} persona${fsc>1?'s':''}</div>`;
+  if (node.status) { const isA = isActivo(node.status); card.innerHTML += `<span class="card-status ${isA?'st-active':'st-inactive'}">${isA?'Activo':esc(node.status)}</span>`; }
+  const cr = document.createElement('div'); cr.className = 'copy-row';
+  const bn = document.createElement('button'); bn.className = 'copy-btn'; bn.textContent = '📋 Nombre'; bn.addEventListener('click', e => { e.stopPropagation(); copyText(node.name); }); cr.appendChild(bn);
+  if (node.email) { const be = document.createElement('button'); be.className = 'copy-btn'; be.textContent = '📧 Email'; be.addEventListener('click', e => { e.stopPropagation(); copyText(node.email); }); cr.appendChild(be); }
+  card.appendChild(cr);
+  if (node.email) { const ed = document.createElement('button'); ed.className = 'edit-leader-btn'; ed.textContent = '✏️ Asignar Líder'; ed.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); }); card.appendChild(ed); }
+  const hasVC = node.children.some(ch => vis(ch, isSelf||ancestorMatched));
+  if (hasVC) {
     const icon = document.createElement('div'); icon.className = 'collapse-icon'; icon.textContent = isCol?'+':'−'; card.appendChild(icon);
-    card.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
+    card.addEventListener('click', () => { collapsedSet.has(node.uid)?collapsedSet.delete(node.uid):collapsedSet.add(node.uid); render(); });
   }
   w.appendChild(card);
-
-  const passDown = isSelf || ancestorMatched;
-  if (hasVisibleC && !isCol) {
-    const vc = node.children.filter(ch => vis(ch, passDown));
+  const passDown = isSelf||ancestorMatched;
+  if (hasVC && !isCol) {
+    const vc = node.children.filter(ch => vis(ch,passDown));
     if (vc.length > 0) {
       const vl = document.createElement('div'); vl.className = 'org-vert-line'; w.appendChild(vl);
       const cw = document.createElement('div'); cw.className = 'org-children-wrap';
       const hc = document.createElement('div'); hc.className = 'org-horiz-connector';
-      vc.forEach(ch => {
-        const br = document.createElement('div'); br.className = 'org-child-branch';
-        const cv = document.createElement('div'); cv.className = 'org-child-vert'; br.appendChild(cv);
-        const cn = rChartNode(ch, passDown); if (cn) br.appendChild(cn);
-        hc.appendChild(br);
-      });
+      vc.forEach(ch => { const br = document.createElement('div'); br.className = 'org-child-branch'; const cv = document.createElement('div'); cv.className = 'org-child-vert'; br.appendChild(cv); const cn = rChartNode(ch,passDown); if (cn) br.appendChild(cn); hc.appendChild(br); });
       cw.appendChild(hc); w.appendChild(cw);
       requestAnimationFrame(() => {
-        if (hc.children.length > 1) {
-          const pR = hc.getBoundingClientRect(), fR = hc.children[0].getBoundingClientRect(), lR = hc.children[hc.children.length-1].getBoundingClientRect();
-          hc.style.setProperty('--hl', (fR.left+fR.width/2-pR.left)+'px');
-          hc.style.setProperty('--hr', (pR.right-lR.left-lR.width/2)+'px');
-        } else { hc.style.setProperty('--hl','50%'); hc.style.setProperty('--hr','50%'); }
+        if (hc.children.length > 1) { const pR = hc.getBoundingClientRect(), fR = hc.children[0].getBoundingClientRect(), lR = hc.children[hc.children.length-1].getBoundingClientRect(); hc.style.setProperty('--hl',(fR.left+fR.width/2-pR.left)+'px'); hc.style.setProperty('--hr',(pR.right-lR.left-lR.width/2)+'px'); }
+        else { hc.style.setProperty('--hl','50%'); hc.style.setProperty('--hr','50%'); }
       });
     }
   }
   return w;
 }
 
-/* ═══ VIEW 2: TREE LIST ═══ */
 function renderTreeView() {
   const el = document.getElementById('contentEl'); el.innerHTML = '';
   showZoomControls(false);
   const c = document.createElement('div'); c.className = 'tree-view';
   const ul = document.createElement('ul');
-  treeData.roots.forEach(r => { const li = rTreeNode(r, false); if (li) ul.appendChild(li); });
+  treeData.roots.forEach(r => { const li = rTreeNode(r,false); if (li) ul.appendChild(li); });
   c.appendChild(ul); el.appendChild(c);
-  renderOrphans(el, 'tree');
+  renderOrphans(el,'tree');
   scrollToHighlight(el);
 }
 
 function rTreeNode(node, ancestorMatched) {
-  if (!vis(node, ancestorMatched)) return null;
+  if (!vis(node,ancestorMatched)) return null;
   const isSelf = selfMatch(node);
   const li = document.createElement('li');
   const div = document.createElement('div'); div.className = 'tree-node';
   if (searchQuery && isSelf) div.classList.add('highlight');
-
-  const hasVisibleC = node.children.some(ch => vis(ch, isSelf || ancestorMatched));
-  const isCol = collapsedSet.has(node.uid);
-  const isOpen = !isCol;
-
-  const tgl = document.createElement('span');
-  tgl.className = 'tree-toggle' + (hasVisibleC ? (isOpen ? ' open' : '') : ' leaf');
-  tgl.textContent = '▶'; div.appendChild(tgl);
-
+  const hasVC = node.children.some(ch => vis(ch,isSelf||ancestorMatched));
+  const isCol = collapsedSet.has(node.uid); const isOpen = !isCol;
+  const tgl = document.createElement('span'); tgl.className = 'tree-toggle'+(hasVC?(isOpen?' open':''):' leaf'); tgl.textContent = '▶'; div.appendChild(tgl);
   const info = document.createElement('div'); info.className = 'tree-info';
   const nm = document.createElement('div'); nm.className = 'tree-name';
   if (searchQuery && isSelf) nm.innerHTML = hlText(node.name, searchQuery); else nm.textContent = node.name;
@@ -1355,332 +535,123 @@ function rTreeNode(node, ancestorMatched) {
   const meta = document.createElement('div'); meta.className = 'tree-meta';
   if (node.position) { const p = document.createElement('span'); p.textContent = node.position; meta.appendChild(p); }
   if (node.email) { const e = document.createElement('span'); e.textContent = node.email; meta.appendChild(e); }
-  if (node.leaderName && !(searchQuery && statusFilter !== 'luis-acosta' && isInLuisAcostaHierarchy(node))) {
-    const l = document.createElement('span'); l.textContent = '→ '+displayLeaderName(node); meta.appendChild(l);
-  }
+  if (node.leaderName) { const l = document.createElement('span'); l.textContent = '→ '+node.leaderName; meta.appendChild(l); }
   info.appendChild(meta); div.appendChild(info);
-
-  // Copy buttons
-  const cpName = document.createElement('button'); cpName.className = 'tree-copy-btn'; cpName.textContent = '📋';
-  cpName.title = 'Copiar nombre'; cpName.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.name); });
-  div.appendChild(cpName);
-  if (node.email) {
-    const cpEmail = document.createElement('button'); cpEmail.className = 'tree-copy-btn'; cpEmail.textContent = '📧';
-    cpEmail.title = 'Copiar email'; cpEmail.addEventListener('click', (e) => { e.stopPropagation(); copyText(node.email); });
-    div.appendChild(cpEmail);
-  }
-  if (node.email) {
-    const editBtn = document.createElement('button'); editBtn.className = 'tree-edit-btn'; editBtn.textContent = '✏️';
-    editBtn.title = 'Asignar Líder'; editBtn.addEventListener('click', (e) => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); });
-    div.appendChild(editBtn);
-  }
-
-  if (node.status) {
-    const b = document.createElement('span');
-    const isA = isActivo(node.status);
-    b.className = 'badge '+(isA?'badge-active':'badge-inactive');
-    b.textContent = isA ? 'Activo' : node.status;
-    div.appendChild(b);
-  }
-
-  // Filtered subordinate count badge
-  const filteredSubCount = cntSubFiltered(node);
-  if (filteredSubCount > 0) {
-    const cb = document.createElement('span');
-    cb.className = 'badge badge-count';
-    cb.textContent = filteredSubCount + ' persona' + (filteredSubCount>1?'s':'');
-    div.appendChild(cb);
-  }
-
+  const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.addEventListener('click', e => { e.stopPropagation(); copyText(node.name); }); div.appendChild(cpN);
+  if (node.email) { const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.addEventListener('click', e => { e.stopPropagation(); copyText(node.email); }); div.appendChild(cpE); }
+  if (node.email) { const ed = document.createElement('button'); ed.className = 'tree-edit-btn'; ed.textContent = '✏️'; ed.addEventListener('click', e => { e.stopPropagation(); showPinModal(() => showLeaderModal(node)); }); div.appendChild(ed); }
+  if (node.status) { const b = document.createElement('span'); b.className = 'badge '+(isActivo(node.status)?'badge-active':'badge-inactive'); b.textContent = isActivo(node.status)?'Activo':node.status; div.appendChild(b); }
+  const fsc = cntSubFiltered(node);
+  if (fsc > 0) { const cb = document.createElement('span'); cb.className = 'badge badge-count'; cb.textContent = fsc+' persona'+(fsc>1?'s':''); div.appendChild(cb); }
   li.appendChild(div);
-
-  const passDown = isSelf || ancestorMatched;
-  if (hasVisibleC) {
+  const passDown = isSelf||ancestorMatched;
+  if (hasVC) {
     const cul = document.createElement('ul'); cul.className = 'tree-children'+(isOpen?'':' collapsed');
-    node.children.filter(ch => vis(ch, passDown)).forEach(ch => { const cl = rTreeNode(ch, passDown); if (cl) cul.appendChild(cl); });
+    node.children.filter(ch => vis(ch,passDown)).forEach(ch => { const cl = rTreeNode(ch,passDown); if (cl) cul.appendChild(cl); });
     li.appendChild(cul);
-    div.addEventListener('click', () => { collapsedSet.has(node.uid) ? collapsedSet.delete(node.uid) : collapsedSet.add(node.uid); render(); });
+    div.addEventListener('click', () => { collapsedSet.has(node.uid)?collapsedSet.delete(node.uid):collapsedSet.add(node.uid); render(); });
   }
   return li;
 }
 
-/* ── Helpers ── */
 function esc(t) { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function hlText(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return esc(t); return esc(t.slice(0,i))+'<span class="tree-hl">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); }
-
+function hlText(t, q) {
+  if (!q) return esc(t);
+  const words = q.split(/\s+/).filter(Boolean);
+  let result = esc(t);
+  words.forEach(w => { result = result.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'), m => `<span class="tree-hl">${m}</span>`); });
+  return result;
+}
 function scrollToHighlight(container) {
   setTimeout(() => {
-    const highlighted = container.querySelector('.org-card.highlight, .tree-node.highlight');
-    if (!highlighted) {
-      container.scrollTop = 0;
-      const chart = container.querySelector('.org-chart');
-      if (chart) {
-        const chartW = chart.scrollWidth;
-        const containerW = container.clientWidth;
-        container.scrollLeft = chartW > containerW ? (chartW - containerW) / 2 : 0;
-      } else {
-        container.scrollLeft = 0;
-      }
-      return;
-    }
-    highlighted.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    const h = container.querySelector('.org-card.highlight, .tree-node.highlight');
+    if (!h) { container.scrollTop = 0; const chart = container.querySelector('.org-chart'); if (chart) { const cW = chart.scrollWidth, coW = container.clientWidth; container.scrollLeft = cW > coW ? (cW-coW)/2 : 0; } else container.scrollLeft = 0; return; }
+    h.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
   }, 150);
 }
-
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => showToast('Copiado: ' + text)).catch(() => showToast('Error al copiar'));
-}
+function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('Copiado: '+text)).catch(() => showToast('Error al copiar')); }
 let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
-}
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 4000); }
 
-/* ── PIN Modal ── */
 function showPinModal(onSuccess) {
-  const old = document.getElementById('pinModal');
-  if (old) old.remove();
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'pinModal';
-
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.maxWidth = '320px';
-
-  modal.innerHTML = `
-    <div class="modal-title">🔒 Código de acceso</div>
-    <div class="modal-sub">Ingresa el código para continuar</div>
-    <input type="password" id="pinInput" style="
-      width:100%; padding:12px; border:2px solid var(--border);
-      border-radius:8px; font-size:1.2rem; text-align:center;
-      letter-spacing:6px; font-family:inherit; outline:none; margin:8px 0 4px;
-    " placeholder="••••" maxlength="10">
-    <div id="pinError" style="color:var(--red);font-size:0.78rem;text-align:center;min-height:18px;margin-bottom:6px"></div>
-    <div class="modal-btns" style="justify-content:center;gap:12px">
-      <button class="modal-btn" id="pinCancel" style="min-width:100px">Cancelar</button>
-      <button class="modal-btn" id="pinConfirm" style="min-width:100px;background:var(--card);color:#fff;border-color:var(--card);font-weight:600">Entrar</button>
-    </div>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  const pinInput = document.getElementById('pinInput');
-  const pinError = document.getElementById('pinError');
-
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  const old = document.getElementById('pinModal'); if (old) old.remove();
+  const overlay = document.createElement('div'); overlay.className = 'modal-overlay'; overlay.id = 'pinModal';
+  const modal = document.createElement('div'); modal.className = 'modal'; modal.style.maxWidth = '320px';
+  modal.innerHTML = `<div class="modal-title">🔒 Código de acceso</div><div class="modal-sub">Ingresa el código para continuar</div><input type="password" id="pinInput" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-size:1.2rem;text-align:center;letter-spacing:6px;font-family:inherit;outline:none;margin:8px 0 4px;" placeholder="••••" maxlength="10"><div id="pinError" style="color:var(--red);font-size:0.78rem;text-align:center;min-height:18px;margin-bottom:6px"></div><div class="modal-btns" style="justify-content:center;gap:12px"><button class="modal-btn" id="pinCancel" style="min-width:100px">Cancelar</button><button class="modal-btn" id="pinConfirm" style="min-width:100px;background:var(--card);color:#fff;border-color:var(--card);font-weight:600">Entrar</button></div>`;
+  overlay.appendChild(modal); document.body.appendChild(overlay);
+  const pi = document.getElementById('pinInput'), pe = document.getElementById('pinError');
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
   document.getElementById('pinCancel').addEventListener('click', () => overlay.remove());
-
-  function checkPin() {
-    if (pinInput.value === '0700') {
-      overlay.remove();
-      onSuccess();
-    } else {
-      pinError.textContent = '❌ Código incorrecto';
-      pinInput.value = '';
-      pinInput.style.borderColor = 'var(--red)';
-      pinInput.focus();
-      setTimeout(() => { pinInput.style.borderColor = 'var(--border)'; pinError.textContent = ''; }, 2000);
-    }
-  }
-
+  function checkPin() { if (pi.value==='0700') { overlay.remove(); onSuccess(); } else { pe.textContent='❌ Código incorrecto'; pi.value=''; pi.style.borderColor='var(--red)'; pi.focus(); setTimeout(() => { pi.style.borderColor='var(--border)'; pe.textContent=''; },2000); } }
   document.getElementById('pinConfirm').addEventListener('click', checkPin);
-  pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
-  setTimeout(() => pinInput.focus(), 100);
+  pi.addEventListener('keydown', e => { if (e.key==='Enter') checkPin(); });
+  setTimeout(() => pi.focus(), 100);
 }
 
-/* ── Leader Edit Modal ── */
 function showLeaderModal(node) {
-  const old = document.getElementById('leaderModal');
-  if (old) old.remove();
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'leaderModal';
-
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-
-  modal.innerHTML = `
-    <div class="modal-title">Asignar Líder</div>
-    <div class="modal-sub">Para: <strong>${esc(node.name)}</strong>${node.leaderName ? ' — Actual: '+esc(displayLeaderName(node)) : ' — Sin líder'}</div>
-    <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar consultor…">
-    <div class="modal-list" id="modalList"></div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-danger" id="modalRemove">Quitar Líder</button>
-      <button class="modal-btn" id="modalClose">Cancelar</button>
-    </div>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  const old = document.getElementById('leaderModal'); if (old) old.remove();
+  const overlay = document.createElement('div'); overlay.className = 'modal-overlay'; overlay.id = 'leaderModal';
+  const modal = document.createElement('div'); modal.className = 'modal';
+  modal.innerHTML = `<div class="modal-title">Asignar Líder</div><div class="modal-sub">Para: <strong>${esc(node.name)}</strong>${node.leaderName?' — Actual: '+esc(node.leaderName):' — Sin líder'}</div><input type="text" class="modal-search" id="modalSearch" placeholder="Buscar consultor…"><div class="modal-list" id="modalList"></div><div class="modal-btns"><button class="modal-btn modal-btn-danger" id="modalRemove">Quitar Líder</button><button class="modal-btn" id="modalClose">Cancelar</button></div>`;
+  overlay.appendChild(modal); document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
   document.getElementById('modalClose').addEventListener('click', () => overlay.remove());
-  document.getElementById('modalRemove').addEventListener('click', () => {
-    showConfirmModal(node, '');
-    overlay.remove();
-  });
-
-  const listEl = document.getElementById('modalList');
-  const searchEl = document.getElementById('modalSearch');
-
-  function renderList(query) {
-    listEl.innerHTML = '';
-    const q = query.toLowerCase().trim();
-    const filtered = allPeople
-      .filter(p => p.uid !== node.uid)
-      .filter(p => !q || p.name.toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q))
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    if (filtered.length === 0) {
-      listEl.innerHTML = '<div style="padding:14px;color:var(--text2);text-align:center;font-size:0.83rem">No se encontró</div>';
-      return;
-    }
-
-    filtered.forEach(p => {
-      const item = document.createElement('div');
-      item.className = 'modal-item';
-      item.innerHTML = `<div><span class="modal-item-name">${esc(p.name)}</span><br><span class="modal-item-pos">${esc(p.position || '')} ${p.email ? '· '+esc(p.email) : ''}</span></div>`;
-      item.addEventListener('click', () => {
-        showConfirmModal(node, p.name);
-        overlay.remove();
-      });
-      listEl.appendChild(item);
-    });
+  document.getElementById('modalRemove').addEventListener('click', () => { showConfirmModal(node,''); overlay.remove(); });
+  const listEl = document.getElementById('modalList'), searchEl = document.getElementById('modalSearch');
+  function renderList(q) {
+    listEl.innerHTML = ''; q = q.toLowerCase().trim();
+    const filtered = allPeople.filter(p => p.uid!==node.uid && (!q||p.name.toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q))).sort((a,b) => a.name.localeCompare(b.name));
+    if (!filtered.length) { listEl.innerHTML = '<div style="padding:14px;color:var(--text2);text-align:center;font-size:0.83rem">No se encontró</div>'; return; }
+    filtered.forEach(p => { const item = document.createElement('div'); item.className = 'modal-item'; item.innerHTML = `<div><span class="modal-item-name">${esc(p.name)}</span><br><span class="modal-item-pos">${esc(p.position||'')} ${p.email?'· '+esc(p.email):''}</span></div>`; item.addEventListener('click', () => { showConfirmModal(node,p.name); overlay.remove(); }); listEl.appendChild(item); });
   }
-
-  renderList('');
-  searchEl.addEventListener('input', e => renderList(e.target.value));
-  searchEl.focus();
+  renderList(''); searchEl.addEventListener('input', e => renderList(e.target.value)); searchEl.focus();
 }
 
 function showConfirmModal(node, leaderName) {
-  const old = document.getElementById('confirmModal');
-  if (old) old.remove();
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'confirmModal';
-
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.maxWidth = '360px';
-
-  const action = leaderName ? `Asignar a <strong>${esc(leaderName)}</strong> como líder` : 'Quitar el líder';
-
-  modal.innerHTML = `
-    <div class="modal-title">¿Confirmar cambio?</div>
-    <div class="modal-sub" style="margin:14px 0;font-size:0.88rem;line-height:1.5">
-      <strong>${esc(node.name)}</strong><br>
-      ${action}
-    </div>
-    <div class="modal-btns" style="justify-content:center;gap:12px">
-      <button class="modal-btn" id="confirmNo" style="min-width:100px">Cancelar</button>
-      <button class="modal-btn" id="confirmYes" style="min-width:100px;background:var(--green);color:#fff;border-color:var(--green);font-weight:600">✅ Confirmar</button>
-    </div>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  const old = document.getElementById('confirmModal'); if (old) old.remove();
+  const overlay = document.createElement('div'); overlay.className = 'modal-overlay'; overlay.id = 'confirmModal';
+  const modal = document.createElement('div'); modal.className = 'modal'; modal.style.maxWidth = '360px';
+  modal.innerHTML = `<div class="modal-title">¿Confirmar cambio?</div><div class="modal-sub" style="margin:14px 0;font-size:0.88rem;line-height:1.5"><strong>${esc(node.name)}</strong><br>${leaderName?'Asignar a <strong>'+esc(leaderName)+'</strong> como líder':'Quitar el líder'}</div><div class="modal-btns" style="justify-content:center;gap:12px"><button class="modal-btn" id="confirmNo" style="min-width:100px">Cancelar</button><button class="modal-btn" id="confirmYes" style="min-width:100px;background:var(--green);color:#fff;border-color:var(--green);font-weight:600">✅ Confirmar</button></div>`;
+  overlay.appendChild(modal); document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
   document.getElementById('confirmNo').addEventListener('click', () => overlay.remove());
-  document.getElementById('confirmYes').addEventListener('click', async () => {
-    overlay.remove();
-    await saveLeader(node, leaderName);
-  });
+  document.getElementById('confirmYes').addEventListener('click', async () => { overlay.remove(); await saveLeader(node,leaderName); });
 }
 
 async function saveLeader(node, leaderName) {
   showToast('Guardando...');
   try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ email: node.email, leader: leaderName })
-    });
+    await fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({email:node.email,leader:leaderName}) });
     showToast('✅ Guardado. Sync en 5 seg...');
-    setTimeout(() => {
-      loadData();
-      showToast('Datos recargados — si no ves el cambio, dale Sync en 1 min');
-    }, 5000);
-  } catch (e) {
-    showToast('❌ Error al guardar: ' + e.message);
-  }
+    setTimeout(() => { loadData(); showToast('Datos recargados — si no ves el cambio, dale Sync en 1 min'); }, 5000);
+  } catch (e) { showToast('❌ Error al guardar: '+e.message); }
 }
 
 /* ── Search Result Selector ── */
-let selectedSearchUid = null; // null = show all matches
-
 function showResultSelector(matches) {
-  const old = document.getElementById('resultSelector');
-  if (old) old.remove();
+  const old = document.getElementById('resultSelector'); if (old) old.remove();
   if (matches.length <= 1) { selectedSearchUid = null; return; }
-
-  const wrap = document.createElement('div');
-  wrap.id = 'resultSelector';
-  wrap.style.cssText = `
-    position: fixed; top: 108px; left: 190px; z-index: 200;
-    background: #fff; border: 1px solid var(--border);
-    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    min-width: 260px; max-width: 340px; font-family: inherit;
-    overflow: hidden;
-  `;
-
-  const header = document.createElement('div');
-  header.style.cssText = 'padding:8px 12px;background:var(--header-bg);color:#fff;font-size:0.78rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;';
-  header.innerHTML = `<span>🔍 ${matches.length} resultados — ¿Cuál buscas?</span>`;
-  wrap.appendChild(header);
-
-  // "Ver todos" option
-  const allOpt = document.createElement('div');
-  allOpt.style.cssText = 'padding:8px 12px;font-size:0.78rem;cursor:pointer;border-bottom:1px solid #f0f0f0;color:var(--text2);font-style:italic;';
+  const wrap = document.createElement('div'); wrap.id = 'resultSelector';
+  wrap.style.cssText = 'position:fixed;top:108px;left:190px;z-index:200;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:260px;max-width:340px;font-family:inherit;overflow:hidden;';
+  const header = document.createElement('div'); header.style.cssText = 'padding:8px 12px;background:var(--header-bg);color:#fff;font-size:0.78rem;font-weight:700;';
+  header.innerHTML = `🔍 ${matches.length} resultados — ¿Cuál buscas?`; wrap.appendChild(header);
+  const allOpt = document.createElement('div'); allOpt.style.cssText = 'padding:8px 12px;font-size:0.78rem;cursor:pointer;border-bottom:1px solid #f0f0f0;color:var(--text2);font-style:italic;';
   allOpt.textContent = 'Ver todos los resultados';
-  allOpt.addEventListener('mouseenter', () => allOpt.style.background = '#f5f5f5');
-  allOpt.addEventListener('mouseleave', () => allOpt.style.background = '');
-  allOpt.addEventListener('click', () => {
-    selectedSearchUid = null;
-    wrap.remove();
-    applySearch(searchQuery);
-  });
-  wrap.appendChild(allOpt);
-
+  allOpt.addEventListener('mouseenter', () => allOpt.style.background='#f5f5f5'); allOpt.addEventListener('mouseleave', () => allOpt.style.background='');
+  allOpt.addEventListener('click', () => { selectedSearchUid=null; wrap.remove(); applySearch(searchQuery); }); wrap.appendChild(allOpt);
   matches.forEach(p => {
-    const item = document.createElement('div');
-    item.style.cssText = 'padding:8px 12px;font-size:0.78rem;cursor:pointer;border-bottom:1px solid #f0f0f0;';
+    const item = document.createElement('div'); item.style.cssText = 'padding:8px 12px;font-size:0.78rem;cursor:pointer;border-bottom:1px solid #f0f0f0;';
     item.innerHTML = `<div style="font-weight:700;color:var(--text)">${esc(p.name)}</div><div style="color:var(--text2);font-size:0.72rem;">${esc(p.position||'')}${p.email?' · '+esc(p.email):''}</div>`;
-    item.addEventListener('mouseenter', () => item.style.background = '#f0f5ff');
-    item.addEventListener('mouseleave', () => item.style.background = '');
-    item.addEventListener('click', () => {
-      selectedSearchUid = p.uid;
-      wrap.remove();
-      applySearch(searchQuery);
-    });
-    wrap.appendChild(item);
+    item.addEventListener('mouseenter', () => item.style.background='#f0f5ff'); item.addEventListener('mouseleave', () => item.style.background='');
+    item.addEventListener('click', () => { selectedSearchUid=p.uid; wrap.remove(); applySearch(searchQuery); }); wrap.appendChild(item);
   });
-
   document.body.appendChild(wrap);
-
-  // Close on outside click
-  setTimeout(() => {
-    document.addEventListener('click', function handler(e) {
-      if (!wrap.contains(e.target)) { wrap.remove(); document.removeEventListener('click', handler); }
-    });
-  }, 100);
+  setTimeout(() => { document.addEventListener('click', function h(e) { if (!wrap.contains(e.target)) { wrap.remove(); document.removeEventListener('click',h); } }); }, 100);
 }
 
 function getSearchMatches(query) {
   if (!query) return [];
-  return allPeople.filter(p => {
-    const node = { uid: p.uid, name: p.name, position: p.position, status: p.status, email: p.email, leaderName: p.leaderName, leaderUid: p.leaderUid, children: [] };
-    return mS(node) && mF(node);
-  });
+  return allPeople.filter(p => { const node={uid:p.uid,name:p.name,position:p.position,status:p.status,email:p.email,leaderName:p.leaderName,leaderUid:p.leaderUid,children:[]}; return mS(node)&&mF(node); });
 }
 
 function applySearch(query) {
@@ -1688,378 +659,152 @@ function applySearch(query) {
   collapsedSet.clear();
   const collapseAll = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(collapseAll); };
   treeData.roots.forEach(collapseAll);
-  const expandPath = (n) => {
-    const isMatch = selectedSearchUid ? n.uid === selectedSearchUid : mS(n);
+  const expandPath = n => {
+    const isMatch = selectedSearchUid ? n.uid===selectedSearchUid : mS(n);
     let found = isMatch;
-    for (const ch of n.children) {
-      if (expandPath(ch)) { collapsedSet.delete(n.uid); found = true; }
-    }
+    for (const ch of n.children) { if (expandPath(ch)) { collapsedSet.delete(n.uid); found=true; } }
     return found;
   };
   treeData.roots.forEach(r => expandPath(r));
   render();
 }
 
-/* ── Events ── */
 let searchDebounceTimer;
 document.getElementById('searchInput').addEventListener('input', e => {
   document.getElementById('searchClear').style.display = e.target.value ? 'flex' : 'none';
-  const old = document.getElementById('resultSelector');
-  if (old) old.remove();
+  const old = document.getElementById('resultSelector'); if (old) old.remove();
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = setTimeout(() => {
     searchQuery = e.target.value.toLowerCase().trim();
     selectedSearchUid = null;
-    if (searchQuery) {
-      const matches = getSearchMatches(searchQuery);
-      if (matches.length > 1) {
-        showResultSelector(matches);
-        applySearch(searchQuery); // still show all while selector is open
-      } else {
-        applySearch(searchQuery);
-      }
-    } else {
-      collapsedSet.clear();
-      render();
-    }
+    if (searchQuery) { const m = getSearchMatches(searchQuery); if (m.length > 1) { showResultSelector(m); applySearch(searchQuery); } else applySearch(searchQuery); }
+    else { collapsedSet.clear(); render(); }
   }, 350);
 });
 document.getElementById('searchClear').addEventListener('click', () => {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchClear').style.display = 'none';
-  searchQuery = '';
-  selectedSearchUid = null;
-  const old = document.getElementById('resultSelector');
-  if (old) old.remove();
-  collapsedSet.clear();
-  render();
+  document.getElementById('searchInput').value = ''; document.getElementById('searchClear').style.display = 'none';
+  searchQuery = ''; selectedSearchUid = null;
+  const old = document.getElementById('resultSelector'); if (old) old.remove();
+  collapsedSet.clear(); render();
 });
-document.getElementById('filterStatus').addEventListener('change', e => {
-  const selected = e.target.value;
-  if (selected === 'luis-acosta') {
-    // Reset select visually while PIN is pending
-    e.target.value = statusFilter;
-    showPinModal(() => {
-      statusFilter = 'luis-acosta';
-      document.getElementById('filterStatus').value = 'luis-acosta';
-      buildTree();
-      render();
-    });
-  } else {
-    statusFilter = selected;
-    buildTree();
-    render();
-  }
-});
-
-document.getElementById('btnViewChart').addEventListener('click', () => {
-  currentView = 'chart';
-  document.getElementById('btnViewChart').classList.add('active');
-  document.getElementById('btnViewTree').classList.remove('active');
-  showZoomControls(true);
-  render();
-});
-document.getElementById('btnViewTree').addEventListener('click', () => {
-  currentView = 'tree';
-  document.getElementById('btnViewTree').classList.add('active');
-  document.getElementById('btnViewChart').classList.remove('active');
-  showZoomControls(false);
-  render();
-});
-
+document.getElementById('filterStatus').addEventListener('change', e => { statusFilter = e.target.value; buildTree(); render(); });
+document.getElementById('btnViewChart').addEventListener('click', () => { currentView='chart'; document.getElementById('btnViewChart').classList.add('active'); document.getElementById('btnViewTree').classList.remove('active'); showZoomControls(true); render(); });
+document.getElementById('btnViewTree').addEventListener('click', () => { currentView='tree'; document.getElementById('btnViewTree').classList.add('active'); document.getElementById('btnViewChart').classList.remove('active'); showZoomControls(false); render(); });
 document.getElementById('btnExpandAll').addEventListener('click', () => { collapsedSet.clear(); render(); });
-document.getElementById('btnCollapseAll').addEventListener('click', () => {
-  collapsedSet.clear();
-  const col = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(col); };
-  treeData.roots.forEach(col); render();
-});
+document.getElementById('btnCollapseAll').addEventListener('click', () => { collapsedSet.clear(); const col = n => { if (n.children.length) collapsedSet.add(n.uid); n.children.forEach(col); }; treeData.roots.forEach(col); render(); });
 document.getElementById('btnSync').addEventListener('click', loadData);
-
 document.getElementById('btnPDF').addEventListener('click', () => {
-  const filterNames = { all: 'Todos', active: 'Activos', inactive: 'Inactivos' };
-  const viewName = currentView === 'chart' ? 'Organigrama' : 'Detalle';
-  const filterName = filterNames[statusFilter] || statusFilter;
-  const searchInfo = searchQuery ? ` | Búsqueda: "${searchQuery}"` : '';
-  const date = new Date().toLocaleDateString('es-PR', { year: 'numeric', month: 'long', day: 'numeric' });
-  document.getElementById('printHeader').textContent = `Planet Solar — ${viewName} — Filtro: ${filterName}${searchInfo} — ${date}`;
-
-  const chart = document.querySelector('.org-chart');
-  const oldTransform = chart ? chart.style.transform : '';
-  if (chart) chart.style.transform = 'none';
-
-  window.print();
-
-  if (chart) chart.style.transform = oldTransform;
+  const filterNames = {all:'Todos',active:'Activos',inactive:'Inactivos','no-leader':'Sin Líder'};
+  document.getElementById('printHeader').textContent = `Planet Solar — ${currentView==='chart'?'Organigrama':'Detalle'} — ${filterNames[statusFilter]||statusFilter}${searchQuery?' | Búsqueda: "'+searchQuery+'"':''} — ${new Date().toLocaleDateString('es-PR',{year:'numeric',month:'long',day:'numeric'})}`;
+  const chart = document.querySelector('.org-chart'); const ot = chart?chart.style.transform:''; if (chart) chart.style.transform='none';
+  window.print(); if (chart) chart.style.transform=ot;
 });
 
-/* ── Zoom Controls ── */
 let zoomLevel = 100;
 const zoomControls = document.getElementById('zoomControls');
 const zoomLabel = document.getElementById('zoomLabel');
+function updateZoom() { const chart = document.getElementById('contentEl').querySelector('.org-chart'); if (chart) { chart.style.transform=`scale(${zoomLevel/100})`; chart.style.transformOrigin='top center'; } zoomLabel.textContent=zoomLevel+'%'; }
+function showZoomControls(show) { zoomControls.style.display=show?'flex':'none'; }
+document.getElementById('zoomIn').addEventListener('click', () => { zoomLevel=Math.min(200,zoomLevel+10); updateZoom(); });
+document.getElementById('zoomOut').addEventListener('click', () => { zoomLevel=Math.max(30,zoomLevel-10); updateZoom(); });
+document.getElementById('zoomReset').addEventListener('click', () => { zoomLevel=100; updateZoom(); });
 
-function updateZoom() {
-  const el = document.getElementById('contentEl');
-  const chart = el.querySelector('.org-chart');
-  if (chart) {
-    chart.style.transform = `scale(${zoomLevel / 100})`;
-    chart.style.transformOrigin = 'top center';
-  }
-  zoomLabel.textContent = zoomLevel + '%';
-}
-
-function showZoomControls(show) {
-  zoomControls.style.display = show ? 'flex' : 'none';
-}
-
-document.getElementById('zoomIn').addEventListener('click', () => { zoomLevel = Math.min(200, zoomLevel + 10); updateZoom(); });
-document.getElementById('zoomOut').addEventListener('click', () => { zoomLevel = Math.max(30, zoomLevel - 10); updateZoom(); });
-document.getElementById('zoomReset').addEventListener('click', () => { zoomLevel = 100; updateZoom(); });
-
-/* ── Custom Scrollbar Horizontal ── */
 const contentEl = document.getElementById('contentEl');
 const scrollbar = document.getElementById('customScrollbar');
-const sbTrack = document.getElementById('sbTrack');
-const sbThumb = document.getElementById('sbThumb');
-let isDraggingH = false, dragStartX = 0, dragStartScrollX = 0;
-
-function updateScrollbarH() {
-  const el = contentEl;
-  const hasScroll = el.scrollWidth > el.clientWidth + 2;
-  scrollbar.classList.toggle('visible', hasScroll);
-  if (!hasScroll) return;
-  const ratio = el.clientWidth / el.scrollWidth;
-  const trackW = sbTrack.offsetWidth;
-  const thumbW = Math.max(50, trackW * ratio);
-  const maxThumbLeft = trackW - thumbW;
-  const scrollRatio = el.scrollLeft / (el.scrollWidth - el.clientWidth);
-  sbThumb.style.width = thumbW + 'px';
-  sbThumb.style.left = (scrollRatio * maxThumbLeft) + 'px';
-}
-
+const sbTrack = document.getElementById('sbTrack'), sbThumb = document.getElementById('sbThumb');
+let isDraggingH=false, dragStartX=0, dragStartScrollX=0;
+function updateScrollbarH() { const el=contentEl; const has=el.scrollWidth>el.clientWidth+2; scrollbar.classList.toggle('visible',has); if (!has) return; const ratio=el.clientWidth/el.scrollWidth; const tW=sbTrack.offsetWidth; const thW=Math.max(50,tW*ratio); const mTL=tW-thW; const sR=el.scrollLeft/(el.scrollWidth-el.clientWidth); sbThumb.style.width=thW+'px'; sbThumb.style.left=(sR*mTL)+'px'; }
 contentEl.addEventListener('scroll', () => { updateScrollbarH(); updateScrollbarV(); });
 window.addEventListener('resize', () => { updateScrollbarH(); updateScrollbarV(); });
+sbThumb.addEventListener('mousedown', e => { isDraggingH=true; dragStartX=e.clientX; dragStartScrollX=contentEl.scrollLeft; sbThumb.classList.add('dragging'); e.preventDefault(); });
+sbThumb.addEventListener('touchstart', e => { isDraggingH=true; dragStartX=e.touches[0].clientX; dragStartScrollX=contentEl.scrollLeft; sbThumb.classList.add('dragging'); e.preventDefault(); },{passive:false});
+sbTrack.addEventListener('click', e => { if (e.target===sbThumb) return; const rect=sbTrack.getBoundingClientRect(); contentEl.scrollLeft=((e.clientX-rect.left)/rect.width)*(contentEl.scrollWidth-contentEl.clientWidth); });
+document.getElementById('sbLeft').addEventListener('click', () => contentEl.scrollBy({left:-300,behavior:'smooth'}));
+document.getElementById('sbRight').addEventListener('click', () => contentEl.scrollBy({left:300,behavior:'smooth'}));
 
-sbThumb.addEventListener('mousedown', e => {
-  isDraggingH = true; dragStartX = e.clientX; dragStartScrollX = contentEl.scrollLeft;
-  sbThumb.classList.add('dragging'); e.preventDefault();
-});
-sbThumb.addEventListener('touchstart', e => {
-  isDraggingH = true; dragStartX = e.touches[0].clientX; dragStartScrollX = contentEl.scrollLeft;
-  sbThumb.classList.add('dragging'); e.preventDefault();
-}, { passive: false });
-
-sbTrack.addEventListener('click', e => {
-  if (e.target === sbThumb) return;
-  const rect = sbTrack.getBoundingClientRect();
-  contentEl.scrollLeft = ((e.clientX - rect.left) / rect.width) * (contentEl.scrollWidth - contentEl.clientWidth);
-});
-document.getElementById('sbLeft').addEventListener('click', () => { contentEl.scrollBy({ left: -300, behavior: 'smooth' }); });
-document.getElementById('sbRight').addEventListener('click', () => { contentEl.scrollBy({ left: 300, behavior: 'smooth' }); });
-
-/* ── Custom Scrollbar Vertical ── */
 const scrollbarV = document.getElementById('customScrollbarV');
-const sbvTrack = document.getElementById('sbvTrack');
-const sbvThumb = document.getElementById('sbvThumb');
-let isDraggingV = false, dragStartY = 0, dragStartScrollY = 0;
-
-function updateScrollbarV() {
-  const el = contentEl;
-  const hasScroll = el.scrollHeight > el.clientHeight + 2;
-  scrollbarV.classList.toggle('visible', hasScroll);
-  if (!hasScroll) return;
-  const ratio = el.clientHeight / el.scrollHeight;
-  const trackH = sbvTrack.offsetHeight;
-  const thumbH = Math.max(40, trackH * ratio);
-  const maxThumbTop = trackH - thumbH;
-  const scrollRatio = el.scrollTop / (el.scrollHeight - el.clientHeight);
-  sbvThumb.style.height = thumbH + 'px';
-  sbvThumb.style.top = (scrollRatio * maxThumbTop) + 'px';
-}
-
-sbvThumb.addEventListener('mousedown', e => {
-  isDraggingV = true; dragStartY = e.clientY; dragStartScrollY = contentEl.scrollTop;
-  sbvThumb.classList.add('dragging'); e.preventDefault();
-});
-sbvThumb.addEventListener('touchstart', e => {
-  isDraggingV = true; dragStartY = e.touches[0].clientY; dragStartScrollY = contentEl.scrollTop;
-  sbvThumb.classList.add('dragging'); e.preventDefault();
-}, { passive: false });
-
-sbvTrack.addEventListener('click', e => {
-  if (e.target === sbvThumb) return;
-  const rect = sbvTrack.getBoundingClientRect();
-  contentEl.scrollTop = ((e.clientY - rect.top) / rect.height) * (contentEl.scrollHeight - contentEl.clientHeight);
-});
-document.getElementById('sbUp').addEventListener('click', () => { contentEl.scrollBy({ top: -300, behavior: 'smooth' }); });
-document.getElementById('sbDown').addEventListener('click', () => { contentEl.scrollBy({ top: 300, behavior: 'smooth' }); });
-
-/* ── Shared drag handlers ── */
+const sbvTrack = document.getElementById('sbvTrack'), sbvThumb = document.getElementById('sbvThumb');
+let isDraggingV=false, dragStartY=0, dragStartScrollY=0;
+function updateScrollbarV() { const el=contentEl; const has=el.scrollHeight>el.clientHeight+2; scrollbarV.classList.toggle('visible',has); if (!has) return; const ratio=el.clientHeight/el.scrollHeight; const tH=sbvTrack.offsetHeight; const thH=Math.max(40,tH*ratio); const mTT=tH-thH; const sR=el.scrollTop/(el.scrollHeight-el.clientHeight); sbvThumb.style.height=thH+'px'; sbvThumb.style.top=(sR*mTT)+'px'; }
+sbvThumb.addEventListener('mousedown', e => { isDraggingV=true; dragStartY=e.clientY; dragStartScrollY=contentEl.scrollTop; sbvThumb.classList.add('dragging'); e.preventDefault(); });
+sbvThumb.addEventListener('touchstart', e => { isDraggingV=true; dragStartY=e.touches[0].clientY; dragStartScrollY=contentEl.scrollTop; sbvThumb.classList.add('dragging'); e.preventDefault(); },{passive:false});
+sbvTrack.addEventListener('click', e => { if (e.target===sbvThumb) return; const rect=sbvTrack.getBoundingClientRect(); contentEl.scrollTop=((e.clientY-rect.top)/rect.height)*(contentEl.scrollHeight-contentEl.clientHeight); });
+document.getElementById('sbUp').addEventListener('click', () => contentEl.scrollBy({top:-300,behavior:'smooth'}));
+document.getElementById('sbDown').addEventListener('click', () => contentEl.scrollBy({top:300,behavior:'smooth'}));
 document.addEventListener('mousemove', e => {
-  if (isDraggingH) {
-    const trackW = sbTrack.offsetWidth, thumbW = sbThumb.offsetWidth;
-    const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
-    contentEl.scrollLeft = dragStartScrollX + ((e.clientX - dragStartX) / (trackW - thumbW)) * maxScroll;
-  }
-  if (isDraggingV) {
-    const trackH = sbvTrack.offsetHeight, thumbH = sbvThumb.offsetHeight;
-    const maxScroll = contentEl.scrollHeight - contentEl.clientHeight;
-    contentEl.scrollTop = dragStartScrollY + ((e.clientY - dragStartY) / (trackH - thumbH)) * maxScroll;
-  }
+  if (isDraggingH) { const tW=sbTrack.offsetWidth,thW=sbThumb.offsetWidth; contentEl.scrollLeft=dragStartScrollX+((e.clientX-dragStartX)/(tW-thW))*(contentEl.scrollWidth-contentEl.clientWidth); }
+  if (isDraggingV) { const tH=sbvTrack.offsetHeight,thH=sbvThumb.offsetHeight; contentEl.scrollTop=dragStartScrollY+((e.clientY-dragStartY)/(tH-thH))*(contentEl.scrollHeight-contentEl.clientHeight); }
 });
 document.addEventListener('touchmove', e => {
-  if (isDraggingH) {
-    const trackW = sbTrack.offsetWidth, thumbW = sbThumb.offsetWidth;
-    const maxScroll = contentEl.scrollWidth - contentEl.clientWidth;
-    contentEl.scrollLeft = dragStartScrollX + ((e.touches[0].clientX - dragStartX) / (trackW - thumbW)) * maxScroll;
-  }
-  if (isDraggingV) {
-    const trackH = sbvTrack.offsetHeight, thumbH = sbvThumb.offsetHeight;
-    const maxScroll = contentEl.scrollHeight - contentEl.clientHeight;
-    contentEl.scrollTop = dragStartScrollY + ((e.touches[0].clientY - dragStartY) / (trackH - thumbH)) * maxScroll;
-  }
+  if (isDraggingH) { const tW=sbTrack.offsetWidth,thW=sbThumb.offsetWidth; contentEl.scrollLeft=dragStartScrollX+((e.touches[0].clientX-dragStartX)/(tW-thW))*(contentEl.scrollWidth-contentEl.clientWidth); }
+  if (isDraggingV) { const tH=sbvTrack.offsetHeight,thH=sbvThumb.offsetHeight; contentEl.scrollTop=dragStartScrollY+((e.touches[0].clientY-dragStartY)/(tH-thH))*(contentEl.scrollHeight-contentEl.clientHeight); }
 });
-document.addEventListener('mouseup', () => {
-  isDraggingH = false; isDraggingV = false;
-  sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging');
-});
-document.addEventListener('touchend', () => {
-  isDraggingH = false; isDraggingV = false;
-  sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging');
-});
+document.addEventListener('mouseup', () => { isDraggingH=false; isDraggingV=false; sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging'); });
+document.addEventListener('touchend', () => { isDraggingH=false; isDraggingV=false; sbThumb.classList.remove('dragging'); sbvThumb.classList.remove('dragging'); });
 
-// Update scrollbars after render
 const origRender = render;
 render = function() { origRender(); requestAnimationFrame(() => { requestAnimationFrame(() => { updateScrollbarH(); updateScrollbarV(); renderSidePanel(); }); }); };
 
 /* ── Side Panel ── */
 let sidePanelOpen = true;
-
 function renderSidePanel() {
-  const panel = document.getElementById('sidePanelContent');
-  if (!panel) return;
+  const panel = document.getElementById('sidePanelContent'); if (!panel) return;
   panel.innerHTML = '';
-
-  // Collect all visible people by walking the tree
   const visiblePeople = [];
   const collect = (node, ancestorMatched) => {
-    if (!vis(node, ancestorMatched)) return;
+    if (!vis(node,ancestorMatched)) return;
     if (mF(node)) visiblePeople.push(node);
-    const isSelf = selfMatch(node);
-    const passDown = isSelf || ancestorMatched;
-    node.children.forEach(ch => collect(ch, passDown));
+    const isSelf = selfMatch(node); const passDown = isSelf||ancestorMatched;
+    node.children.forEach(ch => collect(ch,passDown));
   };
-  treeData.roots.forEach(r => collect(r, false));
-
+  treeData.roots.forEach(r => collect(r,false));
   const counts = {};
-  visiblePeople.forEach(p => {
-    const pos = (p.position || 'Sin posición').trim();
-    counts[pos] = (counts[pos] || 0) + 1;
-  });
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-
+  visiblePeople.forEach(p => { const pos=(p.position||'Sin posición').trim(); counts[pos]=(counts[pos]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
   const totalRow = document.createElement('div');
   totalRow.style.cssText = 'padding:8px 12px;font-size:0.78rem;font-weight:700;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;';
   totalRow.innerHTML = `<span>Total</span><span style="background:var(--header-bg);color:#fff;padding:1px 7px;border-radius:8px;font-size:0.75rem;">${visiblePeople.length}</span>`;
   panel.appendChild(totalRow);
-
-  if (sorted.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'padding:14px 12px;font-size:0.75rem;color:var(--text2);text-align:center;';
-    empty.textContent = 'Sin datos';
-    panel.appendChild(empty);
-    return;
-  }
-
-  sorted.forEach(([pos, count]) => {
+  if (!sorted.length) { const e=document.createElement('div'); e.style.cssText='padding:14px 12px;font-size:0.75rem;color:var(--text2);text-align:center;'; e.textContent='Sin datos'; panel.appendChild(e); return; }
+  sorted.forEach(([pos,count]) => {
     const row = document.createElement('div');
     row.style.cssText = 'padding:5px 12px;font-size:0.75rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f3f3f3;cursor:pointer;transition:background 0.12s;';
-    row.innerHTML = `
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px;color:var(--text);" title="${esc(pos)}">${esc(pos)}</span>
-      <span style="font-weight:700;color:var(--header-bg);flex-shrink:0;background:#f0f1f3;padding:1px 7px;border-radius:8px;">${count}</span>
-    `;
-    row.addEventListener('mouseenter', () => row.style.background = '#f0f5ff');
-    row.addEventListener('mouseleave', () => row.style.background = '');
-    row.addEventListener('click', () => showPositionModal(pos, visiblePeople));
+    row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px;color:var(--text);" title="${esc(pos)}">${esc(pos)}</span><span style="font-weight:700;color:var(--header-bg);flex-shrink:0;background:#f0f1f3;padding:1px 7px;border-radius:8px;">${count}</span>`;
+    row.addEventListener('mouseenter', () => row.style.background='#f0f5ff');
+    row.addEventListener('mouseleave', () => row.style.background='');
+    row.addEventListener('click', () => showPositionModal(pos,visiblePeople));
     panel.appendChild(row);
   });
 }
 
-/* ── Position Detail Modal ── */
 function showPositionModal(pos, visiblePeople) {
-  const old = document.getElementById('positionModal');
-  if (old) old.remove();
-
-  const people = visiblePeople.filter(p => (p.position||'Sin posición').trim() === pos);
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'positionModal';
-
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.maxWidth = '500px';
-
-  modal.innerHTML = `
-    <div class="modal-title">${esc(pos)}</div>
-    <div class="modal-sub">${people.length} persona${people.length !== 1 ? 's' : ''}</div>
-  `;
-
-  const list = document.createElement('div');
-  list.style.cssText = 'flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:7px;max-height:400px;';
-
+  const old = document.getElementById('positionModal'); if (old) old.remove();
+  const people = visiblePeople.filter(p => (p.position||'Sin posición').trim()===pos);
+  const overlay = document.createElement('div'); overlay.className='modal-overlay'; overlay.id='positionModal';
+  const modal = document.createElement('div'); modal.className='modal'; modal.style.maxWidth='500px';
+  modal.innerHTML = `<div class="modal-title">${esc(pos)}</div><div class="modal-sub">${people.length} persona${people.length!==1?'s':''}</div>`;
+  const list = document.createElement('div'); list.style.cssText='flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:7px;max-height:400px;';
   people.sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
-    const item = document.createElement('div');
-    item.style.cssText = 'padding:9px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;gap:8px;';
+    const item = document.createElement('div'); item.style.cssText='padding:9px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;gap:8px;';
     const isA = isActivo(p.status);
-    item.innerHTML = `
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;font-size:0.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)}</div>
-        <div style="font-size:0.72rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.email ? esc(p.email) : ''}${p.leaderName ? ' → '+esc(p.leaderName) : ''}</div>
-      </div>
-      <span class="badge ${isA?'badge-active':'badge-inactive'}" style="flex-shrink:0;">${isA?'Activo':esc(p.status)}</span>
-    `;
-    // Copy buttons
-    const btns = document.createElement('div');
-    btns.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
-    const cpN = document.createElement('button'); cpN.className = 'tree-copy-btn'; cpN.textContent = '📋'; cpN.title = 'Copiar nombre';
-    cpN.addEventListener('click', () => copyText(p.name)); btns.appendChild(cpN);
-    if (p.email) {
-      const cpE = document.createElement('button'); cpE.className = 'tree-copy-btn'; cpE.textContent = '📧'; cpE.title = 'Copiar email';
-      cpE.addEventListener('click', () => copyText(p.email)); btns.appendChild(cpE);
-    }
-    item.appendChild(btns);
-    list.appendChild(item);
+    item.innerHTML = `<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:0.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)}</div><div style="font-size:0.72rem;color:var(--text2);">${p.email?esc(p.email):''}${p.leaderName?' → '+esc(p.leaderName):''}</div></div><span class="badge ${isA?'badge-active':'badge-inactive'}">${isA?'Activo':esc(p.status)}</span>`;
+    const btns = document.createElement('div'); btns.style.cssText='display:flex;gap:4px;flex-shrink:0;';
+    const cpN = document.createElement('button'); cpN.className='tree-copy-btn'; cpN.textContent='📋'; cpN.addEventListener('click', () => copyText(p.name)); btns.appendChild(cpN);
+    if (p.email) { const cpE=document.createElement('button'); cpE.className='tree-copy-btn'; cpE.textContent='📧'; cpE.addEventListener('click', () => copyText(p.email)); btns.appendChild(cpE); }
+    item.appendChild(btns); list.appendChild(item);
   });
-
   modal.appendChild(list);
-
-  const btns = document.createElement('div');
-  btns.className = 'modal-btns';
-  btns.innerHTML = `<button class="modal-btn" id="posModalClose">Cerrar</button>`;
-  modal.appendChild(btns);
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  const btns = document.createElement('div'); btns.className='modal-btns'; btns.innerHTML='<button class="modal-btn" id="posModalClose">Cerrar</button>'; modal.appendChild(btns);
+  overlay.appendChild(modal); document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
   document.getElementById('posModalClose').addEventListener('click', () => overlay.remove());
 }
 
 document.getElementById('sidePanelToggle').addEventListener('click', () => {
   sidePanelOpen = !sidePanelOpen;
-  const panel = document.getElementById('sidePanel');
-  const title = document.getElementById('sidePanelTitle');
-  const content = document.getElementById('sidePanelContent');
-  const btn = document.getElementById('sidePanelToggle');
-  if (sidePanelOpen) {
-    panel.style.width = '200px'; panel.style.minWidth = '200px';
-    btn.textContent = '◀'; title.style.display = 'inline';
-    content.style.display = 'block';
-  } else {
-    panel.style.width = '28px'; panel.style.minWidth = '28px';
-    btn.textContent = '▶'; title.style.display = 'none';
-    content.style.display = 'none';
-  }
+  const panel=document.getElementById('sidePanel'), title=document.getElementById('sidePanelTitle'), content=document.getElementById('sidePanelContent'), btn=document.getElementById('sidePanelToggle');
+  if (sidePanelOpen) { panel.style.width='200px'; panel.style.minWidth='200px'; btn.textContent='◀'; title.style.display='inline'; content.style.display='block'; }
+  else { panel.style.width='28px'; panel.style.minWidth='28px'; btn.textContent='▶'; title.style.display='none'; content.style.display='none'; }
   updateScrollbarH();
 });
 
