@@ -356,7 +356,12 @@ function cntSubFiltered(n) { let c = 0; for (const ch of n.children) c += cntFil
 function mS(n) {
   if (!searchQuery) return true;
   if (selectedSearchUid) return n.uid === selectedSearchUid;
-  const words = searchQuery.split(/\s+/);
+  const words = searchQuery.split(/\s+/).filter(Boolean);
+  const hay = ((n.name||'') + ' ' + (n.position||'') + ' ' + (n.email||'')).toLowerCase();
+  return words.every(w => hay.includes(w));
+}
+function wordMatch(n) {
+  const words = searchQuery.split(/\s+/).filter(Boolean);
   const hay = ((n.name||'') + ' ' + (n.position||'') + ' ' + (n.email||'')).toLowerCase();
   return words.every(w => hay.includes(w));
 }
@@ -368,7 +373,12 @@ function mF(n) {
   return true;
 }
 function selfMatch(n) { return mS(n) && mF(n); }
-function hasMatchBelow(n) { if (selfMatch(n)) return true; return n.children.some(ch => hasMatchBelow(ch)); }
+function hasMatchBelow(n) {
+  // When selectedSearchUid is set, use wordMatch to find path to target
+  const matches = selectedSearchUid ? (mF(n) && wordMatch(n)) : selfMatch(n);
+  if (matches) return true;
+  return n.children.some(ch => hasMatchBelow(ch));
+}
 function vis(n, ancestorMatched) {
   if (ancestorMatched && mF(n)) return true;
   if (selfMatch(n)) return true;
